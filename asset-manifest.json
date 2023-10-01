@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/taska/static/css/main.9cbc6e68.css",
+    "main.js": "/taska/static/js/main.6f18c3b1.js",
+    "index.html": "/taska/index.html",
+    "main.9cbc6e68.css.map": "/taska/static/css/main.9cbc6e68.css.map",
+    "main.6f18c3b1.js.map": "/taska/static/js/main.6f18c3b1.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9cbc6e68.css",
+    "static/js/main.6f18c3b1.js"
+  ]
+}
