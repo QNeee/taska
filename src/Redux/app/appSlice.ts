@@ -164,11 +164,13 @@ export const appSlice = createSlice({
             state.drawArrCircle.splice(payload.idx, 1);
             state.polylines = payload.newArr;
             state.allData.splice(payload.idx, 1);
-            state.allData = state.allData.filter(item => {
-                return !payload.unmatchedItems.some((unmatchedItem: IPolyLinesArr) => {
-                    return item.id === unmatchedItem.id;
+            if (payload.unmatchedItems) {
+                state.allData = state.allData.filter(item => {
+                    return !payload.unmatchedItems.some((unmatchedItem: IPolyLinesArr) => {
+                        return item.id === unmatchedItem.id;
+                    });
                 });
-            });
+            }
         }
 
     },

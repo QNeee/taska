@@ -129,6 +129,7 @@ export const Map = () => {
             />
         ));
     }, [dispatch, drawingCircle, handleMarkerDrag, handleMarkerDragEnd, redIcon, handleDragStart, drag]);
+    console.log(allDrawData);
     return (
         <div tabIndex={-1} onKeyDown={(e) => {
             if (allDrawData.length > 0) {
