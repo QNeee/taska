@@ -18,6 +18,7 @@ export interface IPolyLinesArr {
     start?: IPolyLines;
     end?: IPolyLines;
     to?: string;
+    index?: number;
 }
 export interface IDrawArr {
     type: string;
@@ -163,13 +164,19 @@ export const appSlice = createSlice({
         deleteCircle: (state, { payload }) => {
             state.drawArrCircle.splice(payload.idx, 1);
             state.polylines = payload.newArr;
+            state.restoreAllData.push(payload.item);
             state.allData.splice(payload.idx, 1);
+            state.tempItems.push({ id: payload.item.id, index: payload.idx });
             if (payload.unmatchedItems) {
                 state.allData = state.allData.filter(item => {
                     return !payload.unmatchedItems.some((unmatchedItem: IPolyLinesArr) => {
                         return item.id === unmatchedItem.id;
                     });
                 });
+                for (let i = 0; i < payload.unmatchedItems.length; i++) {
+                    state.restoreAllData.push(payload.unmatchedItems[i]);
+                    state.tempItems.push({ id: payload.unmatchedItems.id, index: payload.indexArrPolylines[i] });
+                }
             }
         }
 

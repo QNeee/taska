@@ -84,9 +84,16 @@ const ContextMenu = ({ left, top, onClose }: Iprops) => {
     }
     const handleDeleteLine = () => {
         const idx = drawCircles.findIndex(item => item.id === id);
+        const item = drawCircles[idx];
         const newArr = polyLines.filter(item => item.owner !== id && item.to !== id);
         const unmatchedItems = polyLines.filter(item => !newArr.includes(item));
-        dispatch(deleteCircle({ idx, newArr, unmatchedItems: unmatchedItems.length > 0 ? unmatchedItems : null }));
+        const indexArrPolylines = unmatchedItems.map(unmatchedItem => {
+            const index = polyLines.findIndex(item => item.id === unmatchedItem.id);
+            return index;
+        });
+
+        const unmatchedItemsArr = unmatchedItems.length > 0 ? unmatchedItems : null;
+        dispatch(deleteCircle({ idx, item, newArr, unmatchedItems: unmatchedItemsArr, indexArrPolylines }));
         onClose();
     }
     if (circleMenuOpen) {
