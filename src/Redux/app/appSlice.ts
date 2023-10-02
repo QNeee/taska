@@ -89,6 +89,11 @@ export const appSlice = createSlice({
             state.drawArrLines.push(payload);
             state.allData.push(payload);
         },
+        clearData: (state, { payload }) => {
+            state.allData = [];
+            state.tempItems = [];
+            state.restoreAllData = [];
+        },
         makeUndraw: (state, { payload }) => {
             const index = state.drawArrCircle.findIndex(item => item.id === payload.data.id);
             const index1 = state.polylines.findIndex(item => item.id === payload.data.id);
@@ -123,9 +128,16 @@ export const appSlice = createSlice({
             state.showOwnerLines = payload;
         },
         dragLine: (state, { payload }) => {
-            if (payload.index >= 0 && payload.index < state.drawArrCircle.length) {
-                state.drawArrCircle[payload.index] = payload.updatedObject;
-                state.allData[payload.index] = payload.updatedObject;
+            if (payload.indexCircle >= 0 && payload.indexCircle < state.drawArrCircle.length) {
+                state.drawArrCircle[payload.indexCircle] = payload.updatedObject;
+                state.allData[payload.indexCircle] = payload.updatedObject;
+            }
+            if (payload.newArr) {
+                state.polylines = payload.newArr;
+                state.allData = state.allData.map((item) => {
+                    const matchingItem = payload.newArr.find((newItem: any) => newItem.id === item.id);
+                    return matchingItem || item;
+                });
             }
         },
         setGeneralMenu: (state, { payload }) => {
@@ -215,4 +227,4 @@ export const appSlice = createSlice({
     }
 
 });
-export const { changePosition, setShowOwnerLines, makeRestoreUndraw, setAddLine, deleteCircle, updatePoly, addPolyLinesToArr, setId, addPolyLines, setCircleMenuOpen, setGeneral, setDrawItemLatLng, setCircleMenu, changeDrawItem, makeDrawLine, makeUndraw, setGeneralMenu, makeDrawCircle, dragLine, setDrag } = appSlice.actions;
+export const { clearData, changePosition, setShowOwnerLines, makeRestoreUndraw, setAddLine, deleteCircle, updatePoly, addPolyLinesToArr, setId, addPolyLines, setCircleMenuOpen, setGeneral, setDrawItemLatLng, setCircleMenu, changeDrawItem, makeDrawLine, makeUndraw, setGeneralMenu, makeDrawCircle, dragLine, setDrag } = appSlice.actions;

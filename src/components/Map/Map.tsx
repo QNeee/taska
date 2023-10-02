@@ -93,20 +93,38 @@ export const Map = () => {
         (e: L.LeafletEvent) => {
             const lat = e.target.getLatLng().lat;
             const lng = e.target.getLatLng().lng;
-            const index = drawingCircle.findIndex((item) => item.id === id);
-            if (index !== -1) {
+            const indexCircle = drawingCircle.findIndex(item => item.id === id);
+            let newArr;
+            if (indexCircle !== -1) {
                 const obj = {
-                    type: drawingCircle[index].type,
+                    type: drawingCircle[indexCircle].type,
                     lat,
                     lng,
-                    role: drawingCircle[index].role,
+                    role: drawingCircle[indexCircle].role,
                     id: id,
                 };
-                dispatch(dragLine({ index, updatedObject: obj }));
+                if (polyLines.length > 0) {
+                    newArr = [...polyLines];
+                    newArr.forEach((line, index) => {
+                        if (line.owner === id) {
+                            newArr[index] = {
+                                ...line,
+                                start: { lat, lng }
+                            };
+                        } else if (line.to === id) {
+                            newArr[index] = {
+                                ...line,
+                                end: { lat, lng }
+                            };
+                        }
+                    });
+
+                }
+                dispatch(dragLine({ indexCircle, newArr, updatedObject: obj }));
             }
             dispatch(setDrag(false));
         },
-        [drawingCircle, id, dispatch]
+        [drawingCircle, id, dispatch, polyLines]
     );
 
     const markers = useMemo(() => {

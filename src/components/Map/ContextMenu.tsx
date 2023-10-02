@@ -1,10 +1,9 @@
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '../../Redux/store';
-import { addPolyLines, addPolyLinesToArr, deleteCircle, makeDrawCircle, setAddLine, setGeneral } from '../../Redux/app/appSlice';
-import { getAddLine, getCircleMenuOpen, getDrawArrCircles, getDrawItemLatLng, getGeneralId, getPolyLines, getTempPoly } from '../../Redux/app/appSelectors';
+import { addPolyLines, addPolyLinesToArr, clearData, deleteCircle, makeDrawCircle, setAddLine, setGeneral } from '../../Redux/app/appSlice';
+import { getAddLine, getAllDrawData, getCircleMenuOpen, getDrawArrCircles, getDrawItemLatLng, getGeneralId, getPolyLines, getTempPoly } from '../../Redux/app/appSelectors';
 import { v4 as uuidv4 } from 'uuid';
-import { nanoid } from '@reduxjs/toolkit';
 interface Iprops {
     left: number,
     top: number,
@@ -43,10 +42,13 @@ const ContextMenu = ({ left, top, onClose }: Iprops) => {
     const circleMenuOpen = useSelector(getCircleMenuOpen);
     const polyLines = useSelector(getPolyLines);
     const drawCircles = useSelector(getDrawArrCircles);
+    const allDrawData = useSelector(getAllDrawData)
     const tempPoly = useSelector(getTempPoly);
     const id = useSelector(getGeneralId);
     const addLine = useSelector(getAddLine);
-
+    const clean = () => {
+        if (allDrawData.length === 30) return dispatch(clearData(''));
+    }
     const handleAddLineFrom = () => {
         const obj = { ...drawItemLatLng, type: 'circle', role: 'general', id };
         const objPoly = {
@@ -60,13 +62,13 @@ const ContextMenu = ({ left, top, onClose }: Iprops) => {
         dispatch(setGeneral(obj));
         dispatch(setAddLine(true));
         onClose();
-
+        clean();
     }
     const handleAddLineTo = () => {
         const objPoly = {
             ...tempPoly,
             to: id,
-            id: nanoid(),
+            id: uuidv4(),
             end: {
                 lat: drawItemLatLng.lat,
                 lng: drawItemLatLng.lng
@@ -75,12 +77,13 @@ const ContextMenu = ({ left, top, onClose }: Iprops) => {
         dispatch(addPolyLinesToArr(objPoly));
         dispatch(setAddLine(false));
         onClose();
+        clean();
     }
     const handleMenuClickCircle = () => {
         const obj = { ...drawItemLatLng, type: 'circle', id: uuidv4() };
         dispatch(makeDrawCircle(obj));
         onClose();
-
+        clean();
     }
     const handleDeleteLine = () => {
         const idx = drawCircles.findIndex(item => item.id === id);
