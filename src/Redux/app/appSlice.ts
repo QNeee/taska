@@ -19,6 +19,7 @@ export interface IPolyLinesArr {
     end?: IPolyLines;
     to?: string;
     index?: number;
+    color?: string;
 }
 export interface IDrawArr {
     type: string;
@@ -49,6 +50,7 @@ export interface IAppState {
     addLine: boolean;
     restoreAllData: IDrawArr[];
     tempItems: ITempItem[];
+    showOwnerLines: boolean;
 }
 const initialState: IAppState = {
     position: [51.505, -0.09],
@@ -70,6 +72,7 @@ const initialState: IAppState = {
     tempPoly: {},
     addLine: false,
     tempItems: [],
+    showOwnerLines: false
 }
 
 export const appSlice = createSlice({
@@ -115,6 +118,9 @@ export const appSlice = createSlice({
         },
         setDrag: (state, { payload }) => {
             state.drag = payload;
+        },
+        setShowOwnerLines: (state, { payload }) => {
+            state.showOwnerLines = payload;
         },
         dragLine: (state, { payload }) => {
             if (payload.index >= 0 && payload.index < state.drawArrCircle.length) {
@@ -209,4 +215,4 @@ export const appSlice = createSlice({
     }
 
 });
-export const { changePosition, makeRestoreUndraw, setAddLine, deleteCircle, updatePoly, addPolyLinesToArr, setId, addPolyLines, setCircleMenuOpen, setGeneral, setDrawItemLatLng, setCircleMenu, changeDrawItem, makeDrawLine, makeUndraw, setGeneralMenu, makeDrawCircle, dragLine, setDrag } = appSlice.actions;
+export const { changePosition, setShowOwnerLines, makeRestoreUndraw, setAddLine, deleteCircle, updatePoly, addPolyLinesToArr, setId, addPolyLines, setCircleMenuOpen, setGeneral, setDrawItemLatLng, setCircleMenu, changeDrawItem, makeDrawLine, makeUndraw, setGeneralMenu, makeDrawCircle, dragLine, setDrag } = appSlice.actions;

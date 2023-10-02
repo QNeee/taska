@@ -10,6 +10,7 @@ import {
     getPolyLines,
     getPosition,
     getResotredData,
+    getShowOnwerLines,
     getTempItems,
 } from '../../Redux/app/appSelectors';
 import { MapDrawing } from './MapDrawing';
@@ -22,6 +23,7 @@ import {
     setCircleMenu,
     setDrag,
     setId,
+    setShowOwnerLines,
     updatePoly,
 } from '../../Redux/app/appSlice';
 
@@ -37,6 +39,7 @@ export const Map = () => {
     const restoredData = useSelector(getResotredData);
     const tempItems = useSelector(getTempItems);
     const drag = useSelector(getDrag);
+
     const redIcon = useMemo(
         () =>
             new L.Icon({
@@ -47,11 +50,11 @@ export const Map = () => {
     );
 
     const polyLines = useSelector(getPolyLines);
+    const showOwnerLines = useSelector(getShowOnwerLines);
     const key = useMemo(() => position.join(','), [position]);
     const handleDragStart = useCallback(() => {
         dispatch(setDrag(true));
     }, [dispatch]);
-
     const handleMarkerDrag = useCallback(
         (e: L.LeafletEvent) => {
             const lat = e.target.getLatLng().lat;
@@ -85,6 +88,7 @@ export const Map = () => {
         },
         [polyLines, id, dispatch, drawingCircle]
     );
+
     const handleMarkerDragEnd = useCallback(
         (e: L.LeafletEvent) => {
             const lat = e.target.getLatLng().lat;
@@ -113,13 +117,17 @@ export const Map = () => {
                 position={[item.lat, item.lng]}
                 icon={redIcon}
                 eventHandlers={{
-                    mouseover: () => {
+                    mouseover: (e) => {
                         if (!drag) {
                             dispatch(setId(item.id));
+                        }
+                        if (!showOwnerLines) {
+                            dispatch(setShowOwnerLines(true));
                         }
                         dispatch(setCircleMenu(true));
                     },
                     mouseout: () => {
+                        dispatch(setShowOwnerLines(false));
                         dispatch(setCircleMenu(false));
                     },
                     dragstart: handleDragStart,
@@ -128,7 +136,25 @@ export const Map = () => {
                 }}
             />
         ));
-    }, [dispatch, drawingCircle, handleMarkerDrag, handleMarkerDragEnd, redIcon, handleDragStart, drag]);
+    }, [dispatch, showOwnerLines, drawingCircle, handleMarkerDrag, handleMarkerDragEnd, redIcon, handleDragStart, drag]);
+    const polylineElements = useMemo(() => {
+        if (polyLines.length > 0) {
+            return polyLines.map((item) => (
+                <Polyline
+                    positions={[
+                        [item.start?.lat as number, item.start?.lng as number],
+                        [item.end?.lat as number, item.end?.lng as number],
+                    ]}
+                    key={item.id}
+                    weight={4}
+                    pathOptions={{ color: showOwnerLines && item.owner === id ? 'green' : 'red' }}
+                />
+            ));
+
+        }
+        return null;
+    }, [id, polyLines, showOwnerLines]);
+
     return (
         <div tabIndex={-1} onKeyDown={(e) => {
             if (allDrawData.length > 0) {
@@ -163,19 +189,7 @@ export const Map = () => {
                 {drawingCircle.length > 0 ? (
                     <>
                         {markers}
-                        {polyLines.length > 0
-                            ? polyLines.map((item, index) => (
-                                <Polyline
-                                    positions={[
-                                        [item.start?.lat as number, item.start?.lng as number],
-                                        [item.end?.lat as number, item.end?.lng as number],
-                                    ]}
-                                    key={index}
-                                    color="red"
-                                    weight={4}
-                                />
-                            ))
-                            : null}
+                        {polylineElements}
                     </>
                 ) : null}
                 <MapDrawing />

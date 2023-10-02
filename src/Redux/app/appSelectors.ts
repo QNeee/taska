@@ -17,3 +17,4 @@ export const getTempPoly = (state: RootState) => state.app.tempPoly;
 export const getAddLine = (state: RootState) => state.app.addLine;
 export const getResotredData = (state: RootState) => state.app.restoreAllData;
 export const getTempItems = (state: RootState) => state.app.tempItems;
+export const getShowOnwerLines = (state: RootState) => state.app.showOwnerLines;
