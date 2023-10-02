@@ -4,6 +4,7 @@ import { AppDispatch } from '../../Redux/store';
 import { addPolyLines, addPolyLinesToArr, deleteCircle, makeDrawCircle, setAddLine, setGeneral } from '../../Redux/app/appSlice';
 import { getAddLine, getCircleMenuOpen, getDrawArrCircles, getDrawItemLatLng, getGeneralId, getPolyLines, getTempPoly } from '../../Redux/app/appSelectors';
 import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from '@reduxjs/toolkit';
 interface Iprops {
     left: number,
     top: number,
@@ -65,6 +66,7 @@ const ContextMenu = ({ left, top, onClose }: Iprops) => {
         const objPoly = {
             ...tempPoly,
             to: id,
+            id: nanoid(),
             end: {
                 lat: drawItemLatLng.lat,
                 lng: drawItemLatLng.lng
@@ -83,7 +85,8 @@ const ContextMenu = ({ left, top, onClose }: Iprops) => {
     const handleDeleteLine = () => {
         const idx = drawCircles.findIndex(item => item.id === id);
         const newArr = polyLines.filter(item => item.owner !== id && item.to !== id);
-        dispatch(deleteCircle({ idx, newArr }));
+        const unmatchedItems = polyLines.filter(item => !newArr.includes(item));
+        dispatch(deleteCircle({ idx, newArr, unmatchedItems: unmatchedItems.length > 0 ? unmatchedItems : null }));
         onClose();
     }
     if (circleMenuOpen) {

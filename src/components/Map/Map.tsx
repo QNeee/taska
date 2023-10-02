@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useSelector, useDispatch } from 'react-redux';
 import {
+    getAllDrawData,
     getDrag,
     getDrawArrCircles,
     getGeneralId,
@@ -28,6 +29,8 @@ export const Map = () => {
     const drawingCircle = useSelector(getDrawArrCircles);
     const id = useSelector(getGeneralId);
     const dispatch: AppDispatch = useDispatch();
+    const allData = useSelector(getAllDrawData);
+    console.log(allData);
     const drag = useSelector(getDrag);
     const redIcon = useMemo(
         () =>

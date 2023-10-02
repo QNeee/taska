@@ -21,6 +21,8 @@ export interface IDrawArr {
     lng: number;
     id: string;
     role?: string;
+    owner?: string;
+    to?: string;
 }
 export interface IAppState {
     position: [number, number];
@@ -40,6 +42,7 @@ export interface IAppState {
     polylines: IPolyLinesArr[];
     tempPoly: IPolyLinesArr;
     addLine: boolean;
+    restoreAllData: IDrawArr[];
 }
 const initialState: IAppState = {
     position: [51.505, -0.09],
@@ -50,6 +53,7 @@ const initialState: IAppState = {
     drawArrLines: [],
     drawArrCircle: [],
     allData: [],
+    restoreAllData: [],
     drag: false,
     menuOpen: false,
     circleMenuOpen: false,
@@ -76,11 +80,12 @@ export const appSlice = createSlice({
             state.allData.push(payload);
         },
         makeUndraw: (state, { payload }) => {
-            const index = state.drawArrLines.findIndex(item => item === payload);
-            if (payload.type === 'line') {
-                state.drawArrLines.splice(index, 1);
-            } else {
+            const index = state.drawArrCircle.findIndex(item => item.id === payload.id);
+            const index1 = state.polylines.findIndex(item => item.id === payload.id);
+            if (index !== -1) {
                 state.drawArrCircle.splice(index, 1);
+            } else {
+                state.polylines.splice(index1, 1);
             }
             state.allData.splice(state.allData.length - 1, 1);
         },
@@ -120,7 +125,6 @@ export const appSlice = createSlice({
             }
         },
         setId: (state, { payload }) => {
-            console.log(payload);
             state.generalId = payload
         },
         addPolyLines: (state, { payload }) => {
@@ -128,9 +132,9 @@ export const appSlice = createSlice({
         },
         addPolyLinesToArr: (state, { payload }) => {
             state.polylines.push(payload);
+            state.allData.push(payload);
         },
         updatePoly: (state, { payload }) => {
-            console.log(payload);
             state.polylines = payload.newArr;
             state.drawArrCircle.splice(payload.indexCircle, 1, payload.obj1);
         },
@@ -140,6 +144,12 @@ export const appSlice = createSlice({
         deleteCircle: (state, { payload }) => {
             state.drawArrCircle.splice(payload.idx, 1);
             state.polylines = payload.newArr;
+            state.allData.splice(payload.idx, 1);
+            state.allData = state.allData.filter(item => {
+                return !payload.unmatchedItems.some((unmatchedItem: IPolyLinesArr) => {
+                    return item.id === unmatchedItem.id;
+                });
+            });
         }
 
     },

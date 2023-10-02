@@ -40,8 +40,13 @@ export const MapDrawing = () => {
         keydown: (e) => {
             console.log('keydown');
             if (allDrawData.length > 0) {
-                if (e.originalEvent.ctrlKey && e.originalEvent.key === 'z') {
+                if (e.originalEvent.ctrlKey && e.originalEvent.key === 'z' && !e.originalEvent.shiftKey) {
                     dispatch(makeUndraw(allDrawData[allDrawData.length - 1]));
+                }
+
+                if (e.originalEvent.ctrlKey && e.originalEvent.shiftKey && e.originalEvent.key === 'Z') {
+                    // dispatch(makeUndraw(allDrawData[allDrawData.length - 1]));
+                    console.log('dd');
                 }
             }
         },
