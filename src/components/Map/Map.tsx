@@ -9,12 +9,16 @@ import {
     getGeneralId,
     getPolyLines,
     getPosition,
+    getResotredData,
+    getTempItems,
 } from '../../Redux/app/appSelectors';
 import { MapDrawing } from './MapDrawing';
 import L from 'leaflet';
 import { AppDispatch } from '../../Redux/store';
 import {
     dragLine,
+    makeRestoreUndraw,
+    makeUndraw,
     setCircleMenu,
     setDrag,
     setId,
@@ -29,8 +33,9 @@ export const Map = () => {
     const drawingCircle = useSelector(getDrawArrCircles);
     const id = useSelector(getGeneralId);
     const dispatch: AppDispatch = useDispatch();
-    const allData = useSelector(getAllDrawData);
-    console.log(allData);
+    const allDrawData = useSelector(getAllDrawData);
+    const restoredData = useSelector(getResotredData);
+    const tempItems = useSelector(getTempItems);
     const drag = useSelector(getDrag);
     const redIcon = useMemo(
         () =>
@@ -124,14 +129,33 @@ export const Map = () => {
             />
         ));
     }, [dispatch, drawingCircle, handleMarkerDrag, handleMarkerDragEnd, redIcon, handleDragStart, drag]);
-
     return (
-        <div>
+        <div tabIndex={-1} onKeyDown={(e) => {
+            if (allDrawData.length > 0) {
+                if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+                    // const newArr = [...allDrawData];
+                    // const item = newArr.pop();
+                    const item = allDrawData[allDrawData.length - 1];
+                    dispatch(makeUndraw({ data: allDrawData[allDrawData.length - 1], item }));
+                }
+            }
+            if (restoredData.length > 0) {
+                if (e.ctrlKey && e.shiftKey && e.key === 'Z') {
+                    // const newArr = [...tempItems];
+                    // const item = newArr.pop();
+                    const item = tempItems[tempItems.length - 1];
+                    const newItem = restoredData[restoredData.length - 1];
+                    dispatch(makeRestoreUndraw({ index: item?.index, newItem }));
+                }
+            }
+        }}>
             <MapContainer
                 key={key}
                 center={position}
                 zoom={13}
                 style={{ height: '400px', width: '100%' }}
+
+
             >
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

@@ -15,3 +15,5 @@ export const getGeneralId = (state: RootState) => state.app.generalId;
 export const getPolyLines = (state: RootState) => state.app.polylines;
 export const getTempPoly = (state: RootState) => state.app.tempPoly;
 export const getAddLine = (state: RootState) => state.app.addLine;
+export const getResotredData = (state: RootState) => state.app.restoreAllData;
+export const getTempItems = (state: RootState) => state.app.tempItems;

@@ -8,6 +8,10 @@ export interface IPolyLines {
     lat: number,
     lng: number
 }
+export interface ITempItem {
+    id: string,
+    index: number
+}
 export interface IPolyLinesArr {
     id?: string;
     owner?: string;
@@ -43,6 +47,7 @@ export interface IAppState {
     tempPoly: IPolyLinesArr;
     addLine: boolean;
     restoreAllData: IDrawArr[];
+    tempItems: ITempItem[];
 }
 const initialState: IAppState = {
     position: [51.505, -0.09],
@@ -62,7 +67,8 @@ const initialState: IAppState = {
     generalId: '',
     polylines: [],
     tempPoly: {},
-    addLine: false
+    addLine: false,
+    tempItems: [],
 }
 
 export const appSlice = createSlice({
@@ -80,14 +86,27 @@ export const appSlice = createSlice({
             state.allData.push(payload);
         },
         makeUndraw: (state, { payload }) => {
-            const index = state.drawArrCircle.findIndex(item => item.id === payload.id);
-            const index1 = state.polylines.findIndex(item => item.id === payload.id);
+            const index = state.drawArrCircle.findIndex(item => item.id === payload.data.id);
+            const index1 = state.polylines.findIndex(item => item.id === payload.data.id);
             if (index !== -1) {
                 state.drawArrCircle.splice(index, 1);
             } else {
                 state.polylines.splice(index1, 1);
             }
+            state.restoreAllData.push(state.allData[state.allData.length - 1]);
             state.allData.splice(state.allData.length - 1, 1);
+            state.tempItems.push({ id: payload.item.id, index: payload.item.type ? index : index1 });
+        },
+        makeRestoreUndraw: (state, { payload }) => {
+            const { index, newItem } = payload;
+            if (newItem.type) {
+                state.drawArrCircle.splice(index, 0, newItem);
+            } else {
+                state.polylines.splice(index, 0, newItem);
+            }
+            state.allData.push(newItem);
+            state.restoreAllData.splice(state.restoreAllData.length - 1, 1);
+            state.tempItems.splice(state.tempItems.length - 1, 1);
         },
         makeDrawCircle: (state, { payload }) => {
             state.drawArrCircle.push(payload);
@@ -181,4 +200,4 @@ export const appSlice = createSlice({
     }
 
 });
-export const { changePosition, setAddLine, deleteCircle, updatePoly, addPolyLinesToArr, setId, addPolyLines, setCircleMenuOpen, setGeneral, setDrawItemLatLng, setCircleMenu, changeDrawItem, makeDrawLine, makeUndraw, setGeneralMenu, makeDrawCircle, dragLine, setDrag } = appSlice.actions;
+export const { changePosition, makeRestoreUndraw, setAddLine, deleteCircle, updatePoly, addPolyLinesToArr, setId, addPolyLines, setCircleMenuOpen, setGeneral, setDrawItemLatLng, setCircleMenu, changeDrawItem, makeDrawLine, makeUndraw, setGeneralMenu, makeDrawCircle, dragLine, setDrag } = appSlice.actions;
