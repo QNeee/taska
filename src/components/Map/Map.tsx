@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useSelector, useDispatch } from 'react-redux';
@@ -11,33 +11,31 @@ import {
     getPosition,
     getResotredData,
     getShowOnwerLines,
-    getTempItems,
 } from '../../Redux/app/appSelectors';
 import { MapDrawing } from './MapDrawing';
 import L from 'leaflet';
 import { AppDispatch } from '../../Redux/store';
 import {
-    dragLine,
     makeRestoreUndraw,
     makeUndraw,
     setCircleMenu,
-    setDrag,
     setId,
     setShowOwnerLines,
-    updatePoly,
 } from '../../Redux/app/appSlice';
+import { MapInterface } from '../../interface/MapInterface';
 
 const iconUrl =
     'https://c0.klipartz.com/pngpicture/720/285/gratis-png-punto-rojo-redondo-bandera-de-japon-bandera-de-japon-s-thumbnail.png';
 
 export const Map = () => {
+    const [isCtrlPressed, setIsCtrlPressed] = useState(false);
+    const [isShiftPressed, setIsShiftPressed] = useState(false);
     const position = useSelector(getPosition);
     const drawingCircle = useSelector(getDrawArrCircles);
     const id = useSelector(getGeneralId);
     const dispatch: AppDispatch = useDispatch();
     const allDrawData = useSelector(getAllDrawData);
     const restoredData = useSelector(getResotredData);
-    const tempItems = useSelector(getTempItems);
     const drag = useSelector(getDrag);
 
     const redIcon = useMemo(
@@ -52,81 +50,79 @@ export const Map = () => {
     const polyLines = useSelector(getPolyLines);
     const showOwnerLines = useSelector(getShowOnwerLines);
     const key = useMemo(() => position.join(','), [position]);
-    const handleDragStart = useCallback(() => {
-        dispatch(setDrag(true));
-    }, [dispatch]);
-    const handleMarkerDrag = useCallback(
-        (e: L.LeafletEvent) => {
-            const lat = e.target.getLatLng().lat;
-            const lng = e.target.getLatLng().lng;
-            const indexCircle = drawingCircle.findIndex(item => item.id === id);
-            if (polyLines.length > 0) {
-                if (indexCircle !== -1) {
-                    const newArr = [...polyLines];
-                    newArr.forEach((line, index) => {
-                        if (line.owner === id) {
-                            newArr[index] = {
-                                ...line,
-                                start: { lat, lng }
-                            };
-                        } else if (line.to === id) {
-                            newArr[index] = {
-                                ...line,
-                                end: { lat, lng }
-                            };
-                        }
-                    });
+    // const handleDragStart = useCallback(() => {
+    //     dispatch(setDrag(true));
+    // }, [dispatch]);
+    // const handleMarkerDrag = useCallback(
+    //     (e: L.LeafletEvent) => {
+    //         const lat = e.target.getLatLng().lat;
+    //         const lng = e.target.getLatLng().lng;
+    //         const indexCircle = drawingCircle.findIndex(item => item.id === id);
+    //         if (indexCircle !== -1) {
+    //             const newArr = [...polyLines];
+    //             newArr.forEach((line, index) => {
+    //                 if (line.owner === id) {
+    //                     newArr[index] = {
+    //                         ...line,
+    //                         start: { lat, lng }
+    //                     };
+    //                 } else if (line.to === id) {
+    //                     newArr[index] = {
+    //                         ...line,
+    //                         end: { lat, lng }
+    //                     };
+    //                 }
+    //             });
 
-                    const obj1 = {
-                        ...drawingCircle[indexCircle],
-                        lat,
-                        lng
-                    }
-                    dispatch(updatePoly({ indexCircle, newArr, obj1 }));
-                }
-            }
-        },
-        [polyLines, id, dispatch, drawingCircle]
-    );
+    //             const obj1 = {
+    //                 ...drawingCircle[indexCircle],
+    //                 lat,
+    //                 lng
+    //             };
 
-    const handleMarkerDragEnd = useCallback(
-        (e: L.LeafletEvent) => {
-            const lat = e.target.getLatLng().lat;
-            const lng = e.target.getLatLng().lng;
-            const indexCircle = drawingCircle.findIndex(item => item.id === id);
-            let newArr;
-            if (indexCircle !== -1) {
-                const obj = {
-                    type: drawingCircle[indexCircle].type,
-                    lat,
-                    lng,
-                    role: drawingCircle[indexCircle].role,
-                    id: id,
-                };
-                if (polyLines.length > 0) {
-                    newArr = [...polyLines];
-                    newArr.forEach((line, index) => {
-                        if (line.owner === id) {
-                            newArr[index] = {
-                                ...line,
-                                start: { lat, lng }
-                            };
-                        } else if (line.to === id) {
-                            newArr[index] = {
-                                ...line,
-                                end: { lat, lng }
-                            };
-                        }
-                    });
-
-                }
-                dispatch(dragLine({ indexCircle, newArr, updatedObject: obj }));
-            }
-            dispatch(setDrag(false));
-        },
-        [drawingCircle, id, dispatch, polyLines]
-    );
-
+    //             dispatch(updatePoly({ indexCircle, newArr, obj1 }));
+    //         }
+    //     },
+    //     [drawingCircle, id, polyLines, dispatch]
+    // );
+    // const handleMarkerDragEnd = useCallback(
+    //     (e: L.LeafletEvent) => {
+    //         const lat = e.target.getLatLng().lat;
+    //         const lng = e.target.getLatLng().lng;
+    //         const indexCircle = drawingCircle.findIndex(item => item.id === id);
+    //         let newArr;
+    //         let indexAllDataCircle = null;
+    //         if (indexCircle !== -1) {
+    //             const obj = {
+    //                 ...drawingCircle[indexCircle],
+    //                 lat,
+    //                 lng
+    //             };
+    //             if (polyLines.length > 0) {
+    //                 newArr = [...polyLines];
+    //                 newArr.forEach((line, index) => {
+    //                     if (line.owner === id) {
+    //                         newArr[index] = {
+    //                             ...line,
+    //                             start: { lat, lng }
+    //                         };
+    //                     } else if (line.to === id) {
+    //                         newArr[index] = {
+    //                             ...line,
+    //                             end: { lat, lng }
+    //                         };
+    //                     }
+    //                 });
+    //             }
+    //             if (allDrawData.length > 0) {
+    //                 indexAllDataCircle = allDrawData.findIndex(item => item.id === id);
+    //             }
+    //             dispatch(dragLine({ indexCircle, indexAllDataCircle, newArr, updatedObject: obj }));
+    //         }
+    //         dispatch(setDrag(false));
+    //     },
+    //     [drawingCircle, dispatch, id, polyLines, allDrawData]
+    // );
     const markers = useMemo(() => {
         return drawingCircle.map((item) => (
             <Marker
@@ -148,13 +144,13 @@ export const Map = () => {
                         dispatch(setShowOwnerLines(false));
                         dispatch(setCircleMenu(false));
                     },
-                    dragstart: handleDragStart,
-                    drag: handleMarkerDrag,
-                    dragend: handleMarkerDragEnd,
+                    dragstart: (e) => MapInterface.handleDragStart(dispatch),
+                    drag: (e) => MapInterface.handleMarkerDrag(e, dispatch, polyLines, drawingCircle, id),
+                    dragend: (e) => MapInterface.handleMarkerDragEnd(e, dispatch, polyLines, drawingCircle, id, allDrawData),
                 }}
             />
         ));
-    }, [dispatch, showOwnerLines, drawingCircle, handleMarkerDrag, handleMarkerDragEnd, redIcon, handleDragStart, drag]);
+    }, [drawingCircle, redIcon, drag, showOwnerLines, dispatch, polyLines, id, allDrawData]);
     const polylineElements = useMemo(() => {
         if (polyLines.length > 0) {
             return polyLines.map((item) => (
@@ -172,46 +168,65 @@ export const Map = () => {
         }
         return null;
     }, [id, polyLines, showOwnerLines]);
-
-    return (
-        <div tabIndex={-1} onKeyDown={(e) => {
-            if (allDrawData.length > 0) {
-                if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
-                    // const newArr = [...allDrawData];
-                    // const item = newArr.pop();
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Control') {
+                setIsCtrlPressed(true);
+            } else if (e.key === 'Shift') {
+                setIsShiftPressed(true);
+            } else if (isCtrlPressed && (e.key === 'z' || e.key === 'я') && !isShiftPressed) {
+                if (allDrawData.length > 0) {
                     const item = allDrawData[allDrawData.length - 1];
-                    dispatch(makeUndraw({ data: allDrawData[allDrawData.length - 1], item }));
+                    dispatch(makeUndraw(item));
+                }
+            } else if (isCtrlPressed && isShiftPressed && (e.key === 'Z' || e.key === 'Я')) {
+                if (restoredData.length > 0) {
+                    const item = restoredData[restoredData.length - 1];
+                    dispatch(makeRestoreUndraw(item));
+
                 }
             }
-            if (restoredData.length > 0) {
-                if (e.ctrlKey && e.shiftKey && e.key === 'Z') {
-                    // const newArr = [...tempItems];
-                    // const item = newArr.pop();
-                    const item = tempItems[tempItems.length - 1];
-                    const newItem = restoredData[restoredData.length - 1];
-                    dispatch(makeRestoreUndraw({ index: item?.index, newItem }));
-                }
+        };
+
+        const handleKeyUp = (e: KeyboardEvent) => {
+            if (e.key === 'Control') {
+                setIsCtrlPressed(false);
+            } else if (e.key === 'Shift') {
+                setIsShiftPressed(false);
             }
-        }}>
-            <MapContainer
-                key={key}
-                center={position}
-                zoom={13}
-                style={{ height: '400px', width: '100%' }}
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
+    }, [allDrawData, dispatch, isCtrlPressed, isShiftPressed, restoredData]);
+    return (
+        <>
+            <div>
+                <MapContainer
+                    key={key}
+                    center={position}
+                    zoom={13}
+                    style={{ height: '400px', width: '100%' }}
 
 
-            >
-                <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                {drawingCircle.length > 0 ? (
-                    <>
-                        {markers}
-                        {polylineElements}
-                    </>
-                ) : null}
-                <MapDrawing />
-            </MapContainer>
-        </div>
+                >
+                    <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    {drawingCircle.length > 0 ? (
+                        <>
+                            {markers}
+                            {polylineElements}
+                        </>
+                    ) : null}
+                    <MapDrawing />
+                </MapContainer>
+            </div>
+        </>
     );
 };

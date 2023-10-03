@@ -95,27 +95,44 @@ export const appSlice = createSlice({
             state.restoreAllData = [];
         },
         makeUndraw: (state, { payload }) => {
-            const index = state.drawArrCircle.findIndex(item => item.id === payload.data.id);
-            const index1 = state.polylines.findIndex(item => item.id === payload.data.id);
-            if (index !== -1) {
-                state.drawArrCircle.splice(index, 1);
+            if (payload.type) {
+                const removedCircle = state.drawArrCircle.pop();
+                if (removedCircle) {
+                    const indexToRemove = state.polylines.findIndex(item => item.id === removedCircle.id);
+                    if (indexToRemove !== -1) {
+                        state.polylines.splice(indexToRemove, 1);
+                    }
+                    state.restoreAllData.push(removedCircle);
+                    const indexToRemoveFromAllData = state.allData.findIndex(item => item.id === removedCircle.id);
+                    if (indexToRemoveFromAllData !== -1) {
+                        state.allData.splice(indexToRemoveFromAllData, 1);
+                    }
+                }
             } else {
-                state.polylines.splice(index1, 1);
+                const removedPolyline = state.polylines.pop();
+                if (removedPolyline) {
+                    const indexToRemove = state.drawArrCircle.findIndex(item => item.id === removedPolyline.id);
+                    if (indexToRemove !== -1) {
+                        state.drawArrCircle.splice(indexToRemove, 1);
+                    }
+                    state.restoreAllData.push(removedPolyline as IDrawArr);
+                    const indexToRemoveFromAllData = state.allData.findIndex(item => item.id === removedPolyline.id);
+                    if (indexToRemoveFromAllData !== -1) {
+                        console.log(indexToRemoveFromAllData);
+                        state.allData.splice(indexToRemoveFromAllData, 1);
+                    }
+                }
             }
-            state.restoreAllData.push(state.allData[state.allData.length - 1]);
-            state.allData.splice(state.allData.length - 1, 1);
-            state.tempItems.push({ id: payload.item.id, index: payload.item.type ? index : index1 });
         },
+
         makeRestoreUndraw: (state, { payload }) => {
-            const { index, newItem } = payload;
-            if (newItem.type) {
-                state.drawArrCircle.splice(index, 0, newItem);
+            const item = state.restoreAllData.pop();
+            if (payload.type) {
+                state.drawArrCircle.push(item as IDrawArr);
             } else {
-                state.polylines.splice(index, 0, newItem);
+                state.polylines.push(item as IDrawArr);
             }
-            state.allData.push(newItem);
-            state.restoreAllData.splice(state.restoreAllData.length - 1, 1);
-            state.tempItems.splice(state.tempItems.length - 1, 1);
+            state.allData.push(item as IDrawArr);
         },
         makeDrawCircle: (state, { payload }) => {
             state.drawArrCircle.push(payload);
@@ -129,10 +146,10 @@ export const appSlice = createSlice({
         },
         dragLine: (state, { payload }) => {
             if (payload.indexCircle >= 0 && payload.indexCircle < state.drawArrCircle.length) {
-                state.drawArrCircle[payload.indexCircle] = payload.updatedObject;
-                state.allData[payload.indexCircle] = payload.updatedObject;
+                state.drawArrCircle[payload.indexCircle] = payload.obj;
+                state.allData[!payload.allDataIndex ? payload.indexCircle : payload.allDataIndex] = payload.obj;
             }
-            if (payload.newArr) {
+            if (payload.newArr && payload.newArr.length > 0) {
                 state.polylines = payload.newArr;
                 state.allData = state.allData.map((item) => {
                     const matchingItem = payload.newArr.find((newItem: any) => newItem.id === item.id);
@@ -173,29 +190,42 @@ export const appSlice = createSlice({
             state.allData.push(payload);
         },
         updatePoly: (state, { payload }) => {
-            state.polylines = payload.newArr;
-            state.drawArrCircle.splice(payload.indexCircle, 1, payload.obj1);
+            state.drawArrCircle.splice(payload.indexCircle, 1, payload.obj);
+            if (payload.newArr.length > 0) {
+                state.polylines = payload.newArr;
+            }
         },
         setAddLine: (state, { payload }) => {
             state.addLine = payload;
         },
         deleteCircle: (state, { payload }) => {
-            state.drawArrCircle.splice(payload.idx, 1);
-            state.polylines = payload.newArr;
-            state.restoreAllData.push(payload.item);
-            state.allData.splice(payload.idx, 1);
-            state.tempItems.push({ id: payload.item.id, index: payload.idx });
-            if (payload.unmatchedItems) {
-                state.allData = state.allData.filter(item => {
-                    return !payload.unmatchedItems.some((unmatchedItem: IPolyLinesArr) => {
-                        return item.id === unmatchedItem.id;
-                    });
-                });
-                for (let i = 0; i < payload.unmatchedItems.length; i++) {
-                    state.restoreAllData.push(payload.unmatchedItems[i]);
-                    state.tempItems.push({ id: payload.unmatchedItems.id, index: payload.indexArrPolylines[i] });
-                }
+            state.restoreAllData.push(state.drawArrCircle[payload.index]);
+            state.allData.splice(payload.index, 1);
+            state.drawArrCircle.splice(payload.index, 1);
+            if (payload.polyIndexes.length > 0) {
+                const itemsToAdd = payload.polyIndexes.map((index: number) => state.polylines[index]);
+                state.restoreAllData = [...state.restoreAllData, ...itemsToAdd];
+                state.polylines = state.polylines.filter((_, index) => !payload.polyIndexes.includes(index));
+                const startIndex = (state.allData.length - 1) - (payload.polyIndexes.length - 1);
+                const deleteCount = payload.polyIndexes.length;
+                state.allData.splice(startIndex, deleteCount);
             }
+            // state.drawArrCircle.splice(payload.idx, 1);
+            // state.polylines = payload.newArr;
+            // state.restoreAllData.push(payload.item);
+            // state.allData.splice(payload.idx, 1);
+            // state.tempItems.push({ id: payload.item.id, index: payload.idx });
+            // if (payload.unmatchedItems) {
+            //     state.allData = state.allData.filter(item => {
+            //         return !payload.unmatchedItems.some((unmatchedItem: IPolyLinesArr) => {
+            //             return item.id === unmatchedItem.id;
+            //         });
+            //     });
+            //     for (let i = 0; i < payload.unmatchedItems.length; i++) {
+            //         state.restoreAllData.push(payload.unmatchedItems[i]);
+            //         state.tempItems.push({ id: payload.unmatchedItems.id, index: payload.indexArrPolylines[i] });
+            //     }
+            // }
         }
 
     },
