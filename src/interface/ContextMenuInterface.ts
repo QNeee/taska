@@ -1,6 +1,7 @@
-import { Line } from "../Line";
-import { IMuftaData, Mufta } from "../Mufta";
-import { IDrawArr, IPolyLinesArr, setAddLine } from "../Redux/app/appSlice";
+import { LeafletMouseEvent } from "leaflet";
+import { IPolyLinesArr, setClickAccept, setContextMenuXY, setCubeMenu, setDrawItemLatLng, setDrawLine, setGeneralMenu, setMuftaMenuOpen, setPolylineMenuOpen } from "../Redux/app/appSlice";
+import { Lines } from "../Line";
+
 
 export interface IDrawItemLatLng {
     lat: number,
@@ -8,37 +9,28 @@ export interface IDrawItemLatLng {
 }
 
 export class ContextMenuInterface {
-    static handleMenuClickMufta(obj: IMuftaData, dispatch: Function) {
-        Mufta.add(obj, dispatch);
-    }
-    static handleAddLineFrom(latlng: IDrawItemLatLng, dispatch: Function, id: string) {
-        Line.makeTempPoly(latlng, dispatch, id);
-        dispatch(setAddLine(true));
-    }
-    static handleDeleteMufta(muftsArr: IDrawArr[], polyArr: IPolyLinesArr[], id: string, dispatch: Function) {
-        const idx = muftsArr.findIndex(item => item.id === id);
-        const item = muftsArr[idx];
-        const polylinesIndexOwner = polyArr.map((line, index) => {
-            if (line.owner === item.id) {
-                return index;
-            } else {
-                return -1;
-            }
-        }).filter(index => index !== -1);
-        const polylinesIndexTo = polyArr.map((line, index) => {
-            if (line.to === item.id) {
-                return index;
-            } else {
-                return -1;
-            }
-        }).filter(index => index !== -1);
-        const indexesPoly = [...polylinesIndexOwner, ...polylinesIndexTo];
-        Mufta.deleteMufta(idx, indexesPoly, dispatch);
-    }
-    static handleAddLineTo(tempPoly: IPolyLinesArr, latlng: IDrawItemLatLng, id: string, dispatch: Function) {
-        Line.makePoly(tempPoly, latlng, dispatch, id);
-        dispatch(setAddLine(false));
-    }
 
+    static handleClick(e: LeafletMouseEvent, dispatch: Function, lineDraw: boolean, clickAccept: boolean, tempPoly: IPolyLinesArr) {
+        if (lineDraw && clickAccept) {
+            const latlng = e.latlng;
+            Lines.makePoly(tempPoly, latlng, dispatch);
+            dispatch(setDrawLine(false));
+            dispatch(setClickAccept(false));
+        }
+    }
+    static handleContextMenu(e: LeafletMouseEvent, dispatch: Function, generalMEnu: boolean, itemMenu: boolean, cubeMenu: boolean) {
+        e.originalEvent.preventDefault();
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        const obj = { lat, lng };
+        dispatch(setDrawItemLatLng(obj));
+        dispatch(setContextMenuXY({ x: e.originalEvent.clientX, y: e.originalEvent.clientY }));
+        if (!generalMEnu && !itemMenu && !cubeMenu) {
+            dispatch(setMuftaMenuOpen(false));
+            dispatch(setPolylineMenuOpen(false));
+            dispatch(setCubeMenu(false));
+            dispatch(setGeneralMenu(true));
+        }
 
+    }
 }

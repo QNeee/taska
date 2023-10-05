@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { fetchByCord, fetchByName } from './appOperations';
+import { ICube } from '../../Cube';
 export interface IDataResults {
     formatted: string,
     geometry: { lat: number, lng: number }
@@ -20,6 +21,9 @@ export interface IPolyLinesArr {
     to?: string;
     index?: number;
     color?: string;
+    middle?: IPolyLines;
+    weight?: null;
+    cubeId?: string;
 }
 export interface IDrawArr {
     type: string;
@@ -41,16 +45,28 @@ export interface IAppState {
     allData: IDrawArr[];
     drag: boolean;
     menuOpen: boolean;
+    muftaMenuOpen: boolean;
+    polylineMenuOpen: boolean;
     drawItemLatLng: { lat: number, lng: number };
     circleMenu: boolean;
     circleMenuOpen: boolean;
-    generalId: string;
+    id: string;
     polylines: IPolyLinesArr[];
+    cubes: ICube[],
     tempPoly: IPolyLinesArr;
     addLine: boolean;
     restoreAllData: IDrawArr[];
     tempItems: ITempItem[];
     showOwnerLines: boolean;
+    polylineWeight: number;
+    contextMenuX: number;
+    contextMenuY: number;
+    itemMenu: boolean;
+    dragCube: boolean;
+    drawLine: boolean;
+    cursor: string;
+    clickAccept: boolean;
+    cubeMenu: boolean;
 }
 const initialState: IAppState = {
     position: [51.505, -0.09],
@@ -62,17 +78,29 @@ const initialState: IAppState = {
     drawArrCircle: [],
     allData: [],
     restoreAllData: [],
+    cubes: [],
     drag: false,
     menuOpen: false,
+    muftaMenuOpen: false,
+    polylineMenuOpen: false,
     circleMenuOpen: false,
     drawItemLatLng: { lat: 0, lng: 0 },
     circleMenu: false,
-    generalId: '',
+    id: '',
     polylines: [],
     tempPoly: {},
     addLine: false,
     tempItems: [],
-    showOwnerLines: false
+    showOwnerLines: false,
+    polylineWeight: 4,
+    contextMenuX: 0,
+    contextMenuY: 0,
+    itemMenu: false,
+    dragCube: false,
+    drawLine: false,
+    cursor: 'default',
+    clickAccept: false,
+    cubeMenu: false,
 }
 
 export const appSlice = createSlice({
@@ -85,9 +113,21 @@ export const appSlice = createSlice({
         changeDrawItem: (state, { payload }) => {
             state.drawItem = payload;
         },
+        setCursor: (state, { payload }) => {
+            state.cursor = payload;
+        },
+        setClickAccept: (state, { payload }) => {
+            state.clickAccept = payload;
+        },
+        setCubeMenu: (state, { payload }) => {
+            state.cubeMenu = payload;
+        },
         makeDrawLine: (state, { payload }) => {
             state.drawArrLines.push(payload);
             state.allData.push(payload);
+        },
+        setDrawLine: (state, { payload }) => {
+            state.drawLine = payload;
         },
         clearData: (state, { payload }) => {
             state.allData = [];
@@ -134,6 +174,22 @@ export const appSlice = createSlice({
             }
             state.allData.push(item as IDrawArr);
         },
+        makeDrawCube: (state, { payload }) => {
+            state.cubes.push(payload.obj);
+            state.polylines = payload.newArr;
+            state.allData.push(payload.obj);
+            // if (payload.newArr && payload.newArr.length > 0) {
+            //     state.cubes.push(payload.obj);
+            //     state.polylines = payload.newArr;
+            // } else {
+            //     state.polylines.splice(payload.index, 1);
+            //     state.polylines.push(payload.lineOwner);
+            //     state.polylines.push(payload.lineTo);
+            //     state.allData.push(payload.obj);
+            //     state.cubes.push(payload.obj);
+            // }
+
+        },
         makeDrawCircle: (state, { payload }) => {
             state.drawArrCircle.push(payload);
             state.allData.push(payload);
@@ -144,9 +200,16 @@ export const appSlice = createSlice({
         setShowOwnerLines: (state, { payload }) => {
             state.showOwnerLines = payload;
         },
+        setItemMenu: (state, { payload }) => {
+            state.itemMenu = payload;
+        },
         dragLine: (state, { payload }) => {
             if (payload.indexCircle >= 0 && payload.indexCircle < state.drawArrCircle.length) {
-                state.drawArrCircle[payload.indexCircle] = payload.obj;
+                if (payload.obj.type === 'mufta') {
+                    state.drawArrCircle[payload.indexCircle] = payload.obj;
+                } else if (payload.obj.type === 'cube') {
+                    state.cubes[payload.indexCircle] = payload.obj;
+                }
                 state.allData[!payload.allDataIndex ? payload.indexCircle : payload.allDataIndex] = payload.obj;
             }
             if (payload.newArr && payload.newArr.length > 0) {
@@ -160,11 +223,9 @@ export const appSlice = createSlice({
         setGeneralMenu: (state, { payload }) => {
             state.menuOpen = payload;
         },
-        setCircleMenu: (state, { payload }) => {
-            state.circleMenu = payload;
-        },
-        setCircleMenuOpen: (state, { payload }) => {
-            state.circleMenuOpen = payload;
+        setContextMenuXY: (state, { payload }) => {
+            state.contextMenuX = payload.x;
+            state.contextMenuY = payload.y;
         },
         setDrawItemLatLng: (state, { payload }) => {
             state.drawItemLatLng.lat = payload.lat;
@@ -180,7 +241,13 @@ export const appSlice = createSlice({
             }
         },
         setId: (state, { payload }) => {
-            state.generalId = payload
+            state.id = payload
+        },
+        setDragCube: (state, { payload }) => {
+            state.dragCube = payload;
+        },
+        changePolylineWeight: (state, { payload }) => {
+            state.polylines.splice(payload.index, 1, payload.newItem);
         },
         addPolyLines: (state, { payload }) => {
             state.tempPoly = payload
@@ -190,13 +257,23 @@ export const appSlice = createSlice({
             state.allData.push(payload);
         },
         updatePoly: (state, { payload }) => {
-            state.drawArrCircle.splice(payload.indexCircle, 1, payload.obj);
+            if (payload.obj.type === 'mufta') {
+                state.drawArrCircle.splice(payload.indexCircle, 1, payload.obj);
+            } else if (payload.obj.type === 'cube') {
+                state.cubes.splice(payload.indexCircle, 1, payload.obj)
+            }
             if (payload.newArr.length > 0) {
                 state.polylines = payload.newArr;
             }
         },
         setAddLine: (state, { payload }) => {
             state.addLine = payload;
+        },
+        setMuftaMenuOpen: (state, { payload }) => {
+            state.muftaMenuOpen = payload;
+        },
+        setPolylineMenuOpen: (state, { payload }) => {
+            state.polylineMenuOpen = payload;
         },
         deleteCircle: (state, { payload }) => {
             state.restoreAllData.push(state.drawArrCircle[payload.index]);
@@ -257,4 +334,4 @@ export const appSlice = createSlice({
     }
 
 });
-export const { clearData, changePosition, setShowOwnerLines, makeRestoreUndraw, setAddLine, deleteCircle, updatePoly, addPolyLinesToArr, setId, addPolyLines, setCircleMenuOpen, setGeneral, setDrawItemLatLng, setCircleMenu, changeDrawItem, makeDrawLine, makeUndraw, setGeneralMenu, makeDrawCircle, dragLine, setDrag } = appSlice.actions;
+export const { setCubeMenu, setClickAccept, setCursor, setDrawLine, setItemMenu, setDragCube, makeDrawCube, setContextMenuXY, setPolylineMenuOpen, setMuftaMenuOpen, clearData, changePolylineWeight, changePosition, setShowOwnerLines, makeRestoreUndraw, setAddLine, deleteCircle, updatePoly, addPolyLinesToArr, setId, addPolyLines, setGeneral, setDrawItemLatLng, changeDrawItem, makeDrawLine, makeUndraw, setGeneralMenu, makeDrawCircle, dragLine, setDrag } = appSlice.actions;

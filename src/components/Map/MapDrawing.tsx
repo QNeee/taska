@@ -1,46 +1,29 @@
 import { useMapEvents } from "react-leaflet";
 import { useDispatch, useSelector } from 'react-redux';
-import { getCircleMenu, getCircleMenuOpen, getMenu, } from "../../Redux/app/appSelectors";
+import { getClickAccept, getContextMenuX, getContextMenuY, getCubeMenu, getDrawLine, getGeneralMenu, getItemMenu, getMuftaMenuOpen, getPolylineMenuOpen, getTempPoly } from "../../Redux/app/appSelectors";
 import { AppDispatch } from "../../Redux/store";
-import { setCircleMenuOpen, setDrawItemLatLng, setGeneralMenu } from "../../Redux/app/appSlice";
-import { useState } from "react";
-import { LeafletMouseEvent } from "leaflet";
 import ContextMenu from "./ContextMenu";
+import { ContextMenuInterface } from "../../interface/ContextMenuInterface";
 
 export const MapDrawing = () => {
     const dispatch: AppDispatch = useDispatch();
-    const menuOpen = useSelector(getMenu);
-    const circleMenuOpen = useSelector(getCircleMenuOpen);
-    const [contextMenuX, setContextMenuX] = useState(0);
-    const [contextMenuY, setContextMenuY] = useState(0);
-    const circleMenu = useSelector(getCircleMenu);
-    const handleContextMenu = (e: LeafletMouseEvent) => {
-        e.originalEvent.preventDefault();
-        const lat = e.latlng.lat;
-        const lng = e.latlng.lng;
-        const obj = { lat, lng };
-        dispatch(setDrawItemLatLng(obj));
-        setContextMenuX(e.originalEvent.clientX);
-        setContextMenuY(e.originalEvent.clientY);
-        if (!circleMenu) {
-            dispatch(setCircleMenuOpen(false));
-            dispatch(setGeneralMenu(true));
-        } else {
-            dispatch(setGeneralMenu(false));
-            dispatch(setCircleMenuOpen(true));
-        }
-
-    };
-    const onCloseMenu = () => {
-        dispatch(setGeneralMenu(false));
-        dispatch(setCircleMenuOpen(false));
-    }
+    const generalMenuOpen = useSelector(getGeneralMenu);
+    const muftaMenuOpen = useSelector(getMuftaMenuOpen);
+    const polylineMenuOpen = useSelector(getPolylineMenuOpen);
+    const contextMenuX = useSelector(getContextMenuX);
+    const contextMenuY = useSelector(getContextMenuY);
+    const itemMenu = useSelector(getItemMenu);
+    const lineDraw = useSelector(getDrawLine);
+    const clickAccept = useSelector(getClickAccept);
+    const tempPoly = useSelector(getTempPoly);
+    const cubeMenu = useSelector(getCubeMenu);
     useMapEvents({
-        contextmenu: handleContextMenu,
+        click: (e) => ContextMenuInterface.handleClick(e, dispatch, lineDraw, clickAccept, tempPoly),
+        contextmenu: (e) => ContextMenuInterface.handleContextMenu(e, dispatch, generalMenuOpen, itemMenu, cubeMenu),
     });
     return <>
-        {(menuOpen || circleMenuOpen) && (
-            <ContextMenu left={contextMenuX} top={contextMenuY} onClose={onCloseMenu} />
+        {(generalMenuOpen || muftaMenuOpen || polylineMenuOpen || cubeMenu) && (
+            <ContextMenu left={contextMenuX} top={contextMenuY} />
         )}
     </>;
 }
