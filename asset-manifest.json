@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/taska/static/css/main.9cbc6e68.css",
-    "main.js": "/taska/static/js/main.242e61cb.js",
+    "main.js": "/taska/static/js/main.ba401cc0.js",
     "index.html": "/taska/index.html",
     "main.9cbc6e68.css.map": "/taska/static/css/main.9cbc6e68.css.map",
-    "main.242e61cb.js.map": "/taska/static/js/main.242e61cb.js.map"
+    "main.ba401cc0.js.map": "/taska/static/js/main.ba401cc0.js.map"
   },
   "entrypoints": [
     "static/css/main.9cbc6e68.css",
-    "static/js/main.242e61cb.js"
+    "static/js/main.ba401cc0.js"
   ]
 }
