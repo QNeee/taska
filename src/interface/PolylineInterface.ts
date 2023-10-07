@@ -1,4 +1,6 @@
-import { IPolyLinesArr, changePolylineWeight, setContextMenuXY, setDrawItemLatLng, setGeneralMenu, setId, setItemMenu, setMuftaMenuOpen, setPolylineMenuOpen } from "../Redux/app/appSlice";
+import L from "leaflet";
+import { ICustomPolyline } from "../Polylines";
+import { changePolylineWeight, setContextMenuXY, setGeneralMenu, setId, setItemMenu, setMuftaMenuOpen, setPolylineMenuOpen } from "../Redux/map/mapSlice";
 
 
 export class PolylineInterface {
@@ -9,32 +11,32 @@ export class PolylineInterface {
     }
     static handleContextMenuPolyline(e: L.LeafletMouseEvent, dispatch: Function) {
         e.originalEvent.preventDefault();
-        const lat = e.latlng.lat;
-        const lng = e.latlng.lng;
-        const obj = { lat, lng };
-        dispatch(setDrawItemLatLng(obj));
         dispatch(setContextMenuXY({ x: e.originalEvent.clientX, y: e.originalEvent.clientY }));
         dispatch(setMuftaMenuOpen(false));
         dispatch(setGeneralMenu(false));
         dispatch(setPolylineMenuOpen(true));
     }
-    static handleMouseOverPolyline(e: L.LeafletMouseEvent, dispatch: Function, item: IPolyLinesArr, drag: boolean, index: number) {
+    static handleMouseOverPolyline(e: L.LeafletMouseEvent, dispatch: Function, item: ICustomPolyline, drag: boolean, index: number, polylines: ICustomPolyline[]) {
         if (!drag) {
             dispatch(setId(item.id));
             dispatch(setItemMenu(true));
-            const newItem = {
-                ...item,
-                weight: 12
-            }
-            dispatch(changePolylineWeight({ newItem, index }));
+            const poly = [...polylines];
+            poly.forEach((line) => {
+                if (line.id === item.id) {
+                    line.options.weight = 12;
+                }
+            })
+            dispatch(changePolylineWeight(poly));
         }
     }
-    static handleMouseOutPolyline(e: L.LeafletMouseEvent, dispatch: Function, item: IPolyLinesArr, index: number) {
-        const newItem = {
-            ...item,
-            weight: null
-        }
+    static handleMouseOutPolyline(e: L.LeafletMouseEvent, dispatch: Function, item: ICustomPolyline, index: number, polylines: ICustomPolyline[]) {
+        const poly = [...polylines];
+        poly.forEach((line) => {
+            if (line.id === item.id) {
+                line.options.weight = 4;
+            }
+        })
         dispatch(setItemMenu(false));
-        dispatch(changePolylineWeight({ newItem, index }));
+        dispatch(changePolylineWeight(poly));
     }
 }

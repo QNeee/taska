@@ -5,6 +5,10 @@ export interface IDataResults {
     formatted: string,
     geometry: { lat: number, lng: number }
 }
+export interface ICustomMarker extends L.Marker {
+    id?: string;
+}
+
 export interface IPolyLines {
     lat: number,
     lng: number
@@ -35,6 +39,9 @@ export interface IDrawArr {
     to?: string;
 }
 export interface IAppState {
+    mufts: ICustomMarker[],
+
+
     position: [number, number];
     loading: boolean;
     error: unknown;
@@ -61,7 +68,6 @@ export interface IAppState {
     polylineWeight: number;
     contextMenuX: number;
     contextMenuY: number;
-    itemMenu: boolean;
     dragCube: boolean;
     drawLine: boolean;
     cursor: string;
@@ -69,6 +75,10 @@ export interface IAppState {
     cubeMenu: boolean;
 }
 const initialState: IAppState = {
+    mufts: [],
+
+
+
     position: [51.505, -0.09],
     error: null,
     loading: false,
@@ -95,7 +105,6 @@ const initialState: IAppState = {
     polylineWeight: 4,
     contextMenuX: 0,
     contextMenuY: 0,
-    itemMenu: false,
     dragCube: false,
     drawLine: false,
     cursor: 'default',
@@ -112,6 +121,9 @@ export const appSlice = createSlice({
         },
         changeDrawItem: (state, { payload }) => {
             state.drawItem = payload;
+        },
+        drawMuft: (state, { payload }) => {
+            state.mufts.push(payload);
         },
         setCursor: (state, { payload }) => {
             state.cursor = payload;
@@ -194,14 +206,8 @@ export const appSlice = createSlice({
             state.drawArrCircle.push(payload);
             state.allData.push(payload);
         },
-        setDrag: (state, { payload }) => {
-            state.drag = payload;
-        },
         setShowOwnerLines: (state, { payload }) => {
             state.showOwnerLines = payload;
-        },
-        setItemMenu: (state, { payload }) => {
-            state.itemMenu = payload;
         },
         dragLine: (state, { payload }) => {
             if (payload.indexCircle >= 0 && payload.indexCircle < state.drawArrCircle.length) {
@@ -220,17 +226,11 @@ export const appSlice = createSlice({
                 });
             }
         },
-        setGeneralMenu: (state, { payload }) => {
-            state.menuOpen = payload;
-        },
         setContextMenuXY: (state, { payload }) => {
             state.contextMenuX = payload.x;
             state.contextMenuY = payload.y;
         },
-        setDrawItemLatLng: (state, { payload }) => {
-            state.drawItemLatLng.lat = payload.lat;
-            state.drawItemLatLng.lng = payload.lng;
-        },
+
         setGeneral: (state, { payload }) => {
             for (let i = 0; i < state.drawArrCircle.length; i++) {
                 if (state.drawArrCircle[i].id === payload.id) {
@@ -239,9 +239,6 @@ export const appSlice = createSlice({
                     state.drawArrCircle[i].role = ''
                 }
             }
-        },
-        setId: (state, { payload }) => {
-            state.id = payload
         },
         setDragCube: (state, { payload }) => {
             state.dragCube = payload;
@@ -256,16 +253,7 @@ export const appSlice = createSlice({
             state.polylines.push(payload);
             state.allData.push(payload);
         },
-        updatePoly: (state, { payload }) => {
-            if (payload.obj.type === 'mufta') {
-                state.drawArrCircle.splice(payload.indexCircle, 1, payload.obj);
-            } else if (payload.obj.type === 'cube') {
-                state.cubes.splice(payload.indexCircle, 1, payload.obj)
-            }
-            if (payload.newArr.length > 0) {
-                state.polylines = payload.newArr;
-            }
-        },
+
         setAddLine: (state, { payload }) => {
             state.addLine = payload;
         },
@@ -275,36 +263,6 @@ export const appSlice = createSlice({
         setPolylineMenuOpen: (state, { payload }) => {
             state.polylineMenuOpen = payload;
         },
-        deleteCircle: (state, { payload }) => {
-            state.restoreAllData.push(state.drawArrCircle[payload.index]);
-            state.allData.splice(payload.index, 1);
-            state.drawArrCircle.splice(payload.index, 1);
-            if (payload.polyIndexes.length > 0) {
-                const itemsToAdd = payload.polyIndexes.map((index: number) => state.polylines[index]);
-                state.restoreAllData = [...state.restoreAllData, ...itemsToAdd];
-                state.polylines = state.polylines.filter((_, index) => !payload.polyIndexes.includes(index));
-                const startIndex = (state.allData.length - 1) - (payload.polyIndexes.length - 1);
-                const deleteCount = payload.polyIndexes.length;
-                state.allData.splice(startIndex, deleteCount);
-            }
-            // state.drawArrCircle.splice(payload.idx, 1);
-            // state.polylines = payload.newArr;
-            // state.restoreAllData.push(payload.item);
-            // state.allData.splice(payload.idx, 1);
-            // state.tempItems.push({ id: payload.item.id, index: payload.idx });
-            // if (payload.unmatchedItems) {
-            //     state.allData = state.allData.filter(item => {
-            //         return !payload.unmatchedItems.some((unmatchedItem: IPolyLinesArr) => {
-            //             return item.id === unmatchedItem.id;
-            //         });
-            //     });
-            //     for (let i = 0; i < payload.unmatchedItems.length; i++) {
-            //         state.restoreAllData.push(payload.unmatchedItems[i]);
-            //         state.tempItems.push({ id: payload.unmatchedItems.id, index: payload.indexArrPolylines[i] });
-            //     }
-            // }
-        }
-
     },
     extraReducers: (builder) => {
         builder
@@ -334,4 +292,4 @@ export const appSlice = createSlice({
     }
 
 });
-export const { setCubeMenu, setClickAccept, setCursor, setDrawLine, setItemMenu, setDragCube, makeDrawCube, setContextMenuXY, setPolylineMenuOpen, setMuftaMenuOpen, clearData, changePolylineWeight, changePosition, setShowOwnerLines, makeRestoreUndraw, setAddLine, deleteCircle, updatePoly, addPolyLinesToArr, setId, addPolyLines, setGeneral, setDrawItemLatLng, changeDrawItem, makeDrawLine, makeUndraw, setGeneralMenu, makeDrawCircle, dragLine, setDrag } = appSlice.actions;
+export const { setCubeMenu, setClickAccept, setCursor, setDrawLine, setDragCube, makeDrawCube, clearData, changePosition, makeRestoreUndraw, setAddLine, changeDrawItem, makeDrawLine, makeUndraw, makeDrawCircle, dragLine } = appSlice.actions;

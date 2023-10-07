@@ -1,17 +1,17 @@
 import { useMapEvents } from "react-leaflet";
 import { useDispatch, useSelector } from 'react-redux';
-import { getClickAccept, getContextMenuX, getContextMenuY, getCubeMenu, getDrawLine, getGeneralMenu, getItemMenu, getMuftaMenuOpen, getPolylineMenuOpen, getTempPoly } from "../../Redux/app/appSelectors";
+import { getClickAccept, getCubeMenu, getDrawLine, getTempPoly } from "../../Redux/app/appSelectors";
 import { AppDispatch } from "../../Redux/store";
 import ContextMenu from "./ContextMenu";
 import { ContextMenuInterface } from "../../interface/ContextMenuInterface";
+import { getContextMenuXY, getGeneralMenu, getItemMenu, getMuftaMenuOpen, getPolylineMenuOpen } from "../../Redux/map/mapSelectors";
 
 export const MapDrawing = () => {
     const dispatch: AppDispatch = useDispatch();
     const generalMenuOpen = useSelector(getGeneralMenu);
     const muftaMenuOpen = useSelector(getMuftaMenuOpen);
     const polylineMenuOpen = useSelector(getPolylineMenuOpen);
-    const contextMenuX = useSelector(getContextMenuX);
-    const contextMenuY = useSelector(getContextMenuY);
+    const contextMenuXY = useSelector(getContextMenuXY);
     const itemMenu = useSelector(getItemMenu);
     const lineDraw = useSelector(getDrawLine);
     const clickAccept = useSelector(getClickAccept);
@@ -23,7 +23,7 @@ export const MapDrawing = () => {
     });
     return <>
         {(generalMenuOpen || muftaMenuOpen || polylineMenuOpen || cubeMenu) && (
-            <ContextMenu left={contextMenuX} top={contextMenuY} />
+            <ContextMenu left={contextMenuXY?.x as number} top={contextMenuXY?.y as number} />
         )}
     </>;
 }

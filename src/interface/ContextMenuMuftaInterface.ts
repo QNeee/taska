@@ -1,6 +1,8 @@
-import { Lines } from "../Line";
-import { IMuftaData, Mufta } from "../Mufta";
-import { IDrawArr, IPolyLinesArr, setAddLine, setMuftaMenuOpen } from "../Redux/app/appSlice";
+import L, { LatLng } from "leaflet";
+import { ICustomMarker, setAddLine } from "../Redux/app/appSlice";
+import { ILineStart, setLineStart, setMuftaMenuOpen } from "../Redux/map/mapSlice";
+import { Polylines } from "../Polylines";
+import { Mufts } from "../Mufts";
 
 export interface IDrawItemLatLng {
     lat: number,
@@ -12,35 +14,32 @@ export class ContextMenuMuftaInterface {
     static handleOnCloseMuftaMenu(dispatch: Function) {
         dispatch(setMuftaMenuOpen(false));
     }
-    static handleMenuClickMufta(obj: IMuftaData, dispatch: Function) {
-        Mufta.add(obj, dispatch);
-    }
-    static handleAddLineFrom(latlng: IDrawItemLatLng, dispatch: Function, id: string) {
-        Lines.makeTempPoly(latlng, dispatch, id);
+    static handleAddLineFrom(mufts: ICustomMarker[], dispatch: Function, id: string) {
+        const mufta = mufts.find(item => item.id === id);
+        const muftaLatLnt = mufta?.getLatLng();
+        const aditInfo = {
+            id: mufta?.id,
+            latlng: new LatLng(muftaLatLnt?.lat as number, muftaLatLnt?.lng as number)
+        }
+        dispatch(setLineStart(aditInfo));
         dispatch(setAddLine(true));
     }
-    static handleDeleteMufta(muftsArr: IDrawArr[], polyArr: IPolyLinesArr[], id: string, dispatch: Function) {
-        const idx = muftsArr.findIndex(item => item.id === id);
-        const item = muftsArr[idx];
-        const polylinesIndexOwner = polyArr.map((line, index) => {
-            if (line.owner === item.id) {
-                return index;
-            } else {
-                return -1;
-            }
-        }).filter(index => index !== -1);
-        const polylinesIndexTo = polyArr.map((line, index) => {
-            if (line.to === item.id) {
-                return index;
-            } else {
-                return -1;
-            }
-        }).filter(index => index !== -1);
-        const indexesPoly = [...polylinesIndexOwner, ...polylinesIndexTo];
-        Mufta.deleteMufta(idx, indexesPoly, dispatch);
+    static handleDeleteMufta(muftsArr: ICustomMarker[], id: string, dispatch: Function) {
+        const mufts = [...muftsArr];
+        const index = muftsArr.findIndex(item => item.id === id);
+        mufts.splice(index, 1);
+        Mufts.deleteMufta(mufts, dispatch);
     }
-    static handleAddLineTo(tempPoly: IPolyLinesArr, latlng: IDrawItemLatLng, id: string, dispatch: Function) {
-        Lines.makePoly(tempPoly, latlng, dispatch, id);
+    static handleAddLineTo(mufts: ICustomMarker[], id: string, dispatch: Function, lineStart: ILineStart | null) {
+        const mufta = mufts.find(item => item.id === id);
+        const muftaLatLng = mufta?.getLatLng() as LatLng;
+        const ownerLatLng = lineStart?.latlng as LatLng;
+        const additionalInfo = {
+            owner: lineStart?.id as string,
+            to: mufta?.id as string
+        }
+        const polyline = new L.Polyline([muftaLatLng, ownerLatLng]);
+        Polylines.addPolyline(polyline, dispatch, additionalInfo as any);
         dispatch(setAddLine(false));
     }
 }

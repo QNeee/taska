@@ -1,12 +1,14 @@
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '../../Redux/store';
-import { getAddLine, getDrawArrCircles, getDrawItemLatLng, getItemId, getGeneralMenu, getMuftaMenuOpen, getPolyLines, getPolylineMenuOpen, getTempPoly, getCubes, getCubeMenu } from '../../Redux/app/appSelectors';
+import { getAddLine, getDrawItemLatLng, getCubeMenu } from '../../Redux/app/appSelectors';
 import { ContextMenuMuftaInterface } from '../../interface/ContextMenuMuftaInterface';
 import { ContextMenuGeneralInterface } from '../../interface/ContextMenuGeneralInterface';
 import { ContextMenuPolylineInterface } from '../../interface/ContextMenuPolylineIntrface';
 import React, { useState } from 'react';
 import { ContextMenuCubeInterface } from '../../interface/ContextMenuCubeInterface';
+import { getCubes, getGeneralMenu, getId, getLineStart, getMuftaMenuOpen, getMufts, getPolyLines, getPolylineMenuOpen } from '../../Redux/map/mapSelectors';
+import { useMap } from 'react-leaflet';
 
 interface Iprops {
     left: number,
@@ -41,17 +43,18 @@ const MenuItem = styled.button`
 `;
 const ContextMenu = ({ left, top }: Iprops) => {
     const dispatch: AppDispatch = useDispatch();
+    const map = useMap();
     const drawItemLatLng = useSelector(getDrawItemLatLng);
     const muftaMenuOpen = useSelector(getMuftaMenuOpen);
     const polylineMenuOpen = useSelector(getPolylineMenuOpen);
     const generalMenuOpen = useSelector(getGeneralMenu);
     const polyLines = useSelector(getPolyLines);
-    const drawCircles = useSelector(getDrawArrCircles);
-    const tempPoly = useSelector(getTempPoly);
-    const id = useSelector(getItemId);
+    const id = useSelector(getId);
     const addLine = useSelector(getAddLine);
-    const cubesArr = useSelector(getCubes);
+    const cubes = useSelector(getCubes);
     const cubeMenu = useSelector(getCubeMenu);
+    const lineStart = useSelector(getLineStart);
+    const mufts = useSelector(getMufts);
     const [isChangeHovered, setIsChangeHovered] = useState(false);
     const handleMouseEnterChange = () => {
         setIsChangeHovered(true);
@@ -59,19 +62,25 @@ const ContextMenu = ({ left, top }: Iprops) => {
     const handleMouseLeaveChange = () => {
         setIsChangeHovered(false);
     };
+    console.log(id);
+    const obj = {
+        x: left,
+        y: top
+    }
+
     if (muftaMenuOpen) {
         return (
             <ContextMenuContainer style={{ left, top }}>
                 <MenuItem disabled={!addLine} onClick={() => {
-                    ContextMenuMuftaInterface.handleAddLineTo(tempPoly, drawItemLatLng, id, dispatch)
+                    ContextMenuMuftaInterface.handleAddLineTo(mufts, id, dispatch, lineStart)
                     ContextMenuMuftaInterface.handleOnCloseMuftaMenu(dispatch);
                 }}>добавить линию сюда</MenuItem>
                 <MenuItem onClick={() => {
-                    ContextMenuMuftaInterface.handleAddLineFrom(drawItemLatLng, dispatch, id)
+                    ContextMenuMuftaInterface.handleAddLineFrom(mufts, dispatch, id)
                     ContextMenuMuftaInterface.handleOnCloseMuftaMenu(dispatch);
                 }}>добавить линию отсюда</MenuItem>
                 <MenuItem onClick={() => {
-                    ContextMenuMuftaInterface.handleDeleteMufta(drawCircles, polyLines, id, dispatch)
+                    ContextMenuMuftaInterface.handleDeleteMufta(mufts, id, dispatch)
                     ContextMenuMuftaInterface.handleOnCloseMuftaMenu(dispatch);
                 }}>delete</MenuItem>
                 <MenuItem onClick={() => ContextMenuMuftaInterface.handleOnCloseMuftaMenu(dispatch)}>закрыть</MenuItem>
@@ -81,7 +90,7 @@ const ContextMenu = ({ left, top }: Iprops) => {
         return (
             <ContextMenuContainer style={{ left, top }}>
                 <MenuItem onClick={() => {
-                    ContextMenuGeneralInterface.handleMenuClickMufta(drawItemLatLng, dispatch)
+                    ContextMenuGeneralInterface.handleMenuClickMufta(obj, dispatch, map)
                     ContextMenuGeneralInterface.handleOnCloseGeneralMenu(dispatch)
                 }}>Circle</MenuItem>
                 <MenuItem onClick={() => ContextMenuGeneralInterface.handleOnCloseGeneralMenu(dispatch)}>Exit</MenuItem>
@@ -100,7 +109,7 @@ const ContextMenu = ({ left, top }: Iprops) => {
                             ContextMenuPolylineInterface.handleMenuClose(dispatch)
                         }}>new Line from this</button>
                         <button onClick={() => {
-                            ContextMenuPolylineInterface.handleMenuClickChangeLineFromThis(drawItemLatLng, dispatch, polyLines, drawCircles, id, cubesArr)
+                            ContextMenuPolylineInterface.handleMenuClickChangeLineFromThis(drawItemLatLng, dispatch, polyLines, mufts, id, cubes)
                             ContextMenuPolylineInterface.handleMenuClose(dispatch)
                         }}>ADD CUBE</button>
                     </div>
@@ -115,7 +124,7 @@ const ContextMenu = ({ left, top }: Iprops) => {
     } else if (cubeMenu) {
         return <ContextMenuContainer style={{ left, top }}>
             <MenuItem onClick={() => {
-                ContextMenuCubeInterface.handleClickDelete(drawItemLatLng, dispatch, polyLines, id, cubesArr)
+                ContextMenuCubeInterface.handleClickDelete(drawItemLatLng, dispatch, polyLines, id, cubes)
                 ContextMenuCubeInterface.handleClickClose(dispatch)
             }}>Delete</MenuItem>
             <MenuItem onClick={() => ContextMenuCubeInterface.handleClickClose(dispatch)}>Exit</MenuItem>

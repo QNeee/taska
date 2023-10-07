@@ -1,5 +1,5 @@
 import { Cube, Cubes, ICube } from "./Cube";
-import { IDrawArr, IPolyLinesArr, addPolyLines, addPolyLinesToArr, dragLine, setDrawLine, updatePoly } from "./Redux/app/appSlice";
+import { IDrawArr, IPolyLinesArr, dragLine, setDrawLine } from "./Redux/app/appSlice";
 import { iconUrl1 } from "./components/Map/Map";
 import { IDrawItemLatLng } from "./interface/ContextMenuInterface";
 import { v4 as uuidv4 } from 'uuid';
@@ -58,35 +58,35 @@ export class Lines {
         this.makeTempPoly(latlng, dispatch, id);
     }
     static makeTempPoly(latlng: IDrawItemLatLng, dispatch: Function, id: string) {
-        const objPoly = {
-            owner: id,
-            start: {
-                lat: latlng.lat,
-                lng: latlng.lng,
-            }
-        }
-        dispatch(addPolyLines(objPoly));
+        // const objPoly = {
+        //     owner: id,
+        //     start: {
+        //         lat: latlng.lat,
+        //         lng: latlng.lng,
+        //     }
+        // }
+        // dispatch(addPolyLines(objPoly));
     }
     static makePoly(tempPoly: IPolyLinesArr, latlng: IDrawItemLatLng, dispatch: Function, id?: string) {
-        const objPoly = {
-            ...tempPoly,
-            to: id || null,
-            id: uuidv4(),
-            end: {
-                lat: latlng.lat,
-                lng: latlng.lng
-            }
-        }
+        // const objPoly = {
+        //     ...tempPoly,
+        //     to: id || null,
+        //     id: uuidv4(),
+        //     end: {
+        //         lat: latlng.lat,
+        //         lng: latlng.lng
+        //     }
+        // }
 
-        dispatch(addPolyLinesToArr(objPoly));
+        // dispatch(addPolyLinesToArr(objPoly));
     }
     static updatePoly(dispatch: Function, obj: IUpdatePolyObj) {
-        const objToUpdate = {
-            indexCircle: obj.indexCircle,
-            newArr: obj.newArr,
-            obj: obj.obj
-        }
-        dispatch(updatePoly(objToUpdate));
+        // const objToUpdate = {
+        //     indexCircle: obj.indexCircle,
+        //     newArr: obj.newArr,
+        //     obj: obj.obj
+        // }
+        // dispatch(updatePoly(objToUpdate));
     }
     static dragLine(dispatch: Function, obj: IUpdatePolyObj) {
         dispatch(dragLine(obj));
