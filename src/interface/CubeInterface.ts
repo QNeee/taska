@@ -1,11 +1,62 @@
-import { ICustomCube } from "../Cubes";
+import L, { LatLng, LeafletMouseEvent } from "leaflet";
+import { Cubes, ICustomCube } from "../Cubes";
 import { ICustomPolyline } from "../Polylines";
 import { setCubeMenu } from "../Redux/app/appSlice";
 import { setContextMenuXY, setDrag, setGeneralMenu, setId, setItemMenu, setMuftaMenuOpen, setPolylineMenuOpen } from "../Redux/map/mapSlice";
-
+import { ICustomMarker } from "../Mufts";
+export function roundLatLng(latLng: LatLng, decimalPlaces: number) {
+    const lat = latLng.lat.toFixed(decimalPlaces);
+    const lng = latLng.lng.toFixed(decimalPlaces);
+    return L.latLng(parseFloat(lat), parseFloat(lng));
+}
 export class CubeInterface {
-    static handleCubeDragStart(dispatch: Function) {
+    static handleDoubleClick(e: LeafletMouseEvent, dispatch: Function, index: number, mufts: ICustomMarker[], cube: ICustomCube) {
+
+    }
+    static handleCubeOnClick(e: LeafletMouseEvent, dispatch: Function, cubesArr: ICustomCube[], mufts: ICustomMarker[], cube: ICustomCube) {
+
+    }
+    static handleCubeDragStart(e: L.LeafletEvent, dispatch: Function, cubesArr: ICustomCube[], mufts: ICustomMarker[], cube: ICustomCube, polyLines: ICustomPolyline[]) {
         dispatch(setDrag(true));
+        // if (!cube.drager) {
+        //     const cubes = [...underCubes];
+        //     const start = cube.getLatLng();
+        //     const owner = mufts.filter(item => item.id === cube.owner);
+        //     const to = mufts.filter(item => item.id === cube.to);
+        //     const center = L.latLng(
+        //         (start.lat + owner[0].getLatLng().lat) / 2,
+        //         (start.lng + owner[0].getLatLng().lng) / 2
+        //     );
+        //     const center1 = L.latLng(
+        //         (start.lat + to[0].getLatLng().lat) / 2,
+        //         (start.lng + to[0].getLatLng().lng) / 2
+        //     );
+        //     const infoObj = {
+        //         owner: cube.owner,
+        //         to: cube.to,
+        //         dragOwner: cube.id,
+        //     }
+        //     const newCubes = [...cubesArr];
+        //     newCubes.forEach(item => {
+        //         if (item.id === cube.id) {
+        //             item.drager = true;
+        //         }
+        //     });
+        //     const newPolys: ICustomPolyline[] = [];
+        //     const underCube = new UnderCubes(L.marker(center), infoObj as IUnderCubeInfo, true).getCub();
+        //     const underCube1 = new UnderCubes(L.marker(center1), infoObj as IUnderCubeInfo, false).getCub();
+        //     cubes.push(underCube as ICustomUnderCube, underCube1 as ICustomUnderCube);
+        //     const cubesForLines = [owner[0], underCube, cube, underCube1, to[0]];
+        //     for (let i = 0; i < cubesForLines.length - 1; i++) {
+        //         const start = cubesForLines[i]?.getLatLng() as LatLng;
+        //         const end = cubesForLines[i + 1]?.getLatLng() as LatLng;
+        //         const line = new Polylines(L.polyline([start, end]), infoObj as IItemInfoPoly).getLine();
+        //         newPolys.push(line as ICustomPolyline);
+        //     }
+        //     dispatch(drawPolyline(newPolys));
+        //     dispatch(setCubDragging(newCubes));
+        //     dispatch(makeUnderCubes(cubes));
+        //   }
     }
     static handleCubeContextMenu(e: L.LeafletMouseEvent, dispatch: Function) {
         e.originalEvent.preventDefault();
@@ -18,56 +69,64 @@ export class CubeInterface {
     static handleDeleteCube(id: string) {
 
     }
-    static handleCubeOnClick(polyLines: ICustomPolyline[], item: ICustomCube) {
-
-    }
-    static handleCubeDrag(e: L.LeafletEvent, dispatch: Function, polyLines: ICustomPolyline[], item: ICustomCube, index: number, cubes: ICustomCube[]) {
-        // const lat = e.target.getLatLng().lat;
-        // const lng = e.target.getLatLng().lng;
-        // const newArr = [...polyLines];
-        // newArr.forEach((line, index) => {
-        //     if (line.start?.lat === item.lat && line.start.lng === item.lng) {
-        //         newArr[index] = {
-        //             ...line,
-        //             start: {
-        //                 lat, lng
-        //             }
-        //         }
-        //     } else if (line.end?.lat === item.lat && line.end.lng === item.lng) {
-        //         newArr[index] = {
-        //             ...line,
-        //             end: {
-        //                 lat, lng
-        //             }
-        //         }
-        //     }
-        // })
-        // const obj = {
-        //     ...item,
-        //     lat,
-        //     lng
-        // };
-        // Lines.updatePoly(dispatch, { indexCircle: index, newArr, obj });
+    // static handleOnClickPolyline(e: L.LeafletMouseEvent, dispatch: Function, poly: ICustomPolyline, map: L.Map, polyLines: ICustomPolyline[], cubes: ICustomCube[], mufts: ICustomCube[], index: number) {
+    //     const click = { x: e.originalEvent.clientX, y: e.originalEvent.clientY };
+    //     const clickLatLng = map.containerPointToLatLng(L.point(click.x, click.y));
+    //     const nearestPoint = L.GeometryUtil.closest(map, poly, clickLatLng);
+    //     const needMufts = mufts.filter(item => item.id === poly.owner || item.id === poly.to);
+    //     const cubicsNot = [...cubes.filter(cube => !needMufts.some(muft => cube.owner === muft.id || cube.to === muft.id))]
+    //     const cubics = [...cubes.filter(cube => needMufts.some(muft => cube.owner === muft.id || cube.to === muft.id))]
+    //     const cubeLatLng = L.latLng((nearestPoint?.lat!), (nearestPoint?.lng!));
+    //     const newPolys: ICustomPolyline[] = [];
+    //     const newPolysNot = [...polyLines.filter(line => !needMufts.some(muft => line.owner === muft.id || line.to === muft.id))];
+    //     const objInfo = {
+    //         owner: needMufts[0].id,
+    //         to: needMufts[1].id,
+    //     }
+    //     const cube = new Cubes(new L.Marker(cubeLatLng), objInfo).getCub();
+    //     const markers: ICustomCube[] = [needMufts[0], ...cubes, cube as ICustomCube, needMufts[1]];
+    //     for (let i = 0; i < markers.length - 1; i++) {
+    //         const startMarker = markers[i];
+    //         const endMarker = markers[i + 1];
+    //         const newLine = new Polylines(L.polyline([startMarker.getLatLng(), endMarker.getLatLng()]), objInfo as IItemInfoPoly).getLine();
+    //         newPolys.push(newLine as ICustomPolyline);
+    //     }
+    //     const resultPoly = [...newPolysNot, ...newPolys]
+    //     cubics.push(cube as ICustomCube);
+    //     const resultCubes = [...cubics, ...cubicsNot];
+    //     dispatch(drawPolyline(resultPoly));
+    //     dispatch(drawCube(resultCubes));
+    // }
+    static handleCubeDrag(e: L.LeafletEvent, dispatch: Function, polyLines: ICustomPolyline[], cube: ICustomCube, index: number, cubes: ICustomCube[], drag: boolean, map: L.Map, mufts: ICustomMarker[], cubic: ICustomCube) {
+        if (drag) {
+            const owner = mufts.find(item => item.id === cubic.owner);
+            const to = mufts.find(item => item.id === cubic.to);
+            const latLng = e.target.getLatLng();
+            const newArr = [...polyLines];
+            newArr.forEach((line, lineIndex) => {
+                const startLine = line.getLatLngs()[0];
+                const endLine = line.getLatLngs()[1];
+                if (cubic.getLatLng().equals(startLine as LatLng)) {
+                    newArr[lineIndex].setLatLngs([latLng, endLine as LatLng]);
+                } else if (cubic.getLatLng().equals(endLine as LatLng)) {
+                    newArr[lineIndex].setLatLngs([startLine as LatLng, latLng]);
+                }
+            });
+            const obj = [...cubes];
+            obj.forEach((item) => {
+                if (item.id === cubic.id) {
+                    const distanceToOwner = item.getLatLng().distanceTo(owner?.getLatLng() as LatLng);
+                    const distanceToTo = item.getLatLng().distanceTo(to?.getLatLng() as LatLng);
+                    item.setLatLng(latLng);
+                    item.distanceToOwner = distanceToOwner;
+                    item.distanceToTo = distanceToTo;
+                }
+            })
+            Cubes.updateCube(dispatch, { index, newArr, cubes: obj });
+        }
     }
     static handleCubeDragEnd(e: L.LeafletEvent, dispatch: Function, polyLines: ICustomPolyline[], item: ICustomCube, index: number) {
-        // const lat = e.target.getLatLng().lat;
-        // const lng = e.target.getLatLng().lng;
-        // let newArr;
-        // let indexAllDataCircle = null;
-        // const obj = {
-        //     ...item,
-        //     lat,
-        //     lng
-        // };
-        // if (polyLines.length > 0) {
-        //     newArr = [...polyLines];
-        // }
-        // if (allDrawData.length > 0) {
-        //     indexAllDataCircle = allDrawData.findIndex(data => data.id === item.id);
-        // }
-        // Lines.dragLine(dispatch, { indexCircle: index, indexAllDataCircle, newArr, obj });
-
-        // dispatch(setDrag(false));
+        setDrag(false);
     }
     static handleCubeMouseOver(e: L.LeafletMouseEvent, dispatch: Function, id: string, drag: boolean) {
         if (!drag) {

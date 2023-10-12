@@ -1,5 +1,5 @@
 import L, { LatLng, LeafletMouseEvent } from "leaflet";
-import { setContextMenuXY, setDrag, setGeneralMenu, setId, setMuftaMenuOpen, setPolylineMenuOpen, setShowOwnerLines } from "../Redux/map/mapSlice";
+import { setContextMenuXY, setDrag, setGeneralMenu, setId, setMuftaMenuOpen, setPolylineMenuOpen, setPolysOwner } from "../Redux/map/mapSlice";
 import { ICustomMarker } from "../Mufts";
 import { ICustomPolyline, Polylines } from "../Polylines";
 
@@ -14,16 +14,27 @@ export class MarkerInterface {
         //     console.log(latLngs.equals(end as LatLng));
         // })
     }
-    static handleMouseOver(id: string, dispatch: Function, drag: boolean, showOwnerLines: boolean) {
+    static handleMouseOver(muft: ICustomMarker, dispatch: Function, drag: boolean, polyLines: ICustomPolyline[]) {
         if (!drag) {
-            dispatch(setId(id));
+            dispatch(setId(muft.id));
         }
-        if (!showOwnerLines) {
-            dispatch(setShowOwnerLines(true));
-        }
+        const polys = [...polyLines];
+        polys.forEach((item) => {
+            if (item.owner === muft.id) {
+                item.options.color = 'green';
+            }
+        })
+        dispatch(setPolysOwner(polys));
     }
-    static handleMouseOut(dispatch: Function) {
-        dispatch(setShowOwnerLines(false));
+    static handleMouseOut(dispatch: Function, id: string, polyLines: ICustomPolyline[]) {
+        const polys = [...polyLines];
+        polys.forEach((item) => {
+            if (item.owner === id) {
+                item.options.color = 'red';
+            }
+        })
+        dispatch(setPolysOwner(polys));
+
     }
     static handleContextMenuHandler(e: LeafletMouseEvent, dispatch: Function) {
         e.originalEvent.preventDefault();

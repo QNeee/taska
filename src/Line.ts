@@ -14,8 +14,8 @@ interface LatLng {
     lng: number;
 }
 
-function calculateDistance(latlng1: LatLng, latlng2: LatLng): number {
-    const R = 6371; // Радіус Землі в кілометрах
+export function calculateDistance(latlng1: LatLng, latlng2: LatLng): number {
+    const R = 6371;
     const lat1 = (Math.PI / 180) * latlng1.lat;
     const lat2 = (Math.PI / 180) * latlng2.lat;
     const lon1 = (Math.PI / 180) * latlng1.lng;

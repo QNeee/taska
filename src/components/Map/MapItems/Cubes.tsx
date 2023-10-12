@@ -1,7 +1,8 @@
 import { useDispatch, useSelector } from "react-redux"
-import { getCubes, getDrag, getPolyLines } from "../../../Redux/map/mapSelectors"
-import { Marker } from "react-leaflet";
+import { getCubes, getDrag, getMufts, getPolyLines } from "../../../Redux/map/mapSelectors"
+import { Marker, useMap } from "react-leaflet";
 import { CubeInterface } from "../../../interface/CubeInterface";
+import { setDrag } from "../../../Redux/map/mapSlice";
 
 
 
@@ -9,7 +10,11 @@ export const Cubes = () => {
     const cubes = useSelector(getCubes);
     const dispatch = useDispatch();
     const polyLines = useSelector(getPolyLines);
+    const mufts = useSelector(getMufts);
     const drag = useSelector(getDrag);
+    // const polyCubes = useSelector(getCubicPoly);
+    const map = useMap();
+    // console.log(cubes);
     return <>
         {cubes.map((item, index) => (
             <Marker
@@ -18,11 +23,12 @@ export const Cubes = () => {
                 position={item.getLatLng()}
                 icon={item.getIcon()}
                 eventHandlers={{
+                    dblclick: (e) => CubeInterface.handleDoubleClick(e, dispatch, index, mufts, item),
                     contextmenu: (e) => CubeInterface.handleCubeContextMenu(e, dispatch),
-                    click: () => CubeInterface.handleCubeOnClick(polyLines, item),
-                    dragstart: () => CubeInterface.handleCubeDragStart(dispatch),
-                    drag: (e) => CubeInterface.handleCubeDrag(e, dispatch, polyLines, item, index, cubes),
-                    dragend: (e) => CubeInterface.handleCubeDragEnd(e, dispatch, polyLines, item, index),
+                    click: (e) => CubeInterface.handleCubeOnClick(e, dispatch, cubes, mufts, item),
+                    dragstart: (e) => CubeInterface.handleCubeDragStart(e, dispatch, cubes, mufts, item, polyLines),
+                    drag: (e) => CubeInterface.handleCubeDrag(e, dispatch, polyLines, item, index, cubes, drag, map, mufts, item),
+                    dragend: (e) => dispatch(setDrag(false)),
                     mouseover: (e) => CubeInterface.handleCubeMouseOver(e, dispatch, item.id as string, drag),
                     mouseout: (e) => CubeInterface.handleCubeMouseEnd(e, dispatch),
                 }}

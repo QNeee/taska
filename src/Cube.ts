@@ -7,8 +7,6 @@ export interface ICube {
     owner: string,
     to: string,
     type: string,
-    distanceFromCubeToOwner: number,
-    distanceFromCubeToTo: number,
 }
 export class Cube {
     constructor(private cube: ICube) {

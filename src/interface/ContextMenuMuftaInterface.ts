@@ -1,8 +1,8 @@
 import L, { LatLng } from "leaflet";
-import { ICustomMarker, setAddLine } from "../Redux/app/appSlice";
-import { ILineStart, setLineStart, setMuftaMenuOpen } from "../Redux/map/mapSlice";
+import { setAddLine } from "../Redux/app/appSlice";
+import { ILineStart, drawPolyline, setLineStart, setMuftaMenuOpen } from "../Redux/map/mapSlice";
 import { Polylines } from "../Polylines";
-import { Mufts } from "../Mufts";
+import { ICustomMarker, Mufts } from "../Mufts";
 
 export interface IDrawItemLatLng {
     lat: number,
@@ -30,16 +30,18 @@ export class ContextMenuMuftaInterface {
         mufts.splice(index, 1);
         Mufts.deleteMufta(mufts, dispatch);
     }
-    static handleAddLineTo(mufts: ICustomMarker[], id: string, dispatch: Function, lineStart: ILineStart | null) {
-        const mufta = mufts.find(item => item.id === id);
-        const muftaLatLng = mufta?.getLatLng() as LatLng;
+    static handleAddLineTo(mufts: ICustomMarker[], id: string, dispatch: Function, lineStart: ILineStart | null, map: L.Map) {
+        const muftaTo = mufts.find(item => item.id === id);
+        const muftaOwner = mufts.find(item => item.id === lineStart?.id);
+        const muftaLatLng = muftaTo?.getLatLng() as LatLng;
         const ownerLatLng = lineStart?.latlng as LatLng;
         const additionalInfo = {
             owner: lineStart?.id as string,
-            to: mufta?.id as string
+            to: muftaTo?.id as string
         }
-        const polyline = new L.Polyline([muftaLatLng, ownerLatLng]);
-        Polylines.addPolyline(polyline, dispatch, additionalInfo as any);
+        const polyLine = new Polylines(L.polyline([muftaLatLng, ownerLatLng]), additionalInfo).getLine();
+        Mufts.updateMuft(dispatch, muftaOwner as ICustomMarker, muftaTo as ICustomMarker, polyLine?.id as string);
+        dispatch(drawPolyline(polyLine));
         dispatch(setAddLine(false));
     }
 }

@@ -5,9 +5,6 @@ export interface IDataResults {
     formatted: string,
     geometry: { lat: number, lng: number }
 }
-export interface ICustomMarker extends L.Marker {
-    id?: string;
-}
 
 export interface IPolyLines {
     lat: number,
@@ -39,7 +36,6 @@ export interface IDrawArr {
     to?: string;
 }
 export interface IAppState {
-    mufts: ICustomMarker[],
 
 
     position: [number, number];
@@ -75,7 +71,6 @@ export interface IAppState {
     cubeMenu: boolean;
 }
 const initialState: IAppState = {
-    mufts: [],
 
 
 
@@ -122,9 +117,9 @@ export const appSlice = createSlice({
         changeDrawItem: (state, { payload }) => {
             state.drawItem = payload;
         },
-        drawMuft: (state, { payload }) => {
-            state.mufts.push(payload);
-        },
+        // drawMuft: (state, { payload }) => {
+        //     state.mufts.push(payload);
+        // },
         setCursor: (state, { payload }) => {
             state.cursor = payload;
         },

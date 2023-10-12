@@ -62,7 +62,6 @@ const ContextMenu = ({ left, top }: Iprops) => {
     const handleMouseLeaveChange = () => {
         setIsChangeHovered(false);
     };
-    console.log(id);
     const obj = {
         x: left,
         y: top
@@ -72,7 +71,7 @@ const ContextMenu = ({ left, top }: Iprops) => {
         return (
             <ContextMenuContainer style={{ left, top }}>
                 <MenuItem disabled={!addLine} onClick={() => {
-                    ContextMenuMuftaInterface.handleAddLineTo(mufts, id, dispatch, lineStart)
+                    ContextMenuMuftaInterface.handleAddLineTo(mufts, id, dispatch, lineStart, map)
                     ContextMenuMuftaInterface.handleOnCloseMuftaMenu(dispatch);
                 }}>добавить линию сюда</MenuItem>
                 <MenuItem onClick={() => {

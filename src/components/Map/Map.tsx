@@ -16,6 +16,8 @@ import {
 } from '../../Redux/app/appSlice';
 import { Mufts } from './MapItems/Mufts';
 import { Polylines } from './MapItems/Polylines';
+import { Cubes } from './MapItems/Cubes';
+// import { UnderCubes } from './MapItems/UnderCubes';
 
 export const iconUrl1 = 'https://cdn.icon-icons.com/icons2/605/PNG/512/square-cut_icon-icons.com_56037.png';
 export const Map = () => {
@@ -25,37 +27,8 @@ export const Map = () => {
     const dispatch: AppDispatch = useDispatch();
     const allDrawData = useSelector(getAllDrawData);
     const restoredData = useSelector(getResotredData);
-    // const drag = useSelector(getDrag);
-    // const cubesArr = useSelector(getCubes);
     const cursos = useSelector(getCursor);
-    // const iconCube = useMemo(
-    //     () =>
-    //         new L.Icon({
-    //             iconUrl: iconUrl1,
-    //             iconSize: [30, 30],
-    //         }),
-    //     []
-    // );
     const key = useMemo(() => position.join(','), [position]);
-    // const cubes = useMemo(() => {
-    //     return cubesArr.map((item, index) => (
-    //         <Marker
-    //             draggable={true}
-    //             key={item.id}
-    //             position={[item.lat, item.lng]}
-    //             icon={iconCube}
-    //             eventHandlers={{
-    //                 contextmenu: (e) => CubeInterface.handleCubeContextMenu(e, dispatch),
-    //                 click: () => CubeInterface.handleCubeOnClick(polyLines, item),
-    //                 dragstart: () => CubeInterface.handleCubeDragStart(dispatch),
-    //                 drag: (e) => CubeInterface.handleCubeDrag(e, dispatch, polyLines, item, index, cubesArr),
-    //                 dragend: (e) => CubeInterface.handleCubeDragEnd(e, dispatch, polyLines, item, allDrawData, index),
-    //                 mouseover: (e) => CubeInterface.handleCubeMouseOver(e, dispatch, item.id, drag),
-    //                 mouseout: (e) => CubeInterface.handleCubeMouseEnd(e, dispatch),
-    //             }}
-    //         />
-    //     ));
-    // }, [allDrawData, cubesArr, dispatch, drag, iconCube, polyLines]);
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Control') {
@@ -107,11 +80,12 @@ export const Map = () => {
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
 
-                    <>
-                        <Mufts />
-                        <Polylines />
-                        {/* {cubes} */}
-                    </>
+
+                    <Mufts />
+                    <Polylines />
+                    <Cubes />
+                    {/* <UnderCubes /> */}
+
 
                     <MapDrawing />
                 </MapContainer>
