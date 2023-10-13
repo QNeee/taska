@@ -69,7 +69,8 @@ interface IMapState {
     countOwner: number;
     countTo: number;
     // tempUnderCubes: ICustomUnderCube[];
-    tempLines: ICustomPolyline[]
+    tempLines: ICustomPolyline[];
+    hideCubes: boolean;
 }
 const initialState: IMapState = {
     muftaMenuOpen: false,
@@ -93,31 +94,16 @@ const initialState: IMapState = {
     countTo: 0,
     // tempUnderCubes: [],
     tempLines: [],
+    hideCubes: false
 }
 
 export const mapSlice = createSlice({
     name: 'map',
     initialState,
     reducers: {
-        // drawTempItems: (state, { payload }) => {
-        //     console.log(payload);
-        //     state.underCubes = [...state.underCubes, ...payload.cubes];
-        //     state.polyLines = [...state.polyLines, ...payload.polyLines];
-        // },
-        // makeTempUnderCubes: (state, { payload }) => {
-        //     state.tempUnderCubes = payload.cubes;
-        //     state.tempLines = payload.tempLines;
-        // },
-        // updateUnderCubes: (state, { payload }) => {
-        //     state.polyLines = payload.polyLines;
-        //     state.underCubes = payload.underCubes;
-        // },
-        // makeUnderCubes: (state, { payload }) => {
-        //     state.underCubes = payload;
-        // },
-        // setUnderCubeDragging: (state, { payload }) => {
-        //     state.underCubes = payload;
-        // },
+        setHideCubes: (state, { payload }) => {
+            state.hideCubes = payload;
+        },
         setCubDragging: (state, { payload }) => {
             state.cubes = payload;
         },
@@ -218,4 +204,4 @@ export const mapSlice = createSlice({
 
 });
 
-export const { updateMufta, setCubDragging, setCountTo, setCountOwner, addCubePoly, addVector, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, setItemMenu, setPolylineMenuOpen, setMuftaMenuOpen, changePolylineWeight, setGeneralMenu, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;
+export const { setHideCubes, updateMufta, setCubDragging, setCountTo, setCountOwner, addCubePoly, addVector, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, setItemMenu, setPolylineMenuOpen, setMuftaMenuOpen, changePolylineWeight, setGeneralMenu, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;

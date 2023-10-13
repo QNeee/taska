@@ -123,9 +123,9 @@ const ContextMenu = ({ left, top }: Iprops) => {
     } else if (cubeMenu) {
         return <ContextMenuContainer style={{ left, top }}>
             <MenuItem onClick={() => {
-                ContextMenuCubeInterface.handleClickDelete(drawItemLatLng, dispatch, polyLines, id, cubes)
+                ContextMenuCubeInterface.handleHieCubes(dispatch);
                 ContextMenuCubeInterface.handleClickClose(dispatch)
-            }}>Delete</MenuItem>
+            }}>hide Cubes</MenuItem>
             <MenuItem onClick={() => ContextMenuCubeInterface.handleClickClose(dispatch)}>Exit</MenuItem>
         </ContextMenuContainer>
     }

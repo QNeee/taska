@@ -1,9 +1,9 @@
 import L, { LatLng, LeafletMouseEvent } from "leaflet";
 import { Cubes, ICustomCube } from "../Cubes";
-import { ICustomPolyline } from "../Polylines";
+import { ICustomPolyline, Polylines } from "../Polylines";
 import { setCubeMenu } from "../Redux/app/appSlice";
-import { setContextMenuXY, setDrag, setGeneralMenu, setId, setItemMenu, setMuftaMenuOpen, setPolylineMenuOpen } from "../Redux/map/mapSlice";
-import { ICustomMarker } from "../Mufts";
+import { IItemInfoPoly, setContextMenuXY, setDrag, setGeneralMenu, setHideCubes, setId, setItemMenu, setMuftaMenuOpen, setPolylineMenuOpen, updateCubesDelete } from "../Redux/map/mapSlice";
+import { ICustomMarker, Mufts } from "../Mufts";
 export function roundLatLng(latLng: LatLng, decimalPlaces: number) {
     const lat = latLng.lat.toFixed(decimalPlaces);
     const lng = latLng.lng.toFixed(decimalPlaces);
@@ -13,7 +13,44 @@ export class CubeInterface {
     static handleDoubleClick(e: LeafletMouseEvent, dispatch: Function, index: number, mufts: ICustomMarker[], cube: ICustomCube) {
 
     }
-    static handleCubeOnClick(e: LeafletMouseEvent, dispatch: Function, cubesArr: ICustomCube[], mufts: ICustomMarker[], cube: ICustomCube) {
+    static handleCubeOnClick(e: LeafletMouseEvent, dispatch: Function, cubesArr: ICustomCube[], mufts: ICustomMarker[], cube: ICustomCube, polyLines: ICustomPolyline[], index: number) {
+        const needMufts = mufts.filter(item => item.cubesIds?.includes(cube.id as string));
+        const owner = needMufts.find(item => item.id === cube.owner) as ICustomMarker;
+        const to = needMufts.find(item => item.id === cube.to) as ICustomMarker;
+        const ownerLines = owner.linesIds as string[];
+        const toLines = to.linesIds as string[];
+        const commonLines = ownerLines.filter(lineId => toLines.includes(lineId));
+        const needPolys = polyLines.filter(line => commonLines.some(item => line.id === item));
+        const polys = [...polyLines];
+        const cubes = [...cubesArr];
+        const cubIndex = cubes.findIndex(item => item.id === cube.id);
+        cubes.splice(cubIndex, 1);
+        const lineInfo = {
+            owner: owner.id,
+            to: to.id,
+        }
+        const oldPolys: LatLng[] = [];
+        const oldIds: string[] = [];
+        for (const poly of needPolys) {
+            if (poly.getBounds().contains(cube.getLatLng())) {
+                oldIds.push(poly.id as string);
+                if (!cube.getLatLng().equals(poly.getLatLngs()[0] as LatLng)) {
+                    oldPolys.push(poly.getLatLngs()[0] as LatLng);
+                } else {
+                    oldPolys.push(poly.getLatLngs()[1] as LatLng);
+                }
+            }
+        }
+
+        const line = new Polylines(L.polyline([oldPolys[0] as LatLng, oldPolys[1] as LatLng]), lineInfo as IItemInfoPoly).getLine();
+        const polyIndex1 = polys.findIndex(item => item.id === oldIds[0]);
+        polys.splice(polyIndex1, 1);
+        const polyIndex2 = polys.findIndex(item => item.id === oldIds[1]);
+        polys.splice(polyIndex2, 1);
+        polys.push(line as ICustomPolyline);
+        Mufts.updateMuftCube(dispatch, owner, to, line?.id as string, cube.id as string, oldIds);
+        dispatch(updateCubesDelete({ cubes, polyLines: polys }));
+        dispatch(setItemMenu(false));
 
     }
     static handleCubeDragStart(e: L.LeafletEvent, dispatch: Function, cubesArr: ICustomCube[], mufts: ICustomMarker[], cube: ICustomCube, polyLines: ICustomPolyline[]) {
@@ -68,6 +105,9 @@ export class CubeInterface {
     }
     static handleDeleteCube(id: string) {
 
+    }
+    static handleHideCubes(dispatch: Function) {
+        dispatch(setHideCubes(true));
     }
     // static handleOnClickPolyline(e: L.LeafletMouseEvent, dispatch: Function, poly: ICustomPolyline, map: L.Map, polyLines: ICustomPolyline[], cubes: ICustomCube[], mufts: ICustomCube[], index: number) {
     //     const click = { x: e.originalEvent.clientX, y: e.originalEvent.clientY };
@@ -126,10 +166,10 @@ export class CubeInterface {
         }
     }
     static handleCubeDragEnd(e: L.LeafletEvent, dispatch: Function, polyLines: ICustomPolyline[], item: ICustomCube, index: number) {
-        setDrag(false);
+        dispatch(setDrag(false));
     }
-    static handleCubeMouseOver(e: L.LeafletMouseEvent, dispatch: Function, id: string, drag: boolean) {
-        if (!drag) {
+    static handleCubeMouseOver(e: L.LeafletMouseEvent, dispatch: Function, id: string, drag: boolean, itemMenu: boolean) {
+        if (!drag && !itemMenu) {
             dispatch(setId(id));
             dispatch(setItemMenu(true));
         }

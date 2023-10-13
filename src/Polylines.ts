@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import L, { LatLng } from 'leaflet';
-import { ICubicHelper, IItemInfoPoly, IUpdateObjMufts, addCubePoly, drawPolyline, updatePoly } from './Redux/map/mapSlice';
+import { ICubicHelper, IItemInfoPoly, IUpdateObjMufts, addCubePoly, changePolylineWeight, drawPolyline, updatePoly } from './Redux/map/mapSlice';
+import { ICustomMarker } from './Mufts';
 export interface ICustomPolyline extends L.Polyline {
     id?: string;
     owner?: string;
@@ -20,13 +21,22 @@ export class Polylines {
     constructor(private polyline: ICustomPolyline, objInfo: IItemInfoPoly, muftPoly?: boolean) {
         this.line = new L.Polyline(polyline.getLatLngs() as LatLng[], {
             color: 'red',
-            weight: 12
+            weight: 4
         });
         this.line.id = uuidv4();
         this.line.owner = objInfo.owner;
         this.line.to = objInfo.to;
         this.line.cubeId = objInfo.cubeId;
         this.line.muftPoly = muftPoly;
+    }
+    static changePolyLineWeight(dispatch: Function, muftOwner: ICustomMarker, muftTo: ICustomMarker, polyLines: ICustomPolyline[], weight: number) {
+        const poly = [...polyLines];
+        poly.forEach((line) => {
+            if (line.owner === muftOwner.id && line.to === muftTo.id) {
+                line.options.weight = weight;
+            }
+        })
+        dispatch(changePolylineWeight(poly));
     }
     getLine() {
         return this.line;

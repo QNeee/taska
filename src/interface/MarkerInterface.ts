@@ -1,5 +1,5 @@
 import L, { LatLng, LeafletMouseEvent } from "leaflet";
-import { setContextMenuXY, setDrag, setGeneralMenu, setId, setMuftaMenuOpen, setPolylineMenuOpen, setPolysOwner } from "../Redux/map/mapSlice";
+import { setContextMenuXY, setDrag, setGeneralMenu, setId, setItemMenu, setMuftaMenuOpen, setPolylineMenuOpen, setPolysOwner } from "../Redux/map/mapSlice";
 import { ICustomMarker } from "../Mufts";
 import { ICustomPolyline, Polylines } from "../Polylines";
 
@@ -14,9 +14,9 @@ export class MarkerInterface {
         //     console.log(latLngs.equals(end as LatLng));
         // })
     }
-    static handleMouseOver(muft: ICustomMarker, dispatch: Function, drag: boolean, polyLines: ICustomPolyline[]) {
-        if (!drag) {
-            dispatch(setId(muft.id));
+    static handleMouseOver(muft: ICustomMarker, dispatch: Function, drag: boolean, polyLines: ICustomPolyline[], itemMenu: boolean) {
+        if (!drag && !itemMenu) {
+            dispatch(setItemMenu(true));
         }
         const polys = [...polyLines];
         polys.forEach((item) => {
@@ -33,11 +33,13 @@ export class MarkerInterface {
                 item.options.color = 'red';
             }
         })
+        dispatch(setItemMenu(false));
         dispatch(setPolysOwner(polys));
 
     }
-    static handleContextMenuHandler(e: LeafletMouseEvent, dispatch: Function) {
+    static handleContextMenuHandler(e: LeafletMouseEvent, dispatch: Function, id: string) {
         e.originalEvent.preventDefault();
+        dispatch(setId(id));
         dispatch(setContextMenuXY({ x: e.originalEvent.clientX, y: e.originalEvent.clientY }));
         dispatch(setGeneralMenu(false));
         dispatch(setPolylineMenuOpen(false));

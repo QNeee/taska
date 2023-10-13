@@ -1,30 +1,23 @@
 import L, { LatLng } from "leaflet";
 import { ICustomPolyline, Polylines } from "../Polylines";
-import { IItemInfoPoly, changePolylineWeight, drawCube, drawPolyline, setContextMenuXY, setCountOwner, setCountTo, setGeneralMenu, setId, setItemMenu, setMuftaMenuOpen, setPolylineMenuOpen } from "../Redux/map/mapSlice";
+import { IItemInfoPoly, drawCube, drawPolyline, setContextMenuXY, setCountOwner, setCountTo, setGeneralMenu, setHideCubes, setItemMenu, setMuftaMenuOpen, setPolylineMenuOpen } from "../Redux/map/mapSlice";
 import { Cubes, ICustomCube } from "../Cubes";
 import 'leaflet-geometryutil';
 import { ICustomMarker, Mufts } from "../Mufts";
-// function findNearestLine(clickLatLng: LatLng, map: L.Map): L.Polyline | null {
-//     let nearestLine = null;
-//     let minDistance = Infinity;
-//     map.eachLayer((layer) => {
-//         if (layer instanceof L.Polyline) {
-//             const polyline = layer;
-//             const distance = clickLatLng.distanceTo(polyline.getCenter());
-//             if (distance < minDistance) {
-//                 minDistance = distance;
-//                 nearestLine = polyline;
-//             }
-//         }
-//     });
 
-//     return nearestLine;
-// }
 export class PolylineInterface {
-    static handleOnClickPolyline(e: L.LeafletMouseEvent, dispatch: Function, poly: ICustomPolyline, map: L.Map, polyLines: ICustomPolyline[], cubes: ICustomCube[], index: number, mufts: ICustomMarker[]) {
+    static handleDbClick(e: L.LeafletMouseEvent) {
+        e.originalEvent.preventDefault();
+    }
+    static handleOnClickPolyline(e: L.LeafletMouseEvent, dispatch: Function, poly: ICustomPolyline, map: L.Map, polyLines: ICustomPolyline[], cubes: ICustomCube[], index: number, mufts: ICustomMarker[], hideCubes: boolean) {
+        if (hideCubes) {
+            return dispatch(setHideCubes(false));
+        }
         const needMufts = mufts.filter(item => item.linesIds?.includes(poly?.id as string));
+        const owner = needMufts.find(item => item.id === poly.owner) as ICustomMarker;
+        const to = needMufts.find(item => item.id === poly.to) as ICustomMarker;
         const polys = [...polyLines];
-        const ownerCubes = cubes.filter(cube => cube.owner === needMufts[0].id);
+        const ownerCubes = cubes.filter(cube => cube.owner === owner?.id);
         const click = { x: e.originalEvent.clientX, y: e.originalEvent.clientY };
         const clickLatLng = map.containerPointToLatLng(L.point(click.x, click.y));
         const nearestPoint = L.GeometryUtil.closest(map, poly, clickLatLng);
@@ -33,20 +26,20 @@ export class PolylineInterface {
             lat: nearestPoint?.lat!,
             lng: nearestPoint?.lng!
         }
-        const distanceToOwner = needMufts[0].getLatLng().distanceTo(nearestLatLng);
-        const distanceToTo = needMufts[1].getLatLng().distanceTo(nearestLatLng);
+        const distanceToOwner = owner.getLatLng().distanceTo(nearestLatLng);
+        const distanceToTo = to.getLatLng().distanceTo(nearestLatLng);
         const lineInfo = {
-            owner: needMufts[0].id,
-            to: needMufts[1].id,
+            owner: owner.id,
+            to: to.id,
         }
         if (ownerCubes.length === 0) {
             polys.splice(index, 1);
-            const line1 = new Polylines(L.polyline([needMufts[0].getLatLng(), nearestLatLng as LatLng]), lineInfo as IItemInfoPoly, true).getLine();
-            const line2 = new Polylines(L.polyline([needMufts[1].getLatLng(), nearestLatLng as LatLng]), lineInfo as IItemInfoPoly, true).getLine();
+            const line1 = new Polylines(L.polyline([owner.getLatLng(), nearestLatLng as LatLng]), lineInfo as IItemInfoPoly, true).getLine();
+            const line2 = new Polylines(L.polyline([to.getLatLng(), nearestLatLng as LatLng]), lineInfo as IItemInfoPoly, true).getLine();
 
             const cubeInfo = {
-                owner: needMufts[0].id,
-                to: needMufts[1].id,
+                owner: owner.id,
+                to: to.id,
                 distanceToOwner,
                 distanceToTo,
             }
@@ -54,13 +47,14 @@ export class PolylineInterface {
             polys.push(line1 as ICustomPolyline, line2 as ICustomPolyline);
             distanceToOwner < distanceToTo ? dispatch(setCountOwner('')) : dispatch(setCountTo(''))
             const newCubes = [...cubes, cube as ICustomCube];
-            Mufts.updateMuft(dispatch, needMufts[0], needMufts[1], line1?.id as string, poly.id, line2?.id as string);
+            Mufts.updateMuftLine(dispatch, owner, to, line1?.id as string, poly.id, line2?.id as string, cube?.id as string);
             dispatch(drawPolyline(polys));
             dispatch(drawCube(newCubes));
+            Polylines.changePolyLineWeight(dispatch, owner, to, polys, 4);
         } else {
             const cubeInfo = {
-                owner: needMufts[0].id,
-                to: needMufts[1].id,
+                owner: owner.id,
+                to: to.id,
                 distanceToOwner,
                 distanceToTo,
             }
@@ -86,9 +80,10 @@ export class PolylineInterface {
 
             }
             const newCubes = [...cubes, cube];
-            Mufts.updateMuft(dispatch, needMufts[0], needMufts[1], linesId[0], poly.id, linesId[1]);
+            Mufts.updateMuftLine(dispatch, owner, to, linesId[0], poly.id, linesId[1], cube?.id as string);
             dispatch(drawPolyline(polys));
             dispatch(drawCube(newCubes));
+            Polylines.changePolyLineWeight(dispatch, owner, to, polys, 4);
         }
 
 
@@ -120,32 +115,18 @@ export class PolylineInterface {
         dispatch(setGeneralMenu(false));
         dispatch(setPolylineMenuOpen(true));
     }
-    static handleMouseOverPolyline(e: L.LeafletMouseEvent, dispatch: Function, item: ICustomPolyline, drag: boolean, index: number, polylines: ICustomPolyline[], mufts: ICustomMarker[]) {
-        if (!drag) {
-            dispatch(setId(item.id));
+    static handleMouseOverPolyline(e: L.LeafletMouseEvent, dispatch: Function, item: ICustomPolyline, drag: boolean, index: number, polylines: ICustomPolyline[], mufts: ICustomMarker[], itemMenu: boolean) {
+        if (!drag && !itemMenu) {
             dispatch(setItemMenu(true));
-
             const owner = mufts.filter(muft => muft.id === item.owner);
             const to = mufts.filter(muft => muft.id === item.to);
-            const poly = [...polylines];
-            poly.forEach((line) => {
-                if (line.owner === owner[0].id && line.to === to[0].id) {
-                    line.options.weight = 12;
-                }
-            })
-            dispatch(changePolylineWeight(poly));
+            Polylines.changePolyLineWeight(dispatch, owner[0], to[0], polylines, 12);
         }
     }
     static handleMouseOutPolyline(e: L.LeafletMouseEvent, dispatch: Function, item: ICustomPolyline, index: number, polylines: ICustomPolyline[], mufts: ICustomMarker[]) {
         const owner = mufts.filter(muft => muft.id === item.owner);
         const to = mufts.filter(muft => muft.id === item.to);
-        const poly = [...polylines];
-        poly.forEach((line) => {
-            if (line.owner === owner[0].id && line.to === to[0].id) {
-                line.options.weight = 4;
-            }
-        })
-        dispatch(changePolylineWeight(poly));
+        Polylines.changePolyLineWeight(dispatch, owner[0], to[0], polylines, 4);
         dispatch(setItemMenu(false));
     }
 }
