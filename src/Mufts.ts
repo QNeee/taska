@@ -22,24 +22,35 @@ export class Mufts {
         dispatch(drawMufta(this.muft));
     }
     static updateMuftCube(dispatch: Function, muftOwner: ICustomMarker, muftTo: ICustomMarker, lineId: string, cubeId: string, oldIds: string[]) {
+        const updateMuftLines = (muftsLines: string[], oldIds: string[]) => {
+            for (const oldId of oldIds) {
+                const index = muftsLines.findIndex((item) => item === oldId);
+                if (index !== -1) {
+                    muftsLines.splice(index, 1);
+                }
+            }
+            muftsLines.push(lineId);
+        }
+
+        const updateMuftCubes = (muftCubes: string[], cubeId: string) => {
+            const index = muftCubes.findIndex((item) => item === cubeId);
+            if (index !== -1) {
+                muftCubes.splice(index, 1);
+            }
+        }
+
         const muftsLinesOwner = muftOwner.linesIds as string[];
         const muftsLinesTo = muftTo.linesIds as string[];
         const muftCubesOwner = muftOwner.cubesIds as string[];
         const muftCubesTo = muftTo.cubesIds as string[];
-        const indexLine1Owner = muftsLinesOwner.findIndex(item => item === oldIds[0]);
-        muftsLinesOwner.splice(indexLine1Owner, 1)
-        const indexLine2Owner = muftsLinesOwner.findIndex(item => item === oldIds[1]);
-        muftsLinesOwner.splice(indexLine2Owner, 1)
-        const indexLine1To = muftsLinesTo.findIndex(item => item === oldIds[0]);
-        muftsLinesTo.splice(indexLine1To, 1)
-        const indexLine2To = muftsLinesTo.findIndex(item => item === oldIds[1]);
-        muftsLinesTo.splice(indexLine2To, 1)
-        muftsLinesOwner.push(lineId);
-        muftsLinesTo.push(lineId);
-        const indexOwner = muftCubesOwner.findIndex(item => item === cubeId);
-        const indexTo = muftCubesTo.findIndex(item => item === cubeId);
-        muftCubesOwner.splice(indexOwner, 1)
-        muftCubesTo.splice(indexTo, 1)
+        console.log(muftCubesOwner);
+        console.log(muftCubesTo);
+        updateMuftLines(muftsLinesOwner, oldIds);
+        updateMuftLines(muftsLinesTo, oldIds);
+        updateMuftCubes(muftCubesOwner, cubeId);
+        updateMuftCubes(muftCubesTo, cubeId);
+        console.log(muftCubesOwner);
+        console.log(muftCubesTo);
         dispatch(updateMufta({ idOwner: muftOwner?.id, idTo: muftTo?.id, data: [muftTo, muftOwner] }));
     }
     static updateMuftLine(dispatch: Function, muftOwner: ICustomMarker, muftTo: ICustomMarker, line1Id: string, oldId?: string, line2Id?: string, cubeId?: string) {
