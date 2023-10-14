@@ -35,33 +35,32 @@ export class ContextMenuMuftaInterface {
         const cubesIds = cubes.filter(cube => mufta.cubesIds?.includes(cube.id as string));
         const polys = [...polyLines];
         const cubics = [...cubes];
-        const indexLinesToDelete: number[] = [];
-        const indexCubesToDelete: number[] = [];
         for (const muft of to) {
             for (const poly of polysIds) {
                 if (muft.linesIds?.includes(poly.id as string)) {
-                    const index = polyLines.findIndex(item => item.id === poly.id);
-                    indexLinesToDelete.push(index);
+                    const indexPoly = muft.linesIds.findIndex(item => item === poly.id);
+                    if (indexPoly !== -1) {
+                        muft.linesIds.splice(indexPoly, 1);
+                    }
+
+                    const index = polys.findIndex(item => item.id === poly.id);
+                    polys.splice(index, 1);
                 }
             }
             for (const cube of cubesIds) {
                 if (muft.cubesIds?.includes(cube.id as string)) {
-                    const index = cubes.findIndex(item => item.id === cube.id);
-                    indexCubesToDelete.push(index);
+                    const indexCube = muft.cubesIds.findIndex(item => item === cube.id);
+                    if (indexCube !== -1) {
+                        muft.cubesIds.splice(indexCube, 1);
+                    }
+
+                    const index = cubics.findIndex(item => item.id === cube.id);
+                    cubics.splice(index, 1);
                 }
             }
         }
-        indexLinesToDelete.sort((a, b) => b - a);
-        indexCubesToDelete.sort((a, b) => b - a);
-        for (let i = 0; i < indexLinesToDelete.length; i++) {
-            polys.splice(indexLinesToDelete[i], 1);
-        }
-        for (let i = 0; i < indexCubesToDelete.length; i++) {
-            cubics.splice(indexCubesToDelete[i], 1);
-        }
         mufts.splice(index, 1);
         dispatch(deleteMufta({ mufts, polyLines: polys, cubes: cubics }))
-        // Mufts.deleteMufta(mufts, dispatch);
     }
     static handleAddLineTo(mufts: ICustomMarker[], id: string, dispatch: Function, lineStart: ILineStart | null, map: L.Map) {
         const muftaTo = mufts.find(item => item.id === id);
