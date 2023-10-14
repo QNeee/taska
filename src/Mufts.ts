@@ -43,14 +43,10 @@ export class Mufts {
         const muftsLinesTo = muftTo.linesIds as string[];
         const muftCubesOwner = muftOwner.cubesIds as string[];
         const muftCubesTo = muftTo.cubesIds as string[];
-        console.log(muftCubesOwner);
-        console.log(muftCubesTo);
         updateMuftLines(muftsLinesOwner, oldIds);
         updateMuftLines(muftsLinesTo, oldIds);
         updateMuftCubes(muftCubesOwner, cubeId);
         updateMuftCubes(muftCubesTo, cubeId);
-        console.log(muftCubesOwner);
-        console.log(muftCubesTo);
         dispatch(updateMufta({ idOwner: muftOwner?.id, idTo: muftTo?.id, data: [muftTo, muftOwner] }));
     }
     static updateMuftLine(dispatch: Function, muftOwner: ICustomMarker, muftTo: ICustomMarker, line1Id: string, oldId?: string, line2Id?: string, cubeId?: string) {

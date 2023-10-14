@@ -79,7 +79,7 @@ const ContextMenu = ({ left, top }: Iprops) => {
                     ContextMenuMuftaInterface.handleOnCloseMuftaMenu(dispatch);
                 }}>добавить линию отсюда</MenuItem>
                 <MenuItem onClick={() => {
-                    ContextMenuMuftaInterface.handleDeleteMufta(mufts, id, dispatch)
+                    ContextMenuMuftaInterface.handleDeleteMufta(mufts, id, dispatch, polyLines, cubes)
                     ContextMenuMuftaInterface.handleOnCloseMuftaMenu(dispatch);
                 }}>delete</MenuItem>
                 <MenuItem onClick={() => ContextMenuMuftaInterface.handleOnCloseMuftaMenu(dispatch)}>закрыть</MenuItem>

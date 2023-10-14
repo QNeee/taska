@@ -192,7 +192,9 @@ export const mapSlice = createSlice({
             state.itemMenu = payload;
         },
         deleteMufta: (state, { payload }) => {
-            state.mufts = payload;
+            state.mufts = payload.mufts;
+            state.polyLines = payload.polyLines;
+            state.cubes = payload.cubes;
         },
         drawCube: (state, { payload }) => {
             state.cubes = payload;
