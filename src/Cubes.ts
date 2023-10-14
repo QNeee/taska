@@ -25,8 +25,8 @@ export const iconUrl1 = 'https://cdn.icon-icons.com/icons2/605/PNG/512/square-cu
 export class Cubes {
     cubic: ICustomCube | null = null;
 
-    constructor(private cubicObj: ICustomCube, cubicInfo: any) {
-        this.cubic = L.marker(cubicObj.getLatLng(), { icon: L.icon({ iconUrl: iconUrl1, iconSize: [25, 25] }) });
+    constructor(private latLng: LatLng, cubicInfo: any) {
+        this.cubic = L.marker(latLng, { icon: L.icon({ iconUrl: iconUrl1, iconSize: [25, 25] }) });
         this.cubic.id = uuidv4();
         this.cubic.owner = cubicInfo.owner;
         this.cubic.to = cubicInfo.to;

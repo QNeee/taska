@@ -33,9 +33,11 @@ export class PolylineInterface {
             to: to.id,
         }
         if (ownerCubes.length === 0) {
+            const ownerLatLng: LatLng[] = [owner.getLatLng(), nearestLatLng as LatLng];
+            const toLatLng: LatLng[] = [to.getLatLng(), nearestLatLng as LatLng];
             polys.splice(index, 1);
-            const line1 = new Polylines(L.polyline([owner.getLatLng(), nearestLatLng as LatLng]), lineInfo as IItemInfoPoly, true).getLine();
-            const line2 = new Polylines(L.polyline([to.getLatLng(), nearestLatLng as LatLng]), lineInfo as IItemInfoPoly, true).getLine();
+            const line1 = new Polylines(ownerLatLng, lineInfo as IItemInfoPoly, true).getLine();
+            const line2 = new Polylines(toLatLng, lineInfo as IItemInfoPoly, true).getLine();
 
             const cubeInfo = {
                 owner: owner.id,
@@ -43,7 +45,7 @@ export class PolylineInterface {
                 distanceToOwner,
                 distanceToTo,
             }
-            const cube = new Cubes(new L.Marker(cubeLatLng), cubeInfo).getCub();
+            const cube = new Cubes(cubeLatLng, cubeInfo).getCub();
             polys.push(line1 as ICustomPolyline, line2 as ICustomPolyline);
             distanceToOwner < distanceToTo ? dispatch(setCountOwner('')) : dispatch(setCountTo(''))
             const newCubes = [...cubes, cube as ICustomCube];
@@ -58,7 +60,7 @@ export class PolylineInterface {
                 distanceToOwner,
                 distanceToTo,
             }
-            const cube = new Cubes(new L.Marker(cubeLatLng), cubeInfo).getCub();
+            const cube = new Cubes(cubeLatLng, cubeInfo).getCub();
             const needMarkers: ICustomCube[] = [];
             const start = poly.getLatLngs()[0] as LatLng;
             const end = poly.getLatLngs()[1] as LatLng;
@@ -74,7 +76,7 @@ export class PolylineInterface {
             for (let i = 0; i < needMarkers.length - 1; i++) {
                 const startMarker = needMarkers[i].getLatLng() as LatLng;
                 const endMarker = needMarkers[i + 1].getLatLng() as LatLng;
-                const line = new Polylines(L.polyline([startMarker, endMarker], { weight: 12 }), lineInfo as IItemInfoPoly).getLine()
+                const line = new Polylines([startMarker, endMarker], lineInfo as IItemInfoPoly).getLine()
                 polys.push(line as ICustomPolyline);
                 linesId.push(line?.id as string);
 

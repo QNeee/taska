@@ -39,7 +39,7 @@ export class ContextMenuMuftaInterface {
             owner: lineStart?.id as string,
             to: muftaTo?.id as string
         }
-        const polyLine = new Polylines(L.polyline([muftaLatLng, ownerLatLng]), additionalInfo).getLine();
+        const polyLine = new Polylines([muftaLatLng, ownerLatLng], additionalInfo).getLine();
         Mufts.updateMuftLine(dispatch, muftaOwner as ICustomMarker, muftaTo as ICustomMarker, polyLine?.id as string);
         dispatch(drawPolyline(polyLine));
         dispatch(setAddLine(false));

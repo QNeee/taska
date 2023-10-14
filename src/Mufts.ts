@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
-import { deleteMufta, updateMufta } from './Redux/map/mapSlice';
-import L from 'leaflet';
+import { deleteMufta, drawMufta, updateMufta } from './Redux/map/mapSlice';
+import L, { LatLng } from 'leaflet';
 
 
 const iconUrl =
@@ -10,19 +10,16 @@ export interface ICustomMarker extends L.Marker {
     linesIds?: string[];
     cubesIds?: string[];
 }
-export interface IMarkerInfo {
-
-}
 export class Mufts {
     muft: ICustomMarker | null = null;
-    constructor(private muftObj: ICustomMarker) {
-        this.muft = new L.Marker(muftObj.getLatLng(), { icon: L.icon({ iconUrl: iconUrl, iconSize: [30, 30] }) })
+    constructor(private latLng: LatLng) {
+        this.muft = new L.Marker(latLng, { icon: L.icon({ iconUrl: iconUrl, iconSize: [30, 30] }) })
         this.muft.id = uuidv4();
         this.muft.linesIds = [];
         this.muft.cubesIds = [];
     }
-    getMuft() {
-        return this.muft;
+    addMuft(dispatch: Function) {
+        dispatch(drawMufta(this.muft));
     }
     static updateMuftCube(dispatch: Function, muftOwner: ICustomMarker, muftTo: ICustomMarker, lineId: string, cubeId: string, oldIds: string[]) {
         const muftsLinesOwner = muftOwner.linesIds as string[];

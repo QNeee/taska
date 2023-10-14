@@ -18,8 +18,8 @@ export interface IMuftInfo {
 }
 export class Polylines {
     line: ICustomPolyline | null = null;
-    constructor(private polyline: ICustomPolyline, objInfo: IItemInfoPoly, muftPoly?: boolean) {
-        this.line = new L.Polyline(polyline.getLatLngs() as LatLng[], {
+    constructor(private latlng: LatLng[], objInfo: IItemInfoPoly, muftPoly?: boolean) {
+        this.line = new L.Polyline(latlng, {
             color: 'red',
             weight: 4
         });

@@ -41,8 +41,7 @@ export class CubeInterface {
                 }
             }
         }
-
-        const line = new Polylines(L.polyline([oldPolys[0] as LatLng, oldPolys[1] as LatLng]), lineInfo as IItemInfoPoly).getLine();
+        const line = new Polylines(oldPolys, lineInfo as IItemInfoPoly).getLine();
         const polyIndex1 = polys.findIndex(item => item.id === oldIds[0]);
         polys.splice(polyIndex1, 1);
         const polyIndex2 = polys.findIndex(item => item.id === oldIds[1]);
