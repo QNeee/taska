@@ -1,18 +1,20 @@
 import { useDispatch, useSelector } from "react-redux"
-import { getDrag } from "../../../Redux/app/appSelectors"
 import { Marker } from "react-leaflet";
-import { getItemMenu, getMufts, getPolyLines } from "../../../Redux/map/mapSelectors";
+import { getDrag, getItemMenu, getMufts, getPolyLines, getWardrobes } from "../../../Redux/map/mapSelectors";
 import { MarkerInterface } from "../../../interface/MarkerInterface";
 import { setContextMenuXY, setDrag, setGeneralMenu, setId, setItemMenu, setMuftaMenuOpen, setPolylineMenuOpen, setPolysOwner, updatePoly } from "../../../Redux/map/mapSlice";
 
-export const Mufts = () => {
+export const Wardrobes = () => {
+
+    const wardRobes = useSelector(getWardrobes);
     const dispatch = useDispatch();
     const mufts = useSelector(getMufts);
     const polyLines = useSelector(getPolyLines);
     const drag = useSelector(getDrag);
     const itemMenu = useSelector(getItemMenu);
+
     return <>
-        {mufts.map((item, index) => (
+        {wardRobes.map((item, index) => (
             <Marker
                 draggable={item.drag}
                 key={item.id}
@@ -33,12 +35,12 @@ export const Mufts = () => {
                     },
                     dragstart: () => dispatch(setDrag(true)),
                     drag: (e) => {
-                        const data = MarkerInterface.handleMarkerDrag(e, polyLines, item, index, mufts);
+                        const data = MarkerInterface.handleMarkerDrag(e, polyLines, item, index, mufts, wardRobes);
                         dispatch(updatePoly(data));
 
                     },
                     dragend: () => dispatch(setDrag(false)),
-                    contextmenu: (e) => {
+                    contextmenu: async (e) => {
                         e.originalEvent.preventDefault();
                         dispatch(setId(item.id));
                         dispatch(setContextMenuXY({ x: e.originalEvent.clientX, y: e.originalEvent.clientY }));

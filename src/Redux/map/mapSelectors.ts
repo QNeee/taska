@@ -21,3 +21,4 @@ export const getCountTo = (state: RootState) => state.map.countTo;
 // export const getTempUnderCubes = (state: RootState) => state.map.tempUnderCubes;
 export const getTempPolys = (state: RootState) => state.map.tempPolylines;
 export const getHideCubes = (state: RootState) => state.map.hideCubes;
+export const getWardrobes = (state: RootState) => state.map.wardrobes;

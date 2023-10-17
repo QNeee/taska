@@ -10,6 +10,7 @@ export interface ICustomPolyline extends L.Polyline {
     to?: string;
     cubeId?: string;
     muftPoly?: boolean;
+    type?: string;
 }
 export interface IMuftInfo {
     id: string,
@@ -28,6 +29,7 @@ export class Polylines {
         this.line.to = objInfo.to;
         this.line.cubeId = objInfo.cubeId;
         this.line.muftPoly = muftPoly;
+        this.line.type = 'polyline'
     }
     static changePolyLineWeight(muftOwner: ICustomMarker, muftTo: ICustomMarker, polyLines: ICustomPolyline[], weight: number) {
         const poly = [...polyLines];

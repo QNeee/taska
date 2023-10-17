@@ -8,6 +8,8 @@ export interface ICustomMarker extends L.Marker {
     id?: string;
     linesIds?: string[];
     cubesIds?: string[];
+    drag?: boolean;
+    type?: string;
 }
 export class Mufts {
     muft: ICustomMarker | null = null;
@@ -16,6 +18,8 @@ export class Mufts {
         this.muft.id = uuidv4();
         this.muft.linesIds = [];
         this.muft.cubesIds = [];
+        this.muft.drag = true;
+        this.muft.type = 'muft'
     }
     getMuft() {
         return this.muft;

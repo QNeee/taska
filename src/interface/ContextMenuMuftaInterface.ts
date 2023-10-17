@@ -3,6 +3,8 @@ import { ILineStart, setMuftaMenuOpen } from "../Redux/map/mapSlice";
 import { ICustomPolyline, Polylines } from "../Polylines";
 import { ICustomMarker, Mufts } from "../Mufts";
 import { ICustomCube } from "../Cubes";
+import { Coords } from "../components/Map/ContextMenu";
+import { ICustomWardrobe } from "../Wardrobe";
 
 export interface IDrawItemLatLng {
     lat: number,
@@ -60,6 +62,24 @@ export class ContextMenuMuftaInterface {
             }
         }
         return { mufts, polyLines: polys, cubes: cubics };
+    }
+    static handleApplyCoordinates(id: string, mufts: ICustomMarker[], wardrobes: ICustomWardrobe[], form: Coords) {
+        let index = mufts.findIndex(item => item.id === id);
+        let data: ICustomMarker | ICustomWardrobe;
+        if (index !== -1) {
+            const muft = mufts[index];
+            muft.drag = !muft.drag;
+            muft.setLatLng({ lat: form.lat, lng: form.lng });
+            data = muft;
+        } else {
+            index = wardrobes.findIndex(item => item.id === id);
+            const wardrobe = wardrobes[index];
+            wardrobe.drag = !wardrobe.drag;
+            wardrobe.setLatLng({ lat: form.lat, lng: form.lng });
+            data = wardrobe;
+        }
+        return { index, data };
+
     }
     static handleAddLineTo(mufts: ICustomMarker[], id: string, lineStart: ILineStart | null) {
         const muftaTo = mufts.find(item => item.id === id);

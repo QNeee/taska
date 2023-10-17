@@ -17,6 +17,7 @@ import {
 import { Mufts } from './MapItems/Mufts';
 import { Polylines } from './MapItems/Polylines';
 import { Cubes } from './MapItems/Cubes';
+import { Wardrobes } from './MapItems/Wardrobes';
 // import { UnderCubes } from './MapItems/UnderCubes';
 
 export const iconUrl1 = 'https://cdn.icon-icons.com/icons2/605/PNG/512/square-cut_icon-icons.com_56037.png';
@@ -84,7 +85,7 @@ export const Map = () => {
                     <Mufts />
                     <Polylines />
                     <Cubes />
-                    {/* <UnderCubes /> */}
+                    <Wardrobes />
 
 
                     <MapDrawing />

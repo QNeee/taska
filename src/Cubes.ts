@@ -13,6 +13,7 @@ export interface ICustomCube extends L.Marker {
     countTo?: number,
     lineIds?: string,
     drager?: boolean,
+    type?: string,
 }
 export interface ICubic {
     id?: string,
@@ -30,6 +31,7 @@ export class Cubes {
         this.cubic.id = uuidv4();
         this.cubic.owner = cubicInfo.owner;
         this.cubic.to = cubicInfo.to;
+        this.cubic.type = 'cube'
     }
     static changeCubeDragable() {
 

@@ -4,6 +4,7 @@ import { LatLng } from "leaflet";
 import { ICustomMarker } from "../../Mufts";
 import { ICustomCube } from "../../Cubes";
 import { IVector } from "../../Vector";
+import { ICustomWardrobe } from "../../Wardrobe";
 // import { ICustomUnderCube } from "../../UnderCubes";
 
 export interface ICustomLatLng {
@@ -70,6 +71,7 @@ interface IMapState {
     countTo: number;
     // tempUnderCubes: ICustomUnderCube[];
     tempLines: ICustomPolyline[];
+    wardrobes: ICustomWardrobe[];
     hideCubes: boolean;
 }
 const initialState: IMapState = {
@@ -82,6 +84,7 @@ const initialState: IMapState = {
     mufts: [],
     drag: false,
     showOwnerLines: false,
+    wardrobes: [],
     polyLines: [],
     contextMenuXY: null,
     cubes: [],
@@ -101,6 +104,17 @@ export const mapSlice = createSlice({
     name: 'map',
     initialState,
     reducers: {
+        drawWardrobe: (state, { payload }) => {
+            console.log(payload);
+            state.wardrobes.push(payload);
+        },
+        setToggleCoordsApply: (state, { payload }) => {
+            if (payload.data.type === 'wardrobe') {
+                state.wardrobes.splice(payload.index, 1, payload.data);
+            } else {
+                state.mufts.splice(payload.index, 1, payload.data);
+            }
+        },
         setHideCubes: (state, { payload }) => {
             state.hideCubes = payload;
         },
@@ -172,6 +186,7 @@ export const mapSlice = createSlice({
             if (payload.newArr.length > 0) {
                 state.polyLines = payload.newArr;
             }
+            if (payload.wardrobes) state.wardrobes = payload.wardrobes;
         },
         setContextMenuXY: (state, { payload }) => {
             state.contextMenuXY = payload;
@@ -207,4 +222,4 @@ export const mapSlice = createSlice({
 
 });
 
-export const { setHideCubes, updateMufta, setCubDragging, setCountTo, setCountOwner, addCubePoly, addVector, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, setItemMenu, setPolylineMenuOpen, setMuftaMenuOpen, changePolylineWeight, setGeneralMenu, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;
+export const { drawWardrobe, setToggleCoordsApply, setHideCubes, updateMufta, setCubDragging, setCountTo, setCountOwner, addCubePoly, addVector, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, setItemMenu, setPolylineMenuOpen, setMuftaMenuOpen, changePolylineWeight, setGeneralMenu, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;

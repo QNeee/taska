@@ -5,15 +5,19 @@ import { getAddLine, getDrawItemLatLng, getCubeMenu } from '../../Redux/app/appS
 import { ContextMenuMuftaInterface } from '../../interface/ContextMenuMuftaInterface';
 import { ContextMenuGeneralInterface } from '../../interface/ContextMenuGeneralInterface';
 import { ContextMenuPolylineInterface } from '../../interface/ContextMenuPolylineIntrface';
-import React, { useState } from 'react';
-import { getCubes, getGeneralMenu, getId, getLineStart, getMuftaMenuOpen, getMufts, getPolyLines, getPolylineMenuOpen } from '../../Redux/map/mapSelectors';
+import React, { useEffect, useState } from 'react';
+import { getCubes, getGeneralMenu, getId, getLineStart, getMuftaMenuOpen, getMufts, getPolyLines, getPolylineMenuOpen, getWardrobes } from '../../Redux/map/mapSelectors';
 import { useMap } from 'react-leaflet';
-import { deleteMufta, drawMufta, drawPolyline, setGeneralMenu, setHideCubes, setLineStart, setMuftaMenuOpen, updateMufta } from '../../Redux/map/mapSlice';
+import { deleteMufta, drawMufta, drawPolyline, setToggleCoordsApply, setGeneralMenu, setHideCubes, setLineStart, setMuftaMenuOpen, updateMufta, drawWardrobe } from '../../Redux/map/mapSlice';
 import { setAddLine, setCubeMenu } from '../../Redux/app/appSlice';
 
 interface Iprops {
     left: number,
     top: number,
+}
+export interface Coords {
+    lat: number,
+    lng: number,
 }
 const ContextMenuContainer = styled.div`
   position: absolute;
@@ -57,9 +61,22 @@ const ContextMenu = ({ left, top }: Iprops) => {
     const lineStart = useSelector(getLineStart);
     const muftsArr = useSelector(getMufts);
     const [isChangeHovered, setIsChangeHovered] = useState(false);
+    const wardrobes = useSelector(getWardrobes);
+    const item = muftsArr.find(item => item.id === id) || wardrobes.find(item => item.id === id);
+    const [form, setForm] = useState({ lat: 0, lng: 0 });
     const handleMouseEnterChange = () => {
         setIsChangeHovered(true);
     };
+    useEffect(() => {
+        setForm({ lat: item?.getLatLng().lat as number, lng: item?.getLatLng().lng as number })
+    }, [item])
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { id, value } = e.target;
+        setForm(prev => ({
+            ...prev,
+            [id]: value
+        }))
+    }
     const handleMouseLeaveChange = () => {
         setIsChangeHovered(false);
     };
@@ -77,19 +94,34 @@ const ContextMenu = ({ left, top }: Iprops) => {
                     dispatch(drawPolyline(polyLine));
                     dispatch(setAddLine(false));
                     dispatch(setMuftaMenuOpen(false));
-                }}>добавить линию сюда</MenuItem>
+                }}>Додати лінію сюди</MenuItem>
                 <MenuItem onClick={() => {
                     const data = ContextMenuMuftaInterface.handleAddLineFrom(muftsArr, id)
                     dispatch(setLineStart(data));
                     dispatch(setAddLine(true));
                     dispatch(setMuftaMenuOpen(false));
-                }}>добавить линию отсюда</MenuItem>
+                }}>Додати лінію звідси</MenuItem>
+                {item?.drag && <div style={{
+                    width: "100%"
+                }}>
+                    lat
+                    <input type="text" id="lat" value={form.lat} onChange={handleInputChange} />
+                    lng
+                    <input type="text" id="lng" value={form.lng} onChange={handleInputChange} />
+                </div>}
+                <MenuItem onClick={() => {
+                    const { index, data } = ContextMenuMuftaInterface.handleApplyCoordinates(id, muftsArr, wardrobes, form);
+                    dispatch(setToggleCoordsApply({ index, data }));
+                    dispatch(setMuftaMenuOpen(false));
+                }}>
+                    {item?.drag ? "Застосувати координати" : "Змінити координати"}
+                </MenuItem>
                 <MenuItem onClick={() => {
                     const { mufts, polyLines, cubes } = ContextMenuMuftaInterface.handleDeleteMufta(muftsArr, id, polyLinesArr, cubesArr)
                     dispatch(deleteMufta({ mufts, polyLines, cubes }));
                     dispatch(setMuftaMenuOpen(false));
-                }}>delete</MenuItem>
-                <MenuItem onClick={() => ContextMenuMuftaInterface.handleOnCloseMuftaMenu(dispatch)}>закрыть</MenuItem>
+                }}>Видалити</MenuItem>
+                <MenuItem onClick={() => ContextMenuMuftaInterface.handleOnCloseMuftaMenu(dispatch)}>Закрити</MenuItem>
             </ContextMenuContainer>
         );
     } else if (generalMenuOpen) {
@@ -99,42 +131,47 @@ const ContextMenu = ({ left, top }: Iprops) => {
                     const data = ContextMenuGeneralInterface.handleMenuClickMufta(obj, map);
                     dispatch(drawMufta(data));
                     dispatch(setGeneralMenu(false));
-                }}>Circle</MenuItem>
-                <MenuItem onClick={() => dispatch(setGeneralMenu(false))}>Exit</MenuItem>
+                }}>Муфта</MenuItem>
+                <MenuItem onClick={() => {
+                    const data = ContextMenuGeneralInterface.handleMenuClickWardrobe(obj, map);
+                    dispatch(drawWardrobe(data));
+                    dispatch(setGeneralMenu(false));
+                }}>Шкаф</MenuItem>
+                <MenuItem onClick={() => dispatch(setGeneralMenu(false))}>Закрити</MenuItem>
             </ContextMenuContainer>
         );
     } else if (polylineMenuOpen) {
         return <ContextMenuContainer style={{ left, top }}>
             <div onMouseEnter={handleMouseEnterChange}
                 onMouseLeave={handleMouseLeaveChange}>
-                <MenuItem >change</MenuItem>
+                <MenuItem >Змінити</MenuItem>
                 {isChangeHovered && (
                     <div>
 
                         <button onClick={() => {
                             ContextMenuPolylineInterface.handleMenuClickChangeLineNewFromThis(drawItemLatLng, dispatch, polyLinesArr, id)
                             ContextMenuPolylineInterface.handleMenuClose(dispatch)
-                        }}>new Line from this</button>
+                        }}>Нова лінія звідси</button>
                         <button onClick={() => {
                             ContextMenuPolylineInterface.handleMenuClickChangeLineFromThis(drawItemLatLng, dispatch, polyLinesArr, muftsArr, id, cubesArr)
                             ContextMenuPolylineInterface.handleMenuClose(dispatch)
-                        }}>ADD CUBE</button>
+                        }}>Додати Куб</button>
                     </div>
                 )}
             </div>
             <MenuItem onClick={() => {
                 ContextMenuPolylineInterface.handleMenuClickInfo(drawItemLatLng, dispatch)
                 ContextMenuPolylineInterface.handleMenuClose(dispatch)
-            }}>info</MenuItem>
-            <MenuItem onClick={() => ContextMenuPolylineInterface.handleMenuClose(dispatch)}>close</MenuItem>
+            }}>Інофрмація</MenuItem>
+            <MenuItem onClick={() => ContextMenuPolylineInterface.handleMenuClose(dispatch)}>Закрити</MenuItem>
         </ContextMenuContainer>
     } else if (cubeMenu) {
         return <ContextMenuContainer style={{ left, top }}>
             <MenuItem onClick={() => {
                 dispatch(setHideCubes(true));
                 dispatch(setCubeMenu(false));
-            }}>hide Cubes</MenuItem>
-            <MenuItem onClick={() => dispatch(setCubeMenu(false))}>Exit</MenuItem>
+            }}>Сховати Куби</MenuItem>
+            <MenuItem onClick={() => dispatch(setCubeMenu(false))}>Закрити</MenuItem>
         </ContextMenuContainer>
     }
     return null;

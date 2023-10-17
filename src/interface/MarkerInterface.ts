@@ -1,30 +1,35 @@
 import L, { LatLng } from "leaflet";
 import { ICustomMarker } from "../Mufts";
 import { ICustomPolyline } from "../Polylines";
+import { ICustomWardrobe } from "../Wardrobe";
 
 export class MarkerInterface {
-    static handleMouseOver(muft: ICustomMarker, polyLines: ICustomPolyline[]) {
-        const polys = [...polyLines];
-        polys.forEach((item) => {
-            if (item.owner === muft.id) {
-                item.options.color = 'green';
-            }
-        })
-        return polys;
+    static handleMouseOver(muft: ICustomMarker, polyLines: ICustomPolyline[], wardrobes?: ICustomWardrobe[]) {
+        if (!wardrobes) {
+            const polys = [...polyLines];
+            polys.forEach((item) => {
+                if (item.owner === muft.id) {
+                    item.options.color = 'green';
+                }
+            })
+            return polys;
+        }
     }
-    static handleMouseOut(id: string, polyLines: ICustomPolyline[]) {
-        const polys = [...polyLines];
-        polys.forEach((item) => {
-            if (item.owner === id) {
-                item.options.color = 'red';
-            }
-        })
-        return polys;
+    static handleMouseOut(id: string, polyLines: ICustomPolyline[], wardrobes?: ICustomWardrobe[]) {
+        if (!wardrobes) {
+            const polys = [...polyLines];
+            polys.forEach((item) => {
+                if (item.owner === id) {
+                    item.options.color = 'red';
+                }
+            })
+            return polys;
+        }
 
     }
 
 
-    static handleMarkerDrag(e: L.LeafletEvent, polyLines: ICustomPolyline[], muft: ICustomMarker, index: number, muftArr: ICustomMarker[]) {
+    static handleMarkerDrag(e: L.LeafletEvent, polyLines: ICustomPolyline[], muft: ICustomMarker, index: number, muftArr: ICustomMarker[], wardrobes?: ICustomWardrobe[]) {
         const latLngs = new L.LatLng(e.target.getLatLng().lat, e.target.getLatLng().lng);
         const newArr = [...polyLines];
         const muftsLatLng = muft.getLatLng();
@@ -44,10 +49,18 @@ export class MarkerInterface {
                 item.setLatLng(latLngs);
             }
         })
+        if (wardrobes) {
+            wardrobes.forEach((item) => {
+                if (item.id === muft.id) {
+                    item.setLatLng(latLngs);
+                }
+            })
+        }
         const objToUpdate = {
             indexCircle: index,
             newArr,
-            mufts: newMufts
+            mufts: newMufts,
+            wardrobes: wardrobes || null
         }
         return objToUpdate;
     }
