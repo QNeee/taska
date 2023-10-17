@@ -198,11 +198,12 @@ export const mapSlice = createSlice({
         },
         drawCube: (state, { payload }) => {
             state.cubes = payload;
-        }
+        },
     }
 
     ,
-    extraReducers: {}
+    extraReducers: (builder) => {
+    }
 
 });
 
