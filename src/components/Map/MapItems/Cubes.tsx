@@ -34,7 +34,7 @@ export const Cubes = () => {
                             dispatch(setCubeMenu(true));
                         },
                         click: (e) => {
-                            const { data, idOwner, idTo, cubes, polys }: IClickData = CubeInterface.handleCubeOnClick(e, dispatch, cubesArr, mufts, item, polyLines)
+                            const { data, idOwner, idTo, cubes, polys }: IClickData = CubeInterface.handleCubeOnClick(cubesArr, mufts, item, polyLines)
                             dispatch(updateMufta({ idOwner, idTo, data }));
                             dispatch(updateCubesDelete({ cubes, polyLines: polys }));
                             dispatch(setItemMenu(false));

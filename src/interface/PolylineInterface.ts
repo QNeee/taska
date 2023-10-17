@@ -29,8 +29,6 @@ export class PolylineInterface {
             lat: nearestPoint?.lat!,
             lng: nearestPoint?.lng!
         }
-        const distanceToOwner = owner.getLatLng().distanceTo(nearestLatLng);
-        const distanceToTo = to.getLatLng().distanceTo(nearestLatLng);
         const lineInfo = {
             owner: owner.id,
             to: to.id,
@@ -45,8 +43,6 @@ export class PolylineInterface {
             const cubeInfo = {
                 owner: owner.id,
                 to: to.id,
-                distanceToOwner,
-                distanceToTo,
             }
             const cube = new Cubes(cubeLatLng, cubeInfo).getCub();
             polys.push(line1 as ICustomPolyline, line2 as ICustomPolyline);
@@ -60,8 +56,6 @@ export class PolylineInterface {
             const cubeInfo = {
                 owner: owner.id,
                 to: to.id,
-                distanceToOwner,
-                distanceToTo,
             }
             const cube = new Cubes(cubeLatLng, cubeInfo).getCub();
             const needMarkers: ICustomCube[] = [];

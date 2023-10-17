@@ -13,7 +13,7 @@ export class CubeInterface {
     static handleDoubleClick(e: LeafletMouseEvent, dispatch: Function, index: number, mufts: ICustomMarker[], cube: ICustomCube) {
 
     }
-    static handleCubeOnClick(e: LeafletMouseEvent, dispatch: Function, cubesArr: ICustomCube[], mufts: ICustomMarker[], cube: ICustomCube, polyLines: ICustomPolyline[]) {
+    static handleCubeOnClick(cubesArr: ICustomCube[], mufts: ICustomMarker[], cube: ICustomCube, polyLines: ICustomPolyline[]) {
         const needMufts = mufts.filter(item => item.cubesIds?.includes(cube.id as string));
         const owner = needMufts.find(item => item.id === cube.owner) as ICustomMarker;
         const to = needMufts.find(item => item.id === cube.to) as ICustomMarker;
@@ -70,8 +70,6 @@ export class CubeInterface {
         dispatch(setHideCubes(true));
     }
     static handleCubeDrag(e: L.LeafletEvent, polyLines: ICustomPolyline[], index: number, cubes: ICustomCube[], mufts: ICustomMarker[], cubic: ICustomCube) {
-        const owner = mufts.find(item => item.id === cubic.owner);
-        const to = mufts.find(item => item.id === cubic.to);
         const latLng = e.target.getLatLng();
         const newArr = [...polyLines];
         newArr.forEach((line, lineIndex) => {
@@ -86,11 +84,7 @@ export class CubeInterface {
         const obj = [...cubes];
         obj.forEach((item) => {
             if (item.id === cubic.id) {
-                const distanceToOwner = item.getLatLng().distanceTo(owner?.getLatLng() as LatLng);
-                const distanceToTo = item.getLatLng().distanceTo(to?.getLatLng() as LatLng);
                 item.setLatLng(latLng);
-                item.distanceToOwner = distanceToOwner;
-                item.distanceToTo = distanceToTo;
             }
         })
         const objToUpdate = {
