@@ -1,5 +1,4 @@
 import { v4 as uuidv4 } from 'uuid';
-import { deleteMufta, drawMufta, updateMufta } from './Redux/map/mapSlice';
 import L, { LatLng } from 'leaflet';
 
 
@@ -18,10 +17,10 @@ export class Mufts {
         this.muft.linesIds = [];
         this.muft.cubesIds = [];
     }
-    addMuft(dispatch: Function) {
-        dispatch(drawMufta(this.muft));
+    getMuft() {
+        return this.muft;
     }
-    static updateMuftCube(dispatch: Function, muftOwner: ICustomMarker, muftTo: ICustomMarker, lineId: string, cubeId: string, oldIds: string[]) {
+    static updateMuftCube(muftOwner: ICustomMarker, muftTo: ICustomMarker, lineId: string, cubeId: string, oldIds: string[]) {
         const updateMuftLines = (muftsLines: string[], oldIds: string[]) => {
             for (const oldId of oldIds) {
                 const index = muftsLines.findIndex((item) => item === oldId);
@@ -47,9 +46,9 @@ export class Mufts {
         updateMuftLines(muftsLinesTo, oldIds);
         updateMuftCubes(muftCubesOwner, cubeId);
         updateMuftCubes(muftCubesTo, cubeId);
-        dispatch(updateMufta({ idOwner: muftOwner?.id, idTo: muftTo?.id, data: [muftTo, muftOwner] }));
+        return { idOwner: muftOwner?.id as string, idTo: muftTo?.id as string, data: [muftTo, muftOwner] };
     }
-    static updateMuftLine(dispatch: Function, muftOwner: ICustomMarker, muftTo: ICustomMarker, line1Id: string, oldId?: string, line2Id?: string, cubeId?: string) {
+    static updateMuftLine(muftOwner: ICustomMarker, muftTo: ICustomMarker, line1Id: string, oldId?: string, line2Id?: string, cubeId?: string) {
         if (oldId) {
             const indexOwnerLineId = muftOwner.linesIds?.findIndex(item => item === oldId) as number;
             const indexToLineId = muftTo.linesIds?.findIndex(item => item === oldId) as number;
@@ -63,10 +62,6 @@ export class Mufts {
             muftTo?.linesIds?.push(line1Id);
             muftOwner?.linesIds?.push(line1Id);
         }
-        dispatch(updateMufta({ idOwner: muftOwner?.id, idTo: muftTo?.id, data: [muftTo, muftOwner] }));
-
-    }
-    static deleteMufta(mufts: ICustomMarker[], dispatch: Function) {
-        dispatch(deleteMufta(mufts));
+        return { idOwner: muftOwner?.id as string, idTo: muftTo?.id as string, data: [muftTo, muftOwner] as ICustomMarker[] };
     }
 }

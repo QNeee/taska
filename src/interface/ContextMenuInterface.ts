@@ -1,7 +1,6 @@
 import { LeafletMouseEvent } from "leaflet";
-import { IPolyLinesArr, setClickAccept, setCubeMenu, setDrawLine } from "../Redux/app/appSlice";
+import { IPolyLinesArr, setClickAccept, setDrawLine } from "../Redux/app/appSlice";
 import { Lines } from "../Line"
-import { setContextMenuXY, setGeneralMenu, setMuftaMenuOpen, setPolylineMenuOpen } from "../Redux/map/mapSlice";
 
 
 export interface IDrawItemLatLng {
@@ -18,16 +17,5 @@ export class ContextMenuInterface {
             dispatch(setDrawLine(false));
             dispatch(setClickAccept(false));
         }
-    }
-    static handleContextMenu(e: LeafletMouseEvent, dispatch: Function, generalMEnu: boolean, itemMenu: boolean, cubeMenu: boolean) {
-        e.originalEvent.preventDefault();
-        dispatch(setContextMenuXY({ x: e.originalEvent.clientX, y: e.originalEvent.clientY }));
-        if (!generalMEnu && !itemMenu && !cubeMenu) {
-            dispatch(setMuftaMenuOpen(false));
-            dispatch(setPolylineMenuOpen(false));
-            dispatch(setCubeMenu(false));
-            dispatch(setGeneralMenu(true));
-        }
-
     }
 }

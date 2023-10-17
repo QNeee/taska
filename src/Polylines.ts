@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import L, { LatLng } from 'leaflet';
-import { ICubicHelper, IItemInfoPoly, IUpdateObjMufts, addCubePoly, changePolylineWeight, drawPolyline, updatePoly } from './Redux/map/mapSlice';
+import { ICubicHelper, IItemInfoPoly, IUpdateObjMufts, addCubePoly, drawPolyline } from './Redux/map/mapSlice';
 import { ICustomMarker } from './Mufts';
 export interface ICustomPolyline extends L.Polyline {
     id?: string;
@@ -29,14 +29,14 @@ export class Polylines {
         this.line.cubeId = objInfo.cubeId;
         this.line.muftPoly = muftPoly;
     }
-    static changePolyLineWeight(dispatch: Function, muftOwner: ICustomMarker, muftTo: ICustomMarker, polyLines: ICustomPolyline[], weight: number) {
+    static changePolyLineWeight(muftOwner: ICustomMarker, muftTo: ICustomMarker, polyLines: ICustomPolyline[], weight: number) {
         const poly = [...polyLines];
         poly.forEach((line) => {
             if (line.owner === muftOwner.id && line.to === muftTo.id) {
                 line.options.weight = weight;
             }
         })
-        dispatch(changePolylineWeight(poly));
+        return poly;
     }
     getLine() {
         return this.line;
@@ -98,12 +98,12 @@ export class Polylines {
         dispatch(addCubePoly(muftInfo));
         dispatch(drawPolyline(polyLine));
     }
-    static updatePoly(dispatch: Function, obj: IUpdateObjMufts) {
+    static updatePoly(obj: IUpdateObjMufts) {
         const objToUpdate = {
             indexCircle: obj.index,
             newArr: obj.newArr,
             mufts: obj.mufts
         }
-        dispatch(updatePoly(objToUpdate));
+        return objToUpdate;
     }
 }

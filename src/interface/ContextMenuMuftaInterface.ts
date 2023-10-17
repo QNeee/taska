@@ -1,6 +1,5 @@
-import L, { LatLng } from "leaflet";
-import { setAddLine } from "../Redux/app/appSlice";
-import { ILineStart, deleteMufta, drawPolyline, setLineStart, setMuftaMenuOpen } from "../Redux/map/mapSlice";
+import { LatLng } from "leaflet";
+import { ILineStart, setMuftaMenuOpen } from "../Redux/map/mapSlice";
 import { ICustomPolyline, Polylines } from "../Polylines";
 import { ICustomMarker, Mufts } from "../Mufts";
 import { ICustomCube } from "../Cubes";
@@ -15,22 +14,23 @@ export class ContextMenuMuftaInterface {
     static handleOnCloseMuftaMenu(dispatch: Function) {
         dispatch(setMuftaMenuOpen(false));
     }
-    static handleAddLineFrom(mufts: ICustomMarker[], dispatch: Function, id: string) {
+    static handleAddLineFrom(mufts: ICustomMarker[], id: string) {
         const mufta = mufts.find(item => item.id === id);
         const muftaLatLnt = mufta?.getLatLng();
         const aditInfo = {
             id: mufta?.id,
             latlng: new LatLng(muftaLatLnt?.lat as number, muftaLatLnt?.lng as number)
         }
-        dispatch(setLineStart(aditInfo));
-        dispatch(setAddLine(true));
+        return aditInfo;
     }
-    static handleDeleteMufta(muftsArr: ICustomMarker[], id: string, dispatch: Function, polyLines: ICustomPolyline[], cubes: ICustomCube[]) {
+    static handleDeleteMufta(muftsArr: ICustomMarker[], id: string, polyLines: ICustomPolyline[], cubes: ICustomCube[]) {
         const mufts = [...muftsArr];
         const index = muftsArr.findIndex(item => item.id === id);
         const mufta = mufts[index];
-        const to = mufts.filter(muft => mufta.cubesIds?.some(item => muft.cubesIds?.includes(item)));
-        to.splice(index, 1);
+        const muftLinesIds = mufta.linesIds;
+        const muftCubesIds = mufta.cubesIds;
+        mufts.splice(index, 1);
+        const to = mufts.filter(muft => muftLinesIds?.some(line => muft.linesIds?.includes(line)) || muftCubesIds?.some(cube => muft.cubesIds?.includes(cube)));
         const polysIds = polyLines.filter(line => mufta.linesIds?.includes(line.id as string));
         const cubesIds = cubes.filter(cube => mufta.cubesIds?.includes(cube.id as string));
         const polys = [...polyLines];
@@ -59,10 +59,9 @@ export class ContextMenuMuftaInterface {
                 }
             }
         }
-        mufts.splice(index, 1);
-        dispatch(deleteMufta({ mufts, polyLines: polys, cubes: cubics }))
+        return { mufts, polyLines: polys, cubes: cubics };
     }
-    static handleAddLineTo(mufts: ICustomMarker[], id: string, dispatch: Function, lineStart: ILineStart | null, map: L.Map) {
+    static handleAddLineTo(mufts: ICustomMarker[], id: string, lineStart: ILineStart | null) {
         const muftaTo = mufts.find(item => item.id === id);
         const muftaOwner = mufts.find(item => item.id === lineStart?.id);
         const muftaLatLng = muftaTo?.getLatLng() as LatLng;
@@ -72,8 +71,7 @@ export class ContextMenuMuftaInterface {
             to: muftaTo?.id as string
         }
         const polyLine = new Polylines([muftaLatLng, ownerLatLng], additionalInfo).getLine();
-        Mufts.updateMuftLine(dispatch, muftaOwner as ICustomMarker, muftaTo as ICustomMarker, polyLine?.id as string);
-        dispatch(drawPolyline(polyLine));
-        dispatch(setAddLine(false));
+        const { data, idOwner, idTo } = Mufts.updateMuftLine(muftaOwner as ICustomMarker, muftaTo as ICustomMarker, polyLine?.id as string);
+        return { data, idOwner, idTo, polyLine };
     }
 }

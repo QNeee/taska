@@ -3,6 +3,7 @@ import { getDrag } from "../../../Redux/app/appSelectors"
 import { Marker } from "react-leaflet";
 import { getItemMenu, getMufts, getPolyLines } from "../../../Redux/map/mapSelectors";
 import { MarkerInterface } from "../../../interface/MarkerInterface";
+import { setContextMenuXY, setDrag, setGeneralMenu, setId, setItemMenu, setMuftaMenuOpen, setPolylineMenuOpen, setPolysOwner, updatePoly } from "../../../Redux/map/mapSlice";
 
 export const Mufts = () => {
     const dispatch = useDispatch();
@@ -18,13 +19,33 @@ export const Mufts = () => {
                 position={item.getLatLng()}
                 icon={item.getIcon()}
                 eventHandlers={{
-                    click: (e) => MarkerInterface.handleClickMarker(e, polyLines),
-                    mouseover: (e) => MarkerInterface.handleMouseOver(item, dispatch, drag, polyLines, itemMenu),
-                    mouseout: () => MarkerInterface.handleMouseOut(dispatch, item.id as string, polyLines),
-                    dragstart: (e) => MarkerInterface.handleDragStart(dispatch),
-                    drag: (e) => MarkerInterface.handleMarkerDrag(e, dispatch, polyLines, item, index, mufts),
-                    dragend: (e) => MarkerInterface.handleMarkerDragEnd(e, dispatch),
-                    contextmenu: (e) => MarkerInterface.handleContextMenuHandler(e, dispatch, item.id as string)
+                    mouseover: () => {
+                        if (!drag && !itemMenu) {
+                            dispatch(setItemMenu(true));
+                        }
+                        const data = MarkerInterface.handleMouseOver(item, polyLines)
+                        dispatch(setPolysOwner(data));
+                    },
+                    mouseout: () => {
+                        const data = MarkerInterface.handleMouseOut(item.id as string, polyLines)
+                        dispatch(setItemMenu(false));
+                        dispatch(setPolysOwner(data));
+                    },
+                    dragstart: () => dispatch(setDrag(true)),
+                    drag: (e) => {
+                        const data = MarkerInterface.handleMarkerDrag(e, polyLines, item, index, mufts);
+                        dispatch(updatePoly(data));
+
+                    },
+                    dragend: () => dispatch(setDrag(false)),
+                    contextmenu: (e) => {
+                        e.originalEvent.preventDefault();
+                        dispatch(setId(item.id));
+                        dispatch(setContextMenuXY({ x: e.originalEvent.clientX, y: e.originalEvent.clientY }));
+                        dispatch(setGeneralMenu(false));
+                        dispatch(setPolylineMenuOpen(false));
+                        dispatch(setMuftaMenuOpen(true));
+                    }
                 }}
             />
         ))}
