@@ -72,13 +72,15 @@ describe('fives mufts operations Test', () => {
         let muftsArr = state.map.mufts;
         const polysArr = state.map.polyLines;
         const cubesArr = state.map.cubes;
+        let count = 0;
         while (muftsArr.length > 0) {
+            count++;
             const muft = muftsArr[0];
             const { mufts, polyLines, cubes } = ContextMenuMuftaInterface.handleDeleteMufta(muftsArr, muft?.id as string, polysArr, cubesArr);
             store.dispatch(deleteMufta({ mufts, polyLines, cubes }));
             state = store.getState();
             muftsArr = state.map.mufts;
         }
-        expect(muftsArr.length).toBe(0);
+        expect(muftsArr.length + count).toBe(5);
     })
 })
