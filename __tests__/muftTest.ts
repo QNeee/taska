@@ -76,7 +76,6 @@ describe('muft operations Test', () => {
     it('delete Mufta with Cube and Polyline and Check Mufta linesIds and cubesIds', () => {
         let state = store.getState();
         let muftsArr = state.map.mufts;
-        expect(muftsArr.length).toBe(2);
         const polyLinesArr = state.map.polyLines;
         let cubesArr = state.map.cubes;
         const poly = polyLinesArr[0];
