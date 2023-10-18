@@ -3,7 +3,7 @@ import { ILineStart } from "../Redux/map/mapSlice";
 import { ICustomPolyline, Polylines } from "../Polylines";
 import { ICustomMarker, Mufts } from "../Mufts";
 import { ICustomCube } from "../Cubes";
-import { Coords } from "../components/Map/ContextMenu";
+import { ICoords } from "../components/Map/ContextMenu";
 
 export interface IDrawItemLatLng {
     lat: number,
@@ -68,7 +68,7 @@ export class ContextMenuMuftaInterface {
         }
         return { mufts, polyLines: polys, cubes: cubics };
     }
-    static handleApplyCoordinates(id: string, mufts: ICustomMarker[], form: Coords, polyLines?: ICustomPolyline[]) {
+    static handleApplyCoordinates(id: string, mufts: ICustomMarker[], form: ICoords, polyLines?: ICustomPolyline[]) {
         const index = mufts.findIndex(item => item.id === id);
         const data = mufts[index];
         data.drag = !data.drag;

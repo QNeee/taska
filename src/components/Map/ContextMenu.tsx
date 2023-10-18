@@ -14,7 +14,7 @@ interface Iprops {
     left: number,
     top: number,
 }
-export interface Coords {
+export interface ICoords {
     lat: number,
     lng: number,
 }
