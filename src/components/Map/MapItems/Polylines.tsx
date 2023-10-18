@@ -1,10 +1,11 @@
 import { useDispatch, useSelector } from "react-redux"
-import { getCubes, getHideCubes, getItemMenu, getMufts, getPolyLines } from "../../../Redux/map/mapSelectors"
+import { getContextMenu, getCubes, getHideCubes, getMufts, getPolyLines } from "../../../Redux/map/mapSelectors"
 import { Polyline, useMap } from "react-leaflet";
 import { IClickData, PolylineInterface } from "../../../interface/PolylineInterface";
 import { getDrag } from "../../../Redux/app/appSelectors";
 import { LatLng } from "leaflet";
-import { drawCube, drawPolyline, setContextMenuXY, setGeneralMenu, setHideCubes, setItemMenu, setMuftaMenuOpen, setPolylineMenuOpen, updateMufta } from "../../../Redux/map/mapSlice";
+import { drawCube, drawPolyline, setContextMenu, setContextMenuXY, setHideCubes, updateMufta } from "../../../Redux/map/mapSlice";
+import { ContextMenuPolylineInterface } from "../../../interface/ContextMenuPolylineIntrface";
 
 
 export const Polylines = () => {
@@ -13,8 +14,8 @@ export const Polylines = () => {
     const drag = useSelector(getDrag);
     const cubesArr = useSelector(getCubes);
     const mufts = useSelector(getMufts);
-    const itemMenu = useSelector(getItemMenu);
     const hideCubes = useSelector(getHideCubes);
+    const contextMenu = useSelector(getContextMenu);
     const map = useMap();
     return <>
         {polyLines?.map((item, index) => {
@@ -40,8 +41,11 @@ export const Polylines = () => {
                         dispatch(drawCube(cubes));
                     },
                     mouseover: (e) => {
-                        if (!drag && !itemMenu) {
-                            dispatch(setItemMenu(true));
+                        if (!drag && !contextMenu.item) {
+                            dispatch(setContextMenu({
+                                ...contextMenu,
+                                item: true,
+                            }))
                             const data = PolylineInterface.handleMouseOverPolyline(e, item, drag, polyLines, mufts);
                             dispatch(drawPolyline(data));
                         }
@@ -49,15 +53,17 @@ export const Polylines = () => {
                     mouseout: (e) => {
                         const data = PolylineInterface.handleMouseOutPolyline(e, item, polyLines, mufts)
                         dispatch(drawPolyline(data));
-                        dispatch(setItemMenu(false));
+                        dispatch(setContextMenu({
+                            ...contextMenu,
+                            item: false,
+                        }))
 
                     },
                     contextmenu: (e) => {
                         e.originalEvent.preventDefault();
                         dispatch(setContextMenuXY({ x: e.originalEvent.clientX, y: e.originalEvent.clientY }));
-                        dispatch(setMuftaMenuOpen(false));
-                        dispatch(setGeneralMenu(false));
-                        dispatch(setPolylineMenuOpen(true));
+                        const menu = ContextMenuPolylineInterface.OpenMenu();
+                        dispatch(setContextMenu(menu));
                     },
                 }}
             />

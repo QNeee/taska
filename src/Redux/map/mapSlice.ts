@@ -3,10 +3,7 @@ import { ICustomPolyline } from "../../Polylines";
 import { LatLng } from "leaflet";
 import { ICustomMarker } from "../../Mufts";
 import { ICustomCube } from "../../Cubes";
-import { IVector } from "../../Vector";
 import { ICustomWardrobe } from "../../Wardrobe";
-// import { ICustomUnderCube } from "../../UnderCubes";
-
 export interface ICustomLatLng {
     lat: number;
     lng: number;
@@ -49,10 +46,15 @@ export interface IItemInfoCube {
     toCube: string | undefined;
     ownerCube: string;
 }
+export interface IContextMenuItem {
+    poly: boolean;
+    cube: boolean;
+    muft: boolean;
+    general: boolean;
+    wardrobes: boolean;
+    item: boolean;
+}
 interface IMapState {
-    muftaMenuOpen: boolean;
-    polylineMenuOpen: boolean;
-    tempPolylines: ICustomPolyline[];
     id: string;
     mufts: ICustomMarker[];
     cubeInfo: ICubInfo | null
@@ -62,41 +64,22 @@ interface IMapState {
     polyLines: ICustomPolyline[];
     lineStart: ILineStart | null;
     contextMenuXY: IXyObj | null;
-    menuOpen: boolean;
-    itemMenu: boolean;
-    vectors: IVector[];
-    cubicPoly: ICubicHelper;
-    // underCubes: ICustomUnderCube[];
-    countOwner: number;
-    countTo: number;
-    // tempUnderCubes: ICustomUnderCube[];
-    tempLines: ICustomPolyline[];
+    contextMenuItem: IContextMenuItem;
     wardrobes: ICustomWardrobe[];
     hideCubes: boolean;
 }
 const initialState: IMapState = {
-    muftaMenuOpen: false,
-    polylineMenuOpen: false,
-    tempPolylines: [],
     id: '',
     lineStart: null,
     cubeInfo: null,
     mufts: [],
     drag: false,
+    contextMenuItem: { cube: false, general: false, poly: false, muft: false, wardrobes: false, item: false },
     showOwnerLines: false,
     wardrobes: [],
     polyLines: [],
     contextMenuXY: null,
     cubes: [],
-    menuOpen: false,
-    itemMenu: false,
-    cubicPoly: {},
-    vectors: [],
-    // underCubes: [],
-    countOwner: 0,
-    countTo: 0,
-    // tempUnderCubes: [],
-    tempLines: [],
     hideCubes: false
 }
 
@@ -104,16 +87,15 @@ export const mapSlice = createSlice({
     name: 'map',
     initialState,
     reducers: {
+        setContextMenu: (state, { payload }) => {
+            state.contextMenuItem = payload;
+        },
         drawWardrobe: (state, { payload }) => {
-            console.log(payload);
             state.wardrobes.push(payload);
         },
         setToggleCoordsApply: (state, { payload }) => {
-            if (payload.data.type === 'wardrobe') {
-                state.wardrobes.splice(payload.index, 1, payload.data);
-            } else {
-                state.mufts.splice(payload.index, 1, payload.data);
-            }
+            state.mufts.splice(payload.index, 1, payload.data);
+
         },
         setHideCubes: (state, { payload }) => {
             state.hideCubes = payload;
@@ -121,28 +103,10 @@ export const mapSlice = createSlice({
         setCubDragging: (state, { payload }) => {
             state.cubes = payload;
         },
-        setCountOwner: (state, { payload }) => {
-            state.countOwner = state.countOwner + 1;
-        },
-        setCountTo: (state, { payload }) => {
-            state.countTo = state.countTo + 1;
-        },
-        // setUnderCube: (state, { payload }) => {
-        //     state.underCubes = payload;
-        // },
-        addCubePoly: (state, { payload }) => {
-            state.cubicPoly = payload;
-        },
+
         updateCubesDelete: (state, { payload }) => {
             state.cubes = payload.cubes;
             state.polyLines = payload.polyLines;
-        },
-        addVector: (state, { payload }) => {
-            if (Array.isArray(payload)) {
-                state.vectors = payload;
-            } else {
-                state.vectors.push(payload);
-            }
         },
         setPolysOwner: (state, { payload }) => {
             state.polyLines = payload;
@@ -191,20 +155,8 @@ export const mapSlice = createSlice({
         setContextMenuXY: (state, { payload }) => {
             state.contextMenuXY = payload;
         },
-        setGeneralMenu: (state, { payload }) => {
-            state.menuOpen = payload;
-        },
-        setMuftaMenuOpen: (state, { payload }) => {
-            state.muftaMenuOpen = payload;
-        },
-        setPolylineMenuOpen: (state, { payload }) => {
-            state.polylineMenuOpen = payload;
-        },
         changePolylineWeight: (state, { payload }) => {
             state.polyLines = payload;
-        },
-        setItemMenu: (state, { payload }) => {
-            state.itemMenu = payload;
         },
         deleteMufta: (state, { payload }) => {
             state.mufts = payload.mufts;
@@ -222,4 +174,4 @@ export const mapSlice = createSlice({
 
 });
 
-export const { drawWardrobe, setToggleCoordsApply, setHideCubes, updateMufta, setCubDragging, setCountTo, setCountOwner, addCubePoly, addVector, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, setItemMenu, setPolylineMenuOpen, setMuftaMenuOpen, changePolylineWeight, setGeneralMenu, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;
+export const { setContextMenu, drawWardrobe, setToggleCoordsApply, setHideCubes, updateMufta, setCubDragging, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, changePolylineWeight, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;

@@ -1,12 +1,12 @@
 
 
-export class ContextMenuInterface {
-    static handleCloseMenu() {
+export class ContextMenuWardrobe {
+    static OpenMenu() {
         return {
             muft: false,
             cube: false,
             poly: false,
-            wardrobes: false,
+            wardrobes: true,
             general: false
         }
     }

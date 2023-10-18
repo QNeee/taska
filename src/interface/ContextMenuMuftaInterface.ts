@@ -1,5 +1,5 @@
 import { LatLng } from "leaflet";
-import { ILineStart, setMuftaMenuOpen } from "../Redux/map/mapSlice";
+import { ILineStart } from "../Redux/map/mapSlice";
 import { ICustomPolyline, Polylines } from "../Polylines";
 import { ICustomMarker, Mufts } from "../Mufts";
 import { ICustomCube } from "../Cubes";
@@ -13,8 +13,14 @@ export interface IDrawItemLatLng {
 
 
 export class ContextMenuMuftaInterface {
-    static handleOnCloseMuftaMenu(dispatch: Function) {
-        dispatch(setMuftaMenuOpen(false));
+    static OpenMenu() {
+        return {
+            muft: true,
+            cube: false,
+            poly: false,
+            wardrobes: false,
+            general: false
+        }
     }
     static handleAddLineFrom(mufts: ICustomMarker[], id: string) {
         const mufta = mufts.find(item => item.id === id);

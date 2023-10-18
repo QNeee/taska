@@ -1,18 +1,17 @@
 import { useDispatch, useSelector } from "react-redux"
 import { Marker } from "react-leaflet";
-import { getDrag, getItemMenu, getMufts, getPolyLines, getWardrobes } from "../../../Redux/map/mapSelectors";
-import { MarkerInterface } from "../../../interface/MarkerInterface";
-import { setContextMenuXY, setDrag, setGeneralMenu, setId, setItemMenu, setMuftaMenuOpen, setPolylineMenuOpen, setPolysOwner, updatePoly } from "../../../Redux/map/mapSlice";
+import { getContextMenu, getDrag, getWardrobes } from "../../../Redux/map/mapSelectors";
+import { setContextMenu, setContextMenuXY, setDrag, setId } from "../../../Redux/map/mapSlice";
+import { ContextMenuWardrobe } from "../../../interface/ContextMenuWardrobe";
 
 export const Wardrobes = () => {
 
     const wardRobes = useSelector(getWardrobes);
     const dispatch = useDispatch();
-    const mufts = useSelector(getMufts);
-    const polyLines = useSelector(getPolyLines);
+    // const mufts = useSelector(getMufts);
+    // const polyLines = useSelector(getPolyLines);
     const drag = useSelector(getDrag);
-    const itemMenu = useSelector(getItemMenu);
-
+    const contextMenu = useSelector(getContextMenu);
     return <>
         {wardRobes.map((item, index) => (
             <Marker
@@ -22,21 +21,28 @@ export const Wardrobes = () => {
                 icon={item.getIcon()}
                 eventHandlers={{
                     mouseover: () => {
-                        if (!drag && !itemMenu) {
-                            dispatch(setItemMenu(true));
+                        if (!drag && !contextMenu.item) {
+                            dispatch(setId(item.id));
+                            dispatch(setContextMenu({
+                                ...contextMenu,
+                                item: true,
+                            }))
                         }
-                        const data = MarkerInterface.handleMouseOver(item, polyLines)
-                        dispatch(setPolysOwner(data));
+                        // const data = MuftaInterface.handleMouseOver(item, polyLines)
+                        // dispatch(setPolysOwner(data));
                     },
                     mouseout: () => {
-                        const data = MarkerInterface.handleMouseOut(item.id as string, polyLines)
-                        dispatch(setItemMenu(false));
-                        dispatch(setPolysOwner(data));
+                        // const data = MuftaInterface.handleMouseOut(item.id as string, polyLines)
+                        dispatch(setContextMenu({
+                            ...contextMenu,
+                            item: false,
+                        }))
+                        // dispatch(setPolysOwner(data));
                     },
                     dragstart: () => dispatch(setDrag(true)),
                     drag: (e) => {
-                        const data = MarkerInterface.handleMarkerDrag(e, polyLines, item, index, mufts, wardRobes);
-                        dispatch(updatePoly(data));
+                        // const data = MuftaInterface.handleMarkerDrag(e, polyLines, item, index, mufts, wardRobes);
+                        // dispatch(updatePoly(data));
 
                     },
                     dragend: () => dispatch(setDrag(false)),
@@ -44,9 +50,8 @@ export const Wardrobes = () => {
                         e.originalEvent.preventDefault();
                         dispatch(setId(item.id));
                         dispatch(setContextMenuXY({ x: e.originalEvent.clientX, y: e.originalEvent.clientY }));
-                        dispatch(setGeneralMenu(false));
-                        dispatch(setPolylineMenuOpen(false));
-                        dispatch(setMuftaMenuOpen(true));
+                        const menu = ContextMenuWardrobe.OpenMenu();
+                        dispatch(setContextMenu(menu));
                     }
                 }}
             />

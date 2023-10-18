@@ -1,8 +1,7 @@
 import L, { LatLng, LeafletMouseEvent } from "leaflet";
 import { ICustomCube } from "../Cubes";
 import { ICustomPolyline, Polylines } from "../Polylines";
-import { setCubeMenu } from "../Redux/app/appSlice";
-import { IItemInfoPoly, setContextMenuXY, setGeneralMenu, setHideCubes, setMuftaMenuOpen, setPolylineMenuOpen } from "../Redux/map/mapSlice";
+import { IItemInfoPoly, setHideCubes } from "../Redux/map/mapSlice";
 import { ICustomMarker, Mufts } from "../Mufts";
 export function roundLatLng(latLng: LatLng, decimalPlaces: number) {
     const lat = latLng.lat.toFixed(decimalPlaces);
@@ -55,14 +54,6 @@ export class CubeInterface {
 
     }
 
-    static handleCubeContextMenu(e: L.LeafletMouseEvent, dispatch: Function) {
-        e.originalEvent.preventDefault();
-        dispatch(setContextMenuXY({ x: e.originalEvent.clientX, y: e.originalEvent.clientY }));
-        dispatch(setMuftaMenuOpen(false));
-        dispatch(setGeneralMenu(false));
-        dispatch(setPolylineMenuOpen(false));
-        dispatch(setCubeMenu(true));
-    }
     static handleDeleteCube(id: string) {
 
     }
