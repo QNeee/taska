@@ -1,6 +1,6 @@
 import L from "leaflet"
 import { store } from '../src/Redux/store';
-import { deleteMufta, drawMufta } from "../src/Redux/map/mapSlice";
+import { deleteMufta, drawMufta, setToggleCoordsApply } from "../src/Redux/map/mapSlice";
 import { ContextMenuMuftaInterface } from "../src/interface/ContextMenuMuftaInterface";
 import { Mufts } from "../src/Mufts";
 import { generateRandomLatLng } from '../src/testHelper';
@@ -31,5 +31,18 @@ describe('muft operations Test', () => {
         muftsArr = state.map.mufts;
         const isMuftDeleted = muftsArr.findIndex(item => item.id === muft?.id);
         expect(isMuftDeleted).toBe(-1);
+    })
+    it('Mufta applyCoords', () => {
+        store.dispatch(drawMufta(muft));
+        const id = muft?.id as string;
+        const form = { lat: muft?.getLatLng().lat as number, lng: muft?.getLatLng().lng as number };
+        let state = store.getState();
+        let muftsArr = state.map.mufts;
+        const { index, data } = ContextMenuMuftaInterface.handleApplyCoordinates(id, muftsArr, form);
+        store.dispatch(setToggleCoordsApply({ index, data }));
+        state = store.getState();
+        muftsArr = state.map.mufts;
+        const checkArr = muftsArr.filter(item => item.getLatLng().equals(form) && !item.drag);
+        expect(checkArr.length).toBe(1);
     })
 })

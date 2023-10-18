@@ -68,12 +68,26 @@ export class ContextMenuMuftaInterface {
         }
         return { mufts, polyLines: polys, cubes: cubics };
     }
-    static handleApplyCoordinates(id: string, mufts: ICustomMarker[], form: Coords) {
+    static handleApplyCoordinates(id: string, mufts: ICustomMarker[], form: Coords, polyLines?: ICustomPolyline[]) {
         const index = mufts.findIndex(item => item.id === id);
-        const muft = mufts[index];
-        muft.drag = !muft.drag;
-        muft.setLatLng({ lat: form.lat, lng: form.lng });
-        return { index, muft };
+        const data = mufts[index];
+        data.drag = !data.drag;
+        let polysArr;
+        if (polyLines) {
+            const polys = [...polyLines];
+            if (polys.length > 0) {
+                for (const poly of polys) {
+                    if (data.getLatLng().equals(poly.getLatLngs()[0] as LatLng)) {
+                        poly.setLatLngs([{ lat: form.lat, lng: form.lng }, poly.getLatLngs()[1] as LatLng]);
+                    } else if (data.getLatLng().equals(poly.getLatLngs()[1] as LatLng)) {
+                        poly.setLatLngs([poly.getLatLngs()[0] as LatLng, { lat: form.lat, lng: form.lng }]);
+                    }
+                }
+            }
+            polysArr = polys;
+        }
+        data.setLatLng({ lat: form.lat, lng: form.lng });
+        return { index, data, polysArr };
     }
     static handleAddLineTo(mufts: ICustomMarker[], id: string, lineStart: ILineStart | null) {
         const muftaTo = mufts.find(item => item.id === id);
