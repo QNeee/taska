@@ -81,7 +81,7 @@ const ContextMenu = ({ left, top }: Iprops) => {
         y: top
     }
 
-    if (contextMenu.muft || contextMenu.wardrobes) {
+    if (contextMenu.muft) {
         return (
             <ContextMenuContainer style={{ left, top }}>
                 <MenuItem disabled={!addLine} onClick={() => {
@@ -108,8 +108,8 @@ const ContextMenu = ({ left, top }: Iprops) => {
                     <input type="text" id="lng" value={form.lng} onChange={handleInputChange} />
                 </div>}
                 <MenuItem onClick={() => {
-                    const { index, data } = ContextMenuMuftaInterface.handleApplyCoordinates(id, muftsArr, wardrobes, form);
-                    dispatch(setToggleCoordsApply({ index, data }));
+                    const { index, muft } = ContextMenuMuftaInterface.handleApplyCoordinates(id, muftsArr, form);
+                    dispatch(setToggleCoordsApply({ index, muft }));
                     const close = ContextMenuInterface.handleCloseMenu();
                     dispatch(setContextMenu(close));
                 }}>

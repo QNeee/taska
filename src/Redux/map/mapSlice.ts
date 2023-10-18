@@ -94,8 +94,7 @@ export const mapSlice = createSlice({
             state.wardrobes.push(payload);
         },
         setToggleCoordsApply: (state, { payload }) => {
-            state.mufts.splice(payload.index, 1, payload.data);
-
+            state.mufts.splice(payload.index, 1, payload.muft);
         },
         setHideCubes: (state, { payload }) => {
             state.hideCubes = payload;
