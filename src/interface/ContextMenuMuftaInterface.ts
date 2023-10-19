@@ -69,7 +69,6 @@ export class ContextMenuMuftaInterface {
                 }
             }
         }
-        console.log(to);
         return { mufts, polyLines: polys, cubes: cubics };
     }
     static handleApplyCoordinates(id: string, mufts: ICustomMarker[], form: ICoords, polyLines?: ICustomPolyline[]) {
