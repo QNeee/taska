@@ -1,5 +1,8 @@
 import styled from 'styled-components';
-
+export const Paragraph = styled.p`
+  width: 100%;
+  margin: 0;
+`;
 export const ContextMenuContainer = styled.div`
   position: absolute;
   background-color: white;

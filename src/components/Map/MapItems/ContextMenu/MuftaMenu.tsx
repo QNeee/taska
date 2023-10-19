@@ -1,5 +1,5 @@
 import { ContextMenuMuftaInterface } from '../../../../interface/ContextMenuMuftaInterface';
-import { ILineStart, deleteMufta, drawPolyline, setContextMenu, setLineStart, setToggleCoordsApply, updateMufta } from '../../../../Redux/map/mapSlice';
+import { deleteMufta, setContextMenu, setLineStart, setToggleCoordsApply } from '../../../../Redux/map/mapSlice';
 import { setAddLine } from '../../../../Redux/app/appSlice';
 import { ContextMenuInterface } from '../../../../interface/ContextMenuInterface';
 import { ChangeEventHandler } from 'react';
@@ -18,20 +18,17 @@ interface IMufraMenuProps {
     handleInputChange: ChangeEventHandler<HTMLInputElement>;
     muftsArr: ICustomMarker[];
     id: string;
-    lineStart: ILineStart;
     polyLinesArr: ICustomPolyline[];
     cubesArr: ICustomCube[];
     item: ICustomMarker;
+    setFiberOpticsMenu: Function
 }
-export const MuftaMenu: React.FC<IMufraMenuProps> = ({ left, top, item, addLine, form, handleInputChange, muftsArr, id, lineStart, polyLinesArr, cubesArr }) => {
+export const MuftaMenu: React.FC<IMufraMenuProps> = ({ setFiberOpticsMenu, left, top, item, addLine, form, handleInputChange, muftsArr, id, polyLinesArr, cubesArr }) => {
     const dispatch: AppDispatch = useDispatch();
     return (
         <ContextMenuContainer style={{ left, top }}>
             <MenuItem disabled={!addLine} onClick={() => {
-                const { data, idOwner, idTo, polyLine } = ContextMenuMuftaInterface.handleAddLineTo(muftsArr, id, lineStart);
-                dispatch(updateMufta({ idOwner, idTo, data }));
-                dispatch(drawPolyline(polyLine));
-                dispatch(setAddLine(false));
+                dispatch(setFiberOpticsMenu(true));
                 const close = ContextMenuInterface.handleCloseMenu();
                 dispatch(setContextMenu(close));
             }}>Додати лінію сюди</MenuItem>

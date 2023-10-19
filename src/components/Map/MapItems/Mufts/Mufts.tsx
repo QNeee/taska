@@ -1,19 +1,31 @@
 import { useDispatch, useSelector } from "react-redux"
-import { getDrag } from "../../../Redux/app/appSelectors"
+import { getDrag } from "../../../../Redux/app/appSelectors"
 import { Marker } from "react-leaflet";
-import { getContextMenu, getMufts, getPolyLines } from "../../../Redux/map/mapSelectors";
-import { MuftaInterface } from "../../../interface/MuftaInterface";
-import { setContextMenu, setContextMenuXY, setDrag, setId, setPolysOwner, updatePoly } from "../../../Redux/map/mapSlice";
-import { ContextMenuMuftaInterface } from "../../../interface/ContextMenuMuftaInterface";
+import { getContextMenu, getMainLine, getMufts, getPolyLines, getTrack } from "../../../../Redux/map/mapSelectors";
+import { MuftaInterface } from "../../../../interface/MuftaInterface";
+import { setContextMenu, setContextMenuXY, setDrag, setId, setPolysOwner, updatePoly } from "../../../../Redux/map/mapSlice";
+import { ContextMenuMuftaInterface } from "../../../../interface/ContextMenuMuftaInterface";
+import { useEffect, useState } from "react";
+import { ICustomMarker } from "../../../../Mufts";
 
 export const Mufts = () => {
     const dispatch = useDispatch();
     const mufts = useSelector(getMufts);
     const polyLines = useSelector(getPolyLines);
+    const mainLineId = useSelector(getMainLine);
+    const [data, setData] = useState<ICustomMarker[]>([]);
     const drag = useSelector(getDrag);
     const contextMenu = useSelector(getContextMenu);
+    const { track } = useSelector(getTrack);
+    useEffect(() => {
+        if (track) {
+            setData(mufts.filter(item => item.linesIds?.includes(mainLineId)));
+        } else {
+            setData(mufts);
+        }
+    }, [mainLineId, mufts, track])
     return <>
-        {mufts.map((item, index) => (
+        {data.length > 0 && data.map((item, index) => (
             <Marker
                 draggable={item.drag}
                 key={item.id}

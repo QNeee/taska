@@ -1,6 +1,18 @@
 import { v4 as uuidv4 } from 'uuid';
 import L, { LatLng } from 'leaflet';
-
+import { IFiberOptic } from './fiberOptic';
+export interface IStatsMainLine {
+    producer: string,
+    standart: string
+}
+export interface IMainLine {
+    id?: string,
+    owner: string,
+    to: string,
+    fiberOpticsCount?: number,
+    producer: string,
+    standart: string;
+}
 
 const iconUrl =
     'https://c0.klipartz.com/pngpicture/720/285/gratis-png-punto-rojo-redondo-bandera-de-japon-bandera-de-japon-s-thumbnail.png';
@@ -10,6 +22,24 @@ export interface ICustomMarker extends L.Marker {
     cubesIds?: string[];
     drag?: boolean;
     type?: string;
+    fibers?: IFiberOptic[];
+    mainLines?: IMainLine[];
+}
+export class MainLine {
+    mainLine: IMainLine | null = null;
+    constructor(private obj: IMainLine) {
+        this.mainLine = {
+            id: uuidv4(),
+            owner: obj.owner,
+            to: obj.to,
+            fiberOpticsCount: obj.fiberOpticsCount,
+            producer: obj.producer,
+            standart: obj.standart,
+        }
+    }
+    getMainLine() {
+        return this.mainLine;
+    }
 }
 export class Mufts {
     muft: ICustomMarker | null = null;
@@ -20,6 +50,8 @@ export class Mufts {
         this.muft.cubesIds = [];
         this.muft.drag = true;
         this.muft.type = 'muft'
+        this.muft.fibers = [];
+        this.muft.mainLines = [];
     }
     getMuft() {
         return this.muft;

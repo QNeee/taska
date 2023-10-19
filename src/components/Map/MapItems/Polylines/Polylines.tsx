@@ -1,11 +1,11 @@
 import { useDispatch, useSelector } from "react-redux"
-import { getContextMenu, getCubes, getHideCubes, getMufts, getPolyLines } from "../../../Redux/map/mapSelectors"
+import { getContextMenu, getCubes, getHideCubes, getMufts, getPolyLines } from "../../../../Redux/map/mapSelectors"
 import { Polyline, useMap } from "react-leaflet";
-import { IClickData, PolylineInterface } from "../../../interface/PolylineInterface";
-import { getDrag } from "../../../Redux/app/appSelectors";
+import { IClickData, PolylineInterface } from "../../../../interface/PolylineInterface";
+import { getDrag } from "../../../../Redux/app/appSelectors";
 import { LatLng } from "leaflet";
-import { drawCube, drawPolyline, setContextMenu, setContextMenuXY, setHideCubes, updateMufta } from "../../../Redux/map/mapSlice";
-import { ContextMenuPolylineInterface } from "../../../interface/ContextMenuPolylineIntrface";
+import { drawCube, drawPolyline, setContextMenu, setContextMenuXY, setHideCubes, setId, updateMufta } from "../../../../Redux/map/mapSlice";
+import { ContextMenuPolylineInterface } from "../../../../interface/ContextMenuPolylineIntrface";
 
 
 export const Polylines = () => {
@@ -61,6 +61,7 @@ export const Polylines = () => {
                     },
                     contextmenu: (e) => {
                         e.originalEvent.preventDefault();
+                        dispatch(setId(item.id));
                         dispatch(setContextMenuXY({ x: e.originalEvent.clientX, y: e.originalEvent.clientY }));
                         const menu = ContextMenuPolylineInterface.OpenMenu();
                         dispatch(setContextMenu(menu));

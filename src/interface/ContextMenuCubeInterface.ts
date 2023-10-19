@@ -1,4 +1,5 @@
 
+import { ICustomCube } from "../Cubes";
 import { setCubeMenu } from "../Redux/app/appSlice";
 import { setHideCubes } from "../Redux/map/mapSlice";
 
@@ -11,6 +12,10 @@ export class ContextMenuCubeInterface {
             wardrobes: false,
             general: false
         }
+    }
+    static getCoords(id: string, cubes: ICustomCube[]) {
+        const cube = cubes.find(item => item.id === id);
+        return cube?.getLatLng();
     }
     static handleHieCubes(dispatch: Function) {
         dispatch(setHideCubes(true));

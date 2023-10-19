@@ -5,11 +5,7 @@ import { ICustomMarker } from './Mufts';
 export interface ICustomPolyline extends L.Polyline {
     id?: string;
     owner?: string;
-    start?: LatLng;
-    end?: LatLng;
     to?: string;
-    cubeId?: string;
-    muftPoly?: boolean;
     type?: string;
 }
 export interface IMuftInfo {
@@ -27,8 +23,6 @@ export class Polylines {
         this.line.id = uuidv4();
         this.line.owner = objInfo.owner;
         this.line.to = objInfo.to;
-        this.line.cubeId = objInfo.cubeId;
-        this.line.muftPoly = muftPoly;
         this.line.type = 'polyline'
     }
     static changePolyLineWeight(muftOwner: ICustomMarker, muftTo: ICustomMarker, polyLines: ICustomPolyline[], weight: number) {

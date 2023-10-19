@@ -4,6 +4,7 @@ import { LatLng } from "leaflet";
 import { ICustomMarker } from "../../Mufts";
 import { ICustomCube } from "../../Cubes";
 import { ICustomWardrobe } from "../../Wardrobe";
+import { IData } from "../../components/Modal/Modal";
 export interface ICustomLatLng {
     lat: number;
     lng: number;
@@ -39,8 +40,35 @@ export interface ICubInfo {
 export interface IItemInfoPoly {
     owner: string;
     to: string;
-    cubeId?: string;
 }
+export type Color =
+    | 'blue'
+    | 'orange'
+    | 'green'
+    | 'brown'
+    | 'gray'
+    | 'white'
+    | 'red'
+    | 'black'
+    | 'yellow'
+    | 'purple'
+    | 'pink'
+    | 'turquoise';
+
+const colors: Color[] = [
+    'blue',
+    'orange',
+    'green',
+    'brown',
+    'gray',
+    'white',
+    'red',
+    'black',
+    'yellow',
+    'purple',
+    'pink',
+    'turquoise',
+];
 
 export interface IItemInfoCube {
     toCube: string | undefined;
@@ -53,6 +81,13 @@ export interface IContextMenuItem {
     general: boolean;
     wardrobes: boolean;
     item: boolean;
+    fiber: boolean;
+}
+export interface ITrackObj {
+    color: string,
+    idOwner: string,
+    track: boolean,
+    index: number,
 }
 interface IMapState {
     id: string;
@@ -67,6 +102,14 @@ interface IMapState {
     contextMenuItem: IContextMenuItem;
     wardrobes: ICustomWardrobe[];
     hideCubes: boolean;
+    infoModal: boolean;
+    choseCountFiberOpticsMenu: boolean;
+    colors: Color[];
+    track: ITrackObj;
+    oldCubeLatLng: LatLng | null;
+    trackData: IData[];
+    trackIndex: number;
+    mainLineId: string;
 }
 const initialState: IMapState = {
     id: '',
@@ -74,19 +117,57 @@ const initialState: IMapState = {
     cubeInfo: null,
     mufts: [],
     drag: false,
-    contextMenuItem: { cube: false, general: false, poly: false, muft: false, wardrobes: false, item: false },
+    contextMenuItem: { cube: false, general: false, poly: false, muft: false, wardrobes: false, item: false, fiber: false },
     showOwnerLines: false,
     wardrobes: [],
     polyLines: [],
     contextMenuXY: null,
     cubes: [],
-    hideCubes: false
+    hideCubes: false,
+    infoModal: false,
+    colors,
+    choseCountFiberOpticsMenu: false,
+    track: { color: '', idOwner: '', track: false, index: 0 },
+    oldCubeLatLng: null,
+    trackData: [],
+    trackIndex: 0,
+    mainLineId: ''
 }
 
 export const mapSlice = createSlice({
     name: 'map',
     initialState,
     reducers: {
+        updateMuftFibers: (state, { payload }) => {
+            const indexOwner = state.mufts.findIndex(item => item.id === payload.owner.id);
+            state.mufts.splice(indexOwner, 1, payload.owner);
+            const indexTo = state.mufts.findIndex(item => item.id === payload.to.id);
+            state.mufts.splice(indexTo, 1, payload.to);
+        },
+        setMainLineId: (state, { payload }) => {
+            state.mainLineId = payload;
+        },
+        setTrackIndex: (state, { payload }) => {
+            state.trackIndex = payload;
+        },
+        setTrackData: (state, { payload }) => {
+            state.trackData = payload;
+        },
+        updateOptics: (state, { payload }) => {
+            state.mufts.splice(payload.index, 1, payload.obj);
+        },
+        setOldCubeLatLng: (state, { payload }) => {
+            state.oldCubeLatLng = payload;
+        },
+        setTrack: (state, { payload }) => {
+            state.track = payload;
+        },
+        setFiberOpticsMenu: (state, { payload }) => {
+            state.choseCountFiberOpticsMenu = payload;
+        },
+        setInfoModal: (state, { payload }) => {
+            state.infoModal = payload;
+        },
         setContextMenu: (state, { payload }) => {
             state.contextMenuItem = payload;
         },
@@ -114,6 +195,7 @@ export const mapSlice = createSlice({
             state.polyLines = payload;
         },
         updateCubes: (state, { payload }) => {
+            state.mufts.splice(payload.index, 1, payload.muft);
             state.cubes = payload.cubes;
             if (payload.newArr.length > 0) {
                 state.polyLines = payload.newArr;
@@ -176,4 +258,4 @@ export const mapSlice = createSlice({
 
 });
 
-export const { setContextMenu, drawWardrobe, setToggleCoordsApply, setHideCubes, updateMufta, setCubDragging, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, changePolylineWeight, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;
+export const { updateMuftFibers, setMainLineId, setTrackIndex, setTrackData, updateOptics, setOldCubeLatLng, setTrack, setFiberOpticsMenu, setInfoModal, setContextMenu, drawWardrobe, setToggleCoordsApply, setHideCubes, updateMufta, setCubDragging, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, changePolylineWeight, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;

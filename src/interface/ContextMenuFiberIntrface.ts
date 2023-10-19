@@ -1,7 +1,7 @@
 
 
-export class ContextMenuInterface {
-    static handleCloseMenu() {
+export class ContextMenuFiberInterface {
+    static OpenMenu() {
         return {
             muft: false,
             cube: false,
@@ -9,7 +9,8 @@ export class ContextMenuInterface {
             wardrobes: false,
             general: false,
             item: false,
-            fiber: false,
+            fiber: true,
         }
     }
+
 }

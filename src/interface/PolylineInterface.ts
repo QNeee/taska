@@ -4,6 +4,7 @@ import { IItemInfoPoly } from "../Redux/map/mapSlice";
 import { Cubes, ICustomCube } from "../Cubes";
 import 'leaflet-geometryutil';
 import { ICustomMarker, Mufts } from "../Mufts";
+import { FiberOptic, IFiberOptic, IObjFiberOptic } from "../fiberOptic";
 export interface IClickData {
     idOwner: string,
     idTo: string,
@@ -20,71 +21,58 @@ export class PolylineInterface {
         const owner = needMufts.find(item => item.id === poly.owner) as ICustomMarker;
         const to = needMufts.find(item => item.id === poly.to) as ICustomMarker;
         const polys = [...polyLines];
-        const ownerCubes = cubes.filter(cube => cube.owner === owner?.id);
+        const ownerFibers = owner.fibers;
+        const toFibers = to.fibers;
+        const indexFibTo = toFibers?.findIndex(item => item.lineId === poly.id) as number;
+        const indexFibOwner = ownerFibers?.findIndex(item => item.lineId === poly.id) as number;
         const click = { x: e.originalEvent.clientX, y: e.originalEvent.clientY };
         const clickLatLng = map.containerPointToLatLng(L.point(click.x, click.y));
         const nearestPoint = L.GeometryUtil.closest(map, poly, clickLatLng);
         const cubeLatLng = L.latLng((nearestPoint?.lat!), (nearestPoint?.lng!));
-        const nearestLatLng = {
-            lat: nearestPoint?.lat!,
-            lng: nearestPoint?.lng!
-        }
         const lineInfo = {
             owner: owner.id,
             to: to.id,
         }
-        if (ownerCubes.length === 0) {
-            const ownerLatLng: LatLng[] = [owner.getLatLng(), nearestLatLng as LatLng];
-            const toLatLng: LatLng[] = [to.getLatLng(), nearestLatLng as LatLng];
-            polys.splice(index, 1);
-            const line1 = new Polylines(ownerLatLng, lineInfo as IItemInfoPoly, true).getLine();
-            const line2 = new Polylines(toLatLng, lineInfo as IItemInfoPoly, true).getLine();
-
-            const cubeInfo = {
-                owner: owner.id,
-                to: to.id,
-            }
-            const cube = new Cubes(cubeLatLng, cubeInfo).getCub();
-            polys.push(line1 as ICustomPolyline, line2 as ICustomPolyline);
-            const newCubes = [...cubes, cube as ICustomCube];
-            const data = Mufts.updateMuftLine(owner, to, line1?.id as string, poly.id, line2?.id as string, cube?.id as string);
-            const newPolys = Polylines.changePolyLineWeight(owner, to, polys, 4);
-            return {
-                idOwner: data.idOwner, idTo: data.idTo, data: data.data, polys: newPolys as ICustomPolyline[], cubes: newCubes as ICustomCube[]
-            }
-        } else {
-            const cubeInfo = {
-                owner: owner.id,
-                to: to.id,
-            }
-            const cube = new Cubes(cubeLatLng, cubeInfo).getCub();
-            const needMarkers: ICustomCube[] = [];
-            const start = poly.getLatLngs()[0] as LatLng;
-            const end = poly.getLatLngs()[1] as LatLng;
-            const allMarker = [...cubes, ...needMufts];
-            for (const muft of allMarker) {
-                if (muft.getLatLng().equals(start) || muft.getLatLng().equals(end)) {
-                    needMarkers.push(muft);
-                }
-            }
-            needMarkers.splice(1, 0, cube as ICustomCube);
-            polys.splice(index, 1);
-            const linesId: string[] = [];
-            for (let i = 0; i < needMarkers.length - 1; i++) {
-                const startMarker = needMarkers[i].getLatLng() as LatLng;
-                const endMarker = needMarkers[i + 1].getLatLng() as LatLng;
-                const line = new Polylines([startMarker, endMarker], lineInfo as IItemInfoPoly).getLine()
-                polys.push(line as ICustomPolyline);
-                linesId.push(line?.id as string);
-
-            }
-            const newCubes = [...cubes, cube];
-            const data = Mufts.updateMuftLine(owner, to, linesId[0], poly.id, linesId[1], cube?.id as string);
-            const newPolys = Polylines.changePolyLineWeight(owner, to, polys, 4);
-            return { idOwner: data.idOwner, idTo: data.idTo, data: data.data, polys: newPolys as ICustomPolyline[], cubes: newCubes as ICustomCube[] };
+        const cubeInfo = {
+            owner: owner.id,
+            to: to.id,
         }
+        const cube = new Cubes(cubeLatLng, cubeInfo).getCub();
+        const needMarkers: ICustomCube[] = [];
+        const allMarker = [...cubes, ...needMufts];
+        const start = poly.getLatLngs()[0] as LatLng;
+        const end = poly.getLatLngs()[1] as LatLng;
+        for (const muft of allMarker) {
+            if (muft.getLatLng().equals(start) || muft.getLatLng().equals(end)) {
+                needMarkers.push(muft);
+            }
+        }
+        needMarkers.splice(1, 0, cube as ICustomCube);
+        polys.splice(index, 1);
+        ownerFibers?.splice(indexFibOwner, 1);
+        toFibers?.splice(indexFibTo, 1);
 
-
+        const linesId: string[] = [];
+        for (let i = 0; i < needMarkers.length - 1; i++) {
+            const startMarker = needMarkers[i].getLatLng() as LatLng;
+            const endMarker = needMarkers[i + 1].getLatLng() as LatLng;
+            const line = new Polylines([startMarker, endMarker], lineInfo as IItemInfoPoly).getLine()
+            const fiberOpticInfo = {
+                latlng: [startMarker, endMarker],
+                owner: poly.owner,
+                to: poly.to,
+                lineId: line?.id,
+            } as IObjFiberOptic
+            const fiber = new FiberOptic(fiberOpticInfo).getFiberOptic() as IFiberOptic;
+            polys.push(line as ICustomPolyline);
+            ownerFibers?.push(fiber);
+            toFibers?.push(fiber);
+            linesId.push(line?.id as string);
+        }
+        const newCubes = [...cubes, cube];
+        const data = Mufts.updateMuftLine(owner, to, linesId[0], poly.id, linesId[1], cube?.id as string);
+        const newPolys = Polylines.changePolyLineWeight(owner, to, polys, 4);
+        return { idOwner: data.idOwner, idTo: data.idTo, data: data.data, polys: newPolys as ICustomPolyline[], cubes: newCubes as ICustomCube[] };
     }
 
 

@@ -1,10 +1,10 @@
 import { useDispatch, useSelector } from "react-redux"
-import { getContextMenu, getCubes, getDrag, getHideCubes, getMufts, getPolyLines } from "../../../Redux/map/mapSelectors"
+import { getContextMenu, getCubes, getDrag, getHideCubes, getMufts, getPolyLines, getTrack } from "../../../../Redux/map/mapSelectors"
 import { Marker } from "react-leaflet";
-import { CubeInterface } from "../../../interface/CubeInterface";
-import { setContextMenu, setContextMenuXY, setDrag, updateCubes, updateCubesDelete, updateMufta } from "../../../Redux/map/mapSlice";
-import { IClickData } from "../../../interface/PolylineInterface";
-import { ContextMenuCubeInterface } from "../../../interface/ContextMenuCubeInterface";
+import { CubeInterface } from "../../../../interface/CubeInterface";
+import { setContextMenu, setContextMenuXY, setDrag, setId, updateCubes, updateCubesDelete, updateMufta } from "../../../../Redux/map/mapSlice";
+import { IClickData } from "../../../../interface/PolylineInterface";
+import { ContextMenuCubeInterface } from "../../../../interface/ContextMenuCubeInterface";
 
 
 
@@ -16,7 +16,8 @@ export const Cubes = () => {
     const drag = useSelector(getDrag);
     const hideCubes = useSelector(getHideCubes);
     const contextMenu = useSelector(getContextMenu);
-    if (!hideCubes) {
+    const track = useSelector(getTrack);
+    if (!hideCubes && !track.track) {
         return <>
             {cubesArr.map((item, index) => (
                 <Marker
@@ -27,6 +28,7 @@ export const Cubes = () => {
                     eventHandlers={{
                         contextmenu: (e) => {
                             e.originalEvent.preventDefault();
+                            dispatch(setId(item.id));
                             dispatch(setContextMenuXY({ x: e.originalEvent.clientX, y: e.originalEvent.clientY }));
                             const menu = ContextMenuCubeInterface.OpenMenu();
                             dispatch(setContextMenu(menu));
@@ -36,14 +38,18 @@ export const Cubes = () => {
                             dispatch(updateMufta({ idOwner, idTo, data }));
                             dispatch(updateCubesDelete({ cubes, polyLines: polys }));
                         },
-                        dragstart: () => dispatch(setDrag(true)),
+                        dragstart: () => {
+                            dispatch(setDrag(true))
+                        },
                         drag: (e) => {
                             if (drag) {
                                 const data = CubeInterface.handleCubeDrag(e, polyLines, index, cubesArr, mufts, item)
                                 dispatch(updateCubes(data));
                             }
                         },
-                        dragend: () => dispatch(setDrag(false)),
+                        dragend: () => {
+                            dispatch(setDrag(false));
+                        },
                         mouseover: () => {
                             if (!drag && !contextMenu.item) {
                                 dispatch(setContextMenu({

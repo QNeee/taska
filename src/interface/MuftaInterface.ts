@@ -33,8 +33,8 @@ export class MuftaInterface {
         const latLngs = new L.LatLng(e.target.getLatLng().lat, e.target.getLatLng().lng);
         const newArr = [...polyLines];
         const muftsLatLng = muft.getLatLng();
+        const fibers = muft.fibers;
         newArr.forEach((line, lineIndex) => {
-
             const startLine = line.getLatLngs()[0];
             const endLine = line.getLatLngs()[1];
             if (muftsLatLng.equals(startLine as LatLng)) {
@@ -43,8 +43,17 @@ export class MuftaInterface {
                 newArr[lineIndex].setLatLngs([startLine as LatLng, latLngs]);
             }
         });
+        fibers?.forEach((item, indexItem) => {
+            const startLine = item.getLatLngs()[0];
+            const endLine = item.getLatLngs()[1];
+            if (muftsLatLng.equals(startLine as LatLng)) {
+                fibers[indexItem].setLatLngs([latLngs, endLine as LatLng]);
+            } else if (muftsLatLng.equals(endLine as LatLng)) {
+                fibers[indexItem].setLatLngs([startLine as LatLng, latLngs]);
+            }
+        })
         const newMufts = [...muftArr];
-        newMufts.forEach((item, index) => {
+        newMufts.forEach((item) => {
             if (item.id === muft.id) {
                 item.setLatLng(latLngs);
             }

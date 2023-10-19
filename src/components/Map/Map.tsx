@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useSelector, useDispatch } from 'react-redux';
@@ -8,16 +8,12 @@ import {
     getPosition,
     getResotredData,
 } from '../../Redux/app/appSelectors';
-import { MapDrawing } from './MapDrawing';
 import { AppDispatch } from '../../Redux/store';
 import {
     makeRestoreUndraw,
     makeUndraw,
 } from '../../Redux/app/appSlice';
-import { Mufts } from './MapItems/Mufts';
-import { Polylines } from './MapItems/Polylines';
-import { Cubes } from './MapItems/Cubes';
-import { Wardrobes } from './MapItems/Wardrobes';
+import { MainContainer } from './MapItems/MainContainer';
 
 
 export const iconUrl1 = 'https://cdn.icon-icons.com/icons2/605/PNG/512/square-cut_icon-icons.com_56037.png';
@@ -65,7 +61,6 @@ export const Map = () => {
             window.removeEventListener('keyup', handleKeyUp);
         };
     }, [allDrawData, dispatch, isCtrlPressed, isShiftPressed, restoredData]);
-
     return (
         <>
             <div>
@@ -81,14 +76,7 @@ export const Map = () => {
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
 
-
-                    <Mufts />
-                    <Polylines />
-                    <Cubes />
-                    <Wardrobes />
-
-
-                    <MapDrawing />
+                    <MainContainer />
                 </MapContainer>
             </div>
         </>

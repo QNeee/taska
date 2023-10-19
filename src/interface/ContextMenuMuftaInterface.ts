@@ -1,9 +1,10 @@
 import { LatLng } from "leaflet";
-import { ILineStart } from "../Redux/map/mapSlice";
+import { Color, ILineStart } from "../Redux/map/mapSlice";
 import { ICustomPolyline, Polylines } from "../Polylines";
-import { ICustomMarker, Mufts } from "../Mufts";
+import { ICustomMarker, IMainLine, IStatsMainLine, MainLine, Mufts } from "../Mufts";
 import { ICustomCube } from "../Cubes";
 import { ICoords } from "../components/Map/ContextMenu";
+import { FiberOptic, IFiberOptic, IObjFiberOptic } from "../fiberOptic";
 
 export interface IDrawItemLatLng {
     lat: number,
@@ -43,6 +44,8 @@ export class ContextMenuMuftaInterface {
         const polys = [...polyLines];
         const cubics = [...cubes];
         for (const muft of to) {
+            const index = muft.mainLines?.findIndex(t => mufta.mainLines?.some(o => t.id === o.id)) as number;
+            if (index !== -1) muft.mainLines?.splice(index, 1);
             for (const poly of polysIds) {
                 if (muft.linesIds?.includes(poly.id as string)) {
                     const indexPoly = muft.linesIds.findIndex(item => item === poly.id);
@@ -66,6 +69,7 @@ export class ContextMenuMuftaInterface {
                 }
             }
         }
+        console.log(to);
         return { mufts, polyLines: polys, cubes: cubics };
     }
     static handleApplyCoordinates(id: string, mufts: ICustomMarker[], form: ICoords, polyLines?: ICustomPolyline[]) {
@@ -89,16 +93,37 @@ export class ContextMenuMuftaInterface {
         data.setLatLng({ lat: form.lat, lng: form.lng });
         return { index, data, polysArr };
     }
-    static handleAddLineTo(mufts: ICustomMarker[], id: string, lineStart: ILineStart | null) {
+    static handleAddLineTo(mufts: ICustomMarker[], id: string, lineStart: ILineStart | null, fiberCounts: number, colors: Color[], form: IStatsMainLine) {
         const muftaTo = mufts.find(item => item.id === id);
         const muftaOwner = mufts.find(item => item.id === lineStart?.id);
         const muftaLatLng = muftaTo?.getLatLng() as LatLng;
         const ownerLatLng = lineStart?.latlng as LatLng;
         const additionalInfo = {
             owner: lineStart?.id as string,
-            to: muftaTo?.id as string
+            to: muftaTo?.id as string,
         }
         const polyLine = new Polylines([muftaLatLng, ownerLatLng], additionalInfo).getLine();
+        const mainLineObj = {
+            owner: lineStart?.id as string,
+            to: muftaTo?.id as string,
+            producer: form.producer,
+            standart: form.standart,
+            fiberOpticsCount: fiberCounts,
+        }
+        const mainLine = new MainLine(mainLineObj).getMainLine() as IMainLine;
+        const fiberOpticInfo = {
+            latlng: [muftaLatLng, ownerLatLng],
+            owner: lineStart?.id,
+            to: muftaTo?.id,
+            lineId: polyLine?.id,
+        } as IObjFiberOptic
+        const fiberOptic = new FiberOptic(fiberOpticInfo).getFiberOptic() as IFiberOptic;
+        if (muftaOwner && muftaTo) {
+            muftaOwner.fibers?.push(fiberOptic);
+            muftaTo?.fibers?.push(fiberOptic);
+            muftaOwner.mainLines?.push(mainLine);
+            muftaTo?.mainLines?.push(mainLine);
+        }
         const { data, idOwner, idTo } = Mufts.updateMuftLine(muftaOwner as ICustomMarker, muftaTo as ICustomMarker, polyLine?.id as string);
         return { data, idOwner, idTo, polyLine };
     }

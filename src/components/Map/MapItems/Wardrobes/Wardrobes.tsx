@@ -1,8 +1,8 @@
 import { useDispatch, useSelector } from "react-redux"
 import { Marker } from "react-leaflet";
-import { getContextMenu, getDrag, getWardrobes } from "../../../Redux/map/mapSelectors";
-import { setContextMenu, setContextMenuXY, setDrag, setId } from "../../../Redux/map/mapSlice";
-import { ContextMenuWardrobe } from "../../../interface/ContextMenuWardrobe";
+import { getContextMenu, getDrag, getWardrobes } from "../../../../Redux/map/mapSelectors";
+import { setContextMenu, setContextMenuXY, setDrag, setId } from "../../../../Redux/map/mapSlice";
+import { ContextMenuWardrobe } from "../../../../interface/ContextMenuWardrobe";
 
 export const Wardrobes = () => {
 
