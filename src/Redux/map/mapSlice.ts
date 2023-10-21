@@ -250,7 +250,6 @@ export const mapSlice = createSlice({
             state.polyLines = payload;
         },
         deleteWardrobe: (state, { payload }) => {
-            console.log(payload);
             state.mufts = payload.mufts;
             state.polyLines = payload.polyLines;
             state.cubes = payload.cubes;
