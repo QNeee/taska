@@ -9,6 +9,7 @@ import { ICustomMarker } from '../../../../Mufts';
 import { ICustomPolyline } from '../../../../Polylines';
 import { ICustomCube } from '../../../../Cubes';
 import { ContextMenuContainer, MenuItem } from './ContextMenu.styled';
+import { ICustomWardrobe } from '../../../../Wardrobe';
 
 interface IMufraMenuProps {
     left: number;
@@ -21,9 +22,10 @@ interface IMufraMenuProps {
     polyLinesArr: ICustomPolyline[];
     cubesArr: ICustomCube[];
     item: ICustomMarker;
-    setFiberOpticsMenu: Function
+    setFiberOpticsMenu: Function;
+    wardrobesArr: ICustomWardrobe[];
 }
-export const MuftaMenu: React.FC<IMufraMenuProps> = ({ setFiberOpticsMenu, left, top, item, addLine, form, handleInputChange, muftsArr, id, polyLinesArr, cubesArr }) => {
+export const MuftaMenu: React.FC<IMufraMenuProps> = ({ setFiberOpticsMenu, left, top, item, addLine, form, handleInputChange, muftsArr, id, polyLinesArr, cubesArr, wardrobesArr }) => {
     const dispatch: AppDispatch = useDispatch();
     return (
         <ContextMenuContainer style={{ left, top }}>
@@ -48,16 +50,16 @@ export const MuftaMenu: React.FC<IMufraMenuProps> = ({ setFiberOpticsMenu, left,
                 <input type="text" id="lng" value={form.lng} onChange={handleInputChange} />
             </div>}
             <MenuItem onClick={() => {
-                const { index, data, polysArr } = ContextMenuMuftaInterface.handleApplyCoordinates(id, muftsArr, form, polyLinesArr);
-                dispatch(setToggleCoordsApply({ index, data, polysArr }));
+                const { index, data } = ContextMenuMuftaInterface.handleApplyCoordinates(id, muftsArr, form, polyLinesArr);
+                dispatch(setToggleCoordsApply({ index, data }));
                 const close = ContextMenuInterface.handleCloseMenu();
                 dispatch(setContextMenu(close));
             }}>
                 {item?.drag ? "Застосувати координати" : "Змінити координати"}
             </MenuItem>
             <MenuItem onClick={() => {
-                const { mufts, polyLines, cubes } = ContextMenuMuftaInterface.handleDeleteMufta(muftsArr, id, polyLinesArr, cubesArr)
-                dispatch(deleteMufta({ mufts, polyLines, cubes }));
+                const { mufts, polyLines, cubes, wardrobes } = ContextMenuMuftaInterface.handleDeleteMufta(muftsArr, id, polyLinesArr, cubesArr, wardrobesArr)
+                dispatch(deleteMufta({ mufts, polyLines, cubes, wardrobes }));
                 const close = ContextMenuInterface.handleCloseMenu();
                 dispatch(setContextMenu(close));
             }}>Видалити</MenuItem>

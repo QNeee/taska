@@ -22,7 +22,6 @@ export const Wardrobes = () => {
                 eventHandlers={{
                     mouseover: () => {
                         if (!drag && !contextMenu.item) {
-                            dispatch(setId(item.id));
                             dispatch(setContextMenu({
                                 ...contextMenu,
                                 item: true,

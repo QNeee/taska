@@ -1,10 +1,10 @@
 import { useDispatch, useSelector } from "react-redux"
-import { getContextMenu, getCubes, getHideCubes, getMufts, getPolyLines } from "../../../../Redux/map/mapSelectors"
+import { getContextMenu, getCubes, getHideCubes, getMufts, getPolyLines, getWardrobes } from "../../../../Redux/map/mapSelectors"
 import { Polyline, useMap } from "react-leaflet";
 import { IClickData, PolylineInterface } from "../../../../interface/PolylineInterface";
 import { getDrag } from "../../../../Redux/app/appSelectors";
 import { LatLng } from "leaflet";
-import { drawCube, drawPolyline, setContextMenu, setContextMenuXY, setHideCubes, setId, updateMufta } from "../../../../Redux/map/mapSlice";
+import { drawCube, drawPolyline, setContextMenu, setContextMenuXY, setHideCubes, setId, updateMufta, updateWardrobe } from "../../../../Redux/map/mapSlice";
 import { ContextMenuPolylineInterface } from "../../../../interface/ContextMenuPolylineIntrface";
 
 
@@ -16,6 +16,7 @@ export const Polylines = () => {
     const mufts = useSelector(getMufts);
     const hideCubes = useSelector(getHideCubes);
     const contextMenu = useSelector(getContextMenu);
+    const wardrobes = useSelector(getWardrobes);
     const map = useMap();
     return <>
         {polyLines?.map((item, index) => {
@@ -35,8 +36,12 @@ export const Polylines = () => {
                         if (hideCubes) {
                             return dispatch(setHideCubes(false));
                         }
-                        const { data, idOwner, idTo, polys, cubes }: IClickData = PolylineInterface.handleOnClickPolyline(e, item, map, polyLines, cubesArr, index, mufts)
-                        dispatch(updateMufta({ idOwner, idTo, data }));
+                        const { data, idOwner, idTo, polys, cubes, to }: IClickData = PolylineInterface.handleOnClickPolyline(e, item, map, polyLines, cubesArr, index, mufts, wardrobes)
+                        if (to.type === 'muft') {
+                            dispatch(updateMufta({ idOwner, idTo, data }));
+                        } else {
+                            dispatch(updateWardrobe({ idOwner, idTo, data }));
+                        }
                         dispatch(drawPolyline(polys));
                         dispatch(drawCube(cubes));
                     },
@@ -46,12 +51,12 @@ export const Polylines = () => {
                                 ...contextMenu,
                                 item: true,
                             }))
-                            const data = PolylineInterface.handleMouseOverPolyline(e, item, drag, polyLines, mufts);
+                            const data = PolylineInterface.handleMouseOverPolyline(e, item, drag, polyLines, mufts, wardrobes);
                             dispatch(drawPolyline(data));
                         }
                     },
                     mouseout: (e) => {
-                        const data = PolylineInterface.handleMouseOutPolyline(e, item, polyLines, mufts)
+                        const data = PolylineInterface.handleMouseOutPolyline(e, item, polyLines, mufts, wardrobes)
                         dispatch(drawPolyline(data));
                         dispatch(setContextMenu({
                             ...contextMenu,

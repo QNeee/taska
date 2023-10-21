@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { getAddLine } from '../../Redux/app/appSelectors';
 import React, { useEffect, useState } from 'react';
-import { getContextMenu, getCubes, getFiberOpticsMenu, getId, getLineStart, getMufts, getOpticsColors, getPolyLines, getWardrobes } from '../../Redux/map/mapSelectors';
+import { getContextMenu, getCubes, getFiberOpticsMenu, getId, getLineStart, getMufts, getPolyLines, getWardrobes } from '../../Redux/map/mapSelectors';
 import { useMap } from 'react-leaflet';
 import { MuftaMenu } from './MapItems/ContextMenu/MuftaMenu';
 import { ICustomMarker } from '../../Mufts';
@@ -12,6 +12,7 @@ import { ILineStart, setFiberOpticsMenu } from '../../Redux/map/mapSlice';
 import { AppDispatch } from '../../Redux/store';
 import { MakeLineModal } from '../Modal/MakeLineModal';
 import { FiberMenu } from './MapItems/ContextMenu/FiberMenu';
+import { WardrobeMenu } from './MapItems/ContextMenu/WardrobeMenu';
 
 interface Iprops {
     left: number,
@@ -34,7 +35,6 @@ const ContextMenu = ({ left, top }: Iprops) => {
     const muftsArr = useSelector(getMufts);
     const wardrobes = useSelector(getWardrobes);
     const contextMenu = useSelector(getContextMenu);
-    const opticsColors = useSelector(getOpticsColors);
     const dispatch: AppDispatch = useDispatch();
     const item = muftsArr.find(item => item.id === id) || wardrobes.find(item => item.id === id);
     const [form, setForm] = useState({ lat: 0, lng: 0 });
@@ -59,7 +59,7 @@ const ContextMenu = ({ left, top }: Iprops) => {
     if (contextMenu.muft) {
         return <MuftaMenu left={obj.x} top={obj.y} addLine={addLine} form={form}
             handleInputChange={handleInputChange} muftsArr={muftsArr}
-            id={id} polyLinesArr={polyLinesArr}
+            id={id} polyLinesArr={polyLinesArr} wardrobesArr={wardrobes}
             cubesArr={cubesArr} item={item as ICustomMarker} setFiberOpticsMenu={setFiberOpticsMenu}
         />
     } else if (contextMenu.general) {
@@ -75,11 +75,16 @@ const ContextMenu = ({ left, top }: Iprops) => {
 
         />
     } else if (fiberCountsMenu) {
-        return <MakeLineModal muftsArr={muftsArr} id={id} lineStart={lineStart as ILineStart}
-            onClose={onCloseFiberCountsMenu} opticsColors={opticsColors}
+        return <MakeLineModal muftsArr={muftsArr} wardrobesArr={wardrobes} item={item} lineStart={lineStart as ILineStart}
+            onClose={onCloseFiberCountsMenu}
         />
     } else if (contextMenu.fiber) {
         return <FiberMenu left={obj.x} top={obj.y} map={map} contextMenu={contextMenu} />
+    } else if (contextMenu.wardrobes) {
+        return <WardrobeMenu left={obj.x} top={obj.y} addLine={addLine} form={form}
+        handleInputChange={handleInputChange}
+        id={id} wardrobesArr={wardrobes}
+        item={item as ICustomMarker} setFiberOpticsMenu={setFiberOpticsMenu} polyLinesArr={polyLinesArr} muftsArr={muftsArr} cubesArr={cubesArr} />;
     }
     return null;
 };

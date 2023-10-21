@@ -175,9 +175,10 @@ export const mapSlice = createSlice({
             state.wardrobes.push(payload);
         },
         setToggleCoordsApply: (state, { payload }) => {
-            state.mufts.splice(payload.index, 1, payload.data);
-            if (payload.polysArr) {
-                state.polyLines = payload.polysArr;
+            if (payload.data.type === 'muft') {
+                state.mufts.splice(payload.index, 1, payload.data);
+            } else {
+                state.wardrobes.splice(payload.index, 1, payload.data);
             }
         },
         setHideCubes: (state, { payload }) => {
@@ -203,6 +204,12 @@ export const mapSlice = createSlice({
         },
         drawMufta: (state, { payload }) => {
             state.mufts.push(payload);
+        },
+        updateWardrobe: (state, { payload }) => {
+            const owner = state.mufts.findIndex(item => item.id === payload.idOwner);
+            const wardrobe = state.wardrobes.findIndex(item => item.id === payload.idTo);
+            state.wardrobes.splice(wardrobe, 1, payload.data[0]);
+            state.mufts.splice(owner, 1, payload.data[1]);
         },
         updateMufta: (state, { payload }) => {
             const owner = state.mufts.findIndex(item => item.id === payload.idOwner);
@@ -242,10 +249,18 @@ export const mapSlice = createSlice({
         changePolylineWeight: (state, { payload }) => {
             state.polyLines = payload;
         },
+        deleteWardrobe: (state, { payload }) => {
+            console.log(payload);
+            state.mufts = payload.mufts;
+            state.polyLines = payload.polyLines;
+            state.cubes = payload.cubes;
+            state.wardrobes = payload.wardrobes;
+        },
         deleteMufta: (state, { payload }) => {
             state.mufts = payload.mufts;
             state.polyLines = payload.polyLines;
             state.cubes = payload.cubes;
+            state.wardrobes = payload.wardrobes;
         },
         drawCube: (state, { payload }) => {
             state.cubes = payload;
@@ -258,4 +273,4 @@ export const mapSlice = createSlice({
 
 });
 
-export const { updateMuftFibers, setMainLineId, setTrackIndex, setTrackData, updateOptics, setOldCubeLatLng, setTrack, setFiberOpticsMenu, setInfoModal, setContextMenu, drawWardrobe, setToggleCoordsApply, setHideCubes, updateMufta, setCubDragging, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, changePolylineWeight, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;
+export const { deleteWardrobe, updateWardrobe, updateMuftFibers, setMainLineId, setTrackIndex, setTrackData, updateOptics, setOldCubeLatLng, setTrack, setFiberOpticsMenu, setInfoModal, setContextMenu, drawWardrobe, setToggleCoordsApply, setHideCubes, updateMufta, setCubDragging, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, changePolylineWeight, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;

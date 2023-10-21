@@ -8,26 +8,34 @@ import React from 'react';
 import { ICustomPolyline } from '../../Polylines';
 import { GeometryUtil, LatLng } from 'leaflet';
 import { ICustomMarker } from '../../Mufts';
+import { ICustomWardrobe } from '../../Wardrobe';
 
 interface IModalProps {
     id: string,
     polyLines: ICustomPolyline[],
     muftsArr: ICustomMarker[],
+    wardrobesArr: ICustomWardrobe[],
 }
 export interface IData {
     color: string,
     riska?: number,
 }
-const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr }) => {
+const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr }) => {
     const dispatch: AppDispatch = useDispatch();
     const isOpen = useSelector(getInfoModal);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const colors = useSelector(getOpticsColors);
     const [data, setData] = useState<IData[]>([]);
     const poly = polyLines.find(item => item.id === id);
-    const needOwner = muftsArr.filter(item => item.linesIds?.includes(poly?.id as string));
-    const owner = needOwner[0];
-    const to = needOwner[1];
+    const needMufts = muftsArr.filter(item => item.linesIds?.includes(poly?.id as string));
+    let to: ICustomMarker | ICustomWardrobe;
+    const owner = needMufts[0];
+    const toMuft = needMufts[1];
+    if (!toMuft) {
+        to = wardrobesArr.filter(item => item.linesIds?.includes(poly?.id as string))[0];
+    } else {
+        to = toMuft;
+    }
     const infoPoly = useCallback(() => {
         const mainLine = owner.mainLines?.find(o => to.mainLines?.some(t => o.id === t.id));
         const producer = mainLine?.producer;

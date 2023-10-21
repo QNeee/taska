@@ -4,6 +4,7 @@ import { ICustomPolyline, Polylines } from "../Polylines";
 import { IItemInfoPoly, setHideCubes } from "../Redux/map/mapSlice";
 import { ICustomMarker, Mufts } from "../Mufts";
 import { FiberOptic, IFiberOptic, IObjFiberOptic } from "../fiberOptic";
+import { ICustomWardrobe, Wardrobe } from "../Wardrobe";
 export function roundLatLng(latLng: LatLng, decimalPlaces: number) {
     const lat = latLng.lat.toFixed(decimalPlaces);
     const lng = latLng.lng.toFixed(decimalPlaces);
@@ -13,10 +14,16 @@ export class CubeInterface {
     static handleDoubleClick(e: LeafletMouseEvent, dispatch: Function, index: number, mufts: ICustomMarker[], cube: ICustomCube) {
 
     }
-    static handleCubeOnClick(cubesArr: ICustomCube[], mufts: ICustomMarker[], cube: ICustomCube, polyLines: ICustomPolyline[]) {
+    static handleCubeOnClick(cubesArr: ICustomCube[], mufts: ICustomMarker[], cube: ICustomCube, polyLines: ICustomPolyline[], wardrobes: ICustomWardrobe[]) {
         const needMufts = mufts.filter(item => item.cubesIds?.includes(cube.id as string));
         const owner = needMufts.find(item => item.id === cube.owner) as ICustomMarker;
-        const to = needMufts.find(item => item.id === cube.to) as ICustomMarker;
+        let to: ICustomMarker | ICustomWardrobe;
+        const muftTo = needMufts.find(item => item.id === cube.to) as ICustomMarker;
+        if (!muftTo) {
+            to = wardrobes.find(item => item.id === cube.to) as ICustomWardrobe;
+        } else {
+            to = muftTo;
+        }
         const ownerFibers = owner.fibers;
         const toFibers = to.fibers;
         const ownerLines = owner.linesIds as string[];
@@ -66,10 +73,15 @@ export class CubeInterface {
         polys.push(line as ICustomPolyline);
         ownerFibers?.push(fiber as IFiberOptic);
         toFibers?.push(fiber as IFiberOptic);
-        const data = Mufts.updateMuftCube(owner, to, line?.id as string, cube.id as string, oldIds);
+        let data;
+        if (to.type === 'muft') {
+            data = Mufts.updateMuftCube(owner, to, line?.id as string, cube.id as string, oldIds);
+        } else {
+            data = Wardrobe.updateMuftCube(owner, to, line?.id as string, cube.id as string, oldIds);
+        }
         return {
-            idOwner: data.idOwner, idTo: data.idTo, data: data.data, polys, cubes: cubes as ICustomCube[]
-
+            idOwner: data.idOwner, idTo: data.idTo, data: data.data, polys, cubes: cubes as ICustomCube[],
+            to
         };
 
     }

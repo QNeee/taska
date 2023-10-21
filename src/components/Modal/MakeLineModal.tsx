@@ -2,16 +2,18 @@ import { useDispatch } from "react-redux";
 import { Button, FullWidthInput, InputContainer, ModalContent, ModalTitle, ModalWrapper, Select } from "./Modal.styled"
 import React, { useState } from 'react';
 import { AppDispatch } from "../../Redux/store";
-import { Color, ILineStart, drawPolyline, updateMufta } from "../../Redux/map/mapSlice";
+import { ILineStart, drawPolyline, updateMufta, updateWardrobe } from "../../Redux/map/mapSlice";
 import { ContextMenuMuftaInterface } from "../../interface/ContextMenuMuftaInterface";
 import { setAddLine } from "../../Redux/app/appSlice";
 import { ICustomMarker, IStatsMainLine } from "../../Mufts";
+import { ICustomWardrobe } from "../../Wardrobe";
+import { ContextMenuWardrobe } from "../../interface/ContextMenuWardrobe";
 interface IModalOpticsProps {
     muftsArr: ICustomMarker[],
-    id: string;
+    item: ICustomMarker | ICustomWardrobe | undefined;
     lineStart: ILineStart;
     onClose: () => void;
-    opticsColors: Color[]
+    wardrobesArr: ICustomWardrobe[];
 }
 const producers = [
     'nissan', 'barabn', 'taranaas'
@@ -20,7 +22,7 @@ const standard = [
     'АМЕРИКА',
     'ЮЖКАБЕЛЬ',
 ];
-export const MakeLineModal: React.FC<IModalOpticsProps> = ({ opticsColors, onClose, muftsArr, id, lineStart }) => {
+export const MakeLineModal: React.FC<IModalOpticsProps> = ({ onClose, muftsArr, wardrobesArr, item, lineStart }) => {
     const [fiberOptic, setFiberOptic] = useState(0);
     const dispatch: AppDispatch = useDispatch();
     const formInitial: IStatsMainLine = { producer: producers[0], standart: standard[0] }
@@ -38,9 +40,15 @@ export const MakeLineModal: React.FC<IModalOpticsProps> = ({ opticsColors, onClo
     const onSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!fiberOptic) return;
-        const { data, idOwner, idTo, polyLine } = ContextMenuMuftaInterface.handleAddLineTo(muftsArr, id, lineStart, fiberOptic, opticsColors, form);
-        dispatch(updateMufta({ idOwner, idTo, data }));
-        dispatch(drawPolyline(polyLine));
+        if (item?.type === 'muft') {
+            const { data, idOwner, idTo, polyLine } = ContextMenuMuftaInterface.handleAddLineTo(muftsArr, item?.id as string, lineStart, fiberOptic, form);
+            dispatch(updateMufta({ idOwner, idTo, data }));
+            dispatch(drawPolyline(polyLine));
+        } else {
+            const { data, idOwner, idTo, polyLine } = ContextMenuWardrobe.handleAddLineTo(muftsArr, wardrobesArr, item?.id as string, lineStart, fiberOptic, form);
+            dispatch(updateWardrobe({ idOwner, idTo, data }));
+            dispatch(drawPolyline(polyLine));
+        }
         dispatch(setAddLine(false));
         onClose();
         setForm(formInitial);

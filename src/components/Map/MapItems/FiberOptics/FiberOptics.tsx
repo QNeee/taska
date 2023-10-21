@@ -1,10 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
-import { getMainLine, getMufts, getTrackData, getTrackIndex } from "../../../../Redux/map/mapSelectors";
+import { getMainLine, getMufts, getTrackData, getTrackIndex, getWardrobes } from "../../../../Redux/map/mapSelectors";
 import { Polyline } from "react-leaflet";
 import { LatLng } from "leaflet";
 import { TrackerHelper } from "./TrackerHelper";
 import { setContextMenu, setContextMenuXY, setId } from "../../../../Redux/map/mapSlice";
 import { ContextMenuFiberInterface } from "../../../../interface/ContextMenuFiberIntrface";
+import { ICustomMarker } from "../../../../Mufts";
+import { ICustomWardrobe } from "../../../../Wardrobe";
 
 interface IFiberOpticsProps {
     idOnwer: string;
@@ -17,11 +19,18 @@ export const FiberOptics: React.FC<IFiberOpticsProps> = ({ idOnwer }) => {
     const data = useSelector(getTrackData);
     const trackIndex = useSelector(getTrackIndex);
     const mainLineId = useSelector(getMainLine);
+    const wardrobes = useSelector(getWardrobes);
     const dispatch = useDispatch();
     const makeFibers = () => {
-        const needOwner = muftsArr.filter(item => item.linesIds?.includes(mainLineId));
-        const first = needOwner[0];
-        const to = needOwner[1];
+        let to: ICustomMarker | ICustomWardrobe;
+        const needMufts = muftsArr.filter(item => item.linesIds?.includes(mainLineId));
+        const first = needMufts[0];
+        const second = needMufts[1];
+        if (!second) {
+            to = wardrobes.filter(item => item.linesIds?.includes(mainLineId))[0];
+        } else {
+            to = second;
+        }
         return first?.fibers?.filter(fib => to.fibers?.some(fib1 => fib.id === fib1.id));
     }
     const fibers = makeFibers();

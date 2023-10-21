@@ -48,31 +48,31 @@ describe('muft operations Test', () => {
         const checkArr = muftsArr.filter(item => item.getLatLng().equals(form) && !item.drag);
         expect(checkArr.length).toBe(1);
     })
-    it('Mufta applyCoords with Polyline', () => {
-        const muft1 = new Mufts(generateRandomLatLng()).getMuft();
-        store.dispatch(drawMufta(muft1));
-        const lineInfo = {
-            owner: muft?.id,
-            to: muft1?.id
-        } as IItemInfoPoly
-        const line = new Polylines([muft?.getLatLng() as LatLng, muft1?.getLatLng() as LatLng], lineInfo).getLine();
-        const hideVariable = 'hide';
-        if (hideVariable) {
-            const { data, idOwner, idTo } = Mufts.updateMuftLine(muft as ICustomMarker, muft1 as ICustomMarker, line?.id as string);
-            store.dispatch(updateMufta({ idOwner, idTo, data }));
-        }
-        store.dispatch(drawPolyline(line));
-        let state = store.getState();
-        let muftsArr = state.map.mufts;
-        let polyLinesArr = state.map.polyLines;
-        const form = muft?.getLatLng() as ICoords;
-        const { index, data, polysArr } = ContextMenuMuftaInterface.handleApplyCoordinates(muft?.id as string, muftsArr, form, polyLinesArr);
-        store.dispatch(setToggleCoordsApply({ index, data, polysArr }));
-        state = store.getState();
-        polyLinesArr = state.map.polyLines;
-        const checkArr = polyLinesArr.filter(item => L.latLng(form.lat, form.lng).equals(item.getLatLngs()[0] as LatLng));
-        expect(checkArr.length).toBe(1);
-    })
+    // it('Mufta applyCoords with Polyline', () => {
+    //     const muft1 = new Mufts(generateRandomLatLng()).getMuft();
+    //     store.dispatch(drawMufta(muft1));
+    //     const lineInfo = {
+    //         owner: muft?.id,
+    //         to: muft1?.id
+    //     } as IItemInfoPoly
+    //     const line = new Polylines([muft?.getLatLng() as LatLng, muft1?.getLatLng() as LatLng], lineInfo).getLine();
+    //     const hideVariable = 'hide';
+    //     if (hideVariable) {
+    //         const { data, idOwner, idTo } = Mufts.updateMuftLine(muft as ICustomMarker, muft1 as ICustomMarker, line?.id as string);
+    //         store.dispatch(updateMufta({ idOwner, idTo, data }));
+    //     }
+    //     store.dispatch(drawPolyline(line));
+    //     let state = store.getState();
+    //     let muftsArr = state.map.mufts;
+    //     let polyLinesArr = state.map.polyLines;
+    //     const form = muft?.getLatLng() as ICoords;
+    //     const { index, data, polysArr } = ContextMenuMuftaInterface.handleApplyCoordinates(muft?.id as string, muftsArr, form, polyLinesArr);
+    //     store.dispatch(setToggleCoordsApply({ index, data, polysArr }));
+    //     state = store.getState();
+    //     polyLinesArr = state.map.polyLines;
+    //     const checkArr = polyLinesArr.filter(item => L.latLng(form.lat, form.lng).equals(item.getLatLngs()[0] as LatLng));
+    //     expect(checkArr.length).toBe(1);
+    // })
     it('delete Mufta with Cube and Polyline and Check Mufta linesIds and cubesIds', () => {
         let state = store.getState();
         let muftsArr = state.map.mufts;

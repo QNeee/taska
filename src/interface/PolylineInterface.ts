@@ -5,21 +5,29 @@ import { Cubes, ICustomCube } from "../Cubes";
 import 'leaflet-geometryutil';
 import { ICustomMarker, Mufts } from "../Mufts";
 import { FiberOptic, IFiberOptic, IObjFiberOptic } from "../fiberOptic";
+import { ICustomWardrobe, Wardrobe } from "../Wardrobe";
 export interface IClickData {
     idOwner: string,
     idTo: string,
     data: ICustomMarker[],
     polys: ICustomPolyline[],
     cubes: ICustomCube[],
+    to: ICustomMarker | ICustomWardrobe,
 }
 export class PolylineInterface {
     static handleDbClick(e: L.LeafletMouseEvent) {
         e.originalEvent.preventDefault();
     }
-    static handleOnClickPolyline(e: L.LeafletMouseEvent, poly: ICustomPolyline, map: L.Map, polyLines: ICustomPolyline[], cubes: ICustomCube[], index: number, mufts: ICustomMarker[]) {
+    static handleOnClickPolyline(e: L.LeafletMouseEvent, poly: ICustomPolyline, map: L.Map, polyLines: ICustomPolyline[], cubes: ICustomCube[], index: number, mufts: ICustomMarker[], wardrobes: ICustomWardrobe[]) {
         const needMufts = mufts.filter(item => item.linesIds?.includes(poly?.id as string));
         const owner = needMufts.find(item => item.id === poly.owner) as ICustomMarker;
-        const to = needMufts.find(item => item.id === poly.to) as ICustomMarker;
+        let to: ICustomMarker | ICustomWardrobe;
+        const toMuft = needMufts.find(item => item.id === poly.to) as ICustomMarker;
+        if (!toMuft) {
+            to = wardrobes.find(item => item.id === poly.to) as ICustomWardrobe;
+        } else {
+            to = toMuft;
+        }
         const polys = [...polyLines];
         const ownerFibers = owner.fibers;
         const toFibers = to.fibers;
@@ -39,7 +47,7 @@ export class PolylineInterface {
         }
         const cube = new Cubes(cubeLatLng, cubeInfo).getCub();
         const needMarkers: ICustomCube[] = [];
-        const allMarker = [...cubes, ...needMufts];
+        const allMarker = [...cubes, owner, to];
         const start = poly.getLatLngs()[0] as LatLng;
         const end = poly.getLatLngs()[1] as LatLng;
         for (const muft of allMarker) {
@@ -51,7 +59,6 @@ export class PolylineInterface {
         polys.splice(index, 1);
         ownerFibers?.splice(indexFibOwner, 1);
         toFibers?.splice(indexFibTo, 1);
-
         const linesId: string[] = [];
         for (let i = 0; i < needMarkers.length - 1; i++) {
             const startMarker = needMarkers[i].getLatLng() as LatLng;
@@ -70,21 +77,38 @@ export class PolylineInterface {
             linesId.push(line?.id as string);
         }
         const newCubes = [...cubes, cube];
-        const data = Mufts.updateMuftLine(owner, to, linesId[0], poly.id, linesId[1], cube?.id as string);
+        let data;
+        if (to.type === 'muft') {
+            data = Mufts.updateMuftLine(owner, to, linesId[0], poly.id, linesId[1], cube?.id as string);
+        } else {
+            data = Wardrobe.updateWardrobeLine(owner, to, linesId[0], poly.id, linesId[1], cube?.id as string);
+        }
         const newPolys = Polylines.changePolyLineWeight(owner, to, polys, 4);
-        return { idOwner: data.idOwner, idTo: data.idTo, data: data.data, polys: newPolys as ICustomPolyline[], cubes: newCubes as ICustomCube[] };
+        return { idOwner: data.idOwner, idTo: data.idTo, data: data.data, polys: newPolys as ICustomPolyline[], cubes: newCubes as ICustomCube[], to };
     }
 
 
-    static handleMouseOverPolyline(e: L.LeafletMouseEvent, item: ICustomPolyline, drag: boolean, polylines: ICustomPolyline[], mufts: ICustomMarker[]) {
+    static handleMouseOverPolyline(e: L.LeafletMouseEvent, item: ICustomPolyline, drag: boolean, polylines: ICustomPolyline[], mufts: ICustomMarker[], wardrobes: ICustomWardrobe[]) {
         const owner = mufts.filter(muft => muft.id === item.owner);
-        const to = mufts.filter(muft => muft.id === item.to);
+        let to;
+        const muftTo = mufts.filter(muft => muft.id === item.to);
+        if (muftTo.length > 0) {
+            to = muftTo;
+        } else {
+            to = wardrobes.filter(wardrobe => wardrobe.id === item.to);
+        }
         const data = Polylines.changePolyLineWeight(owner[0], to[0], polylines, 12);
         return data;
     }
-    static handleMouseOutPolyline(e: L.LeafletMouseEvent, item: ICustomPolyline, polylines: ICustomPolyline[], mufts: ICustomMarker[]) {
+    static handleMouseOutPolyline(e: L.LeafletMouseEvent, item: ICustomPolyline, polylines: ICustomPolyline[], mufts: ICustomMarker[], wardrobes: ICustomWardrobe[]) {
         const owner = mufts.filter(muft => muft.id === item.owner);
-        const to = mufts.filter(muft => muft.id === item.to);
+        let to;
+        const muftTo = mufts.filter(muft => muft.id === item.to);
+        if (muftTo.length > 0) {
+            to = muftTo;
+        } else {
+            to = wardrobes.filter(wardrobe => wardrobe.id === item.to);
+        }
         const data = Polylines.changePolyLineWeight(owner[0], to[0], polylines, 4);
         return data;
     }

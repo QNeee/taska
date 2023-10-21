@@ -1,8 +1,8 @@
 import { useDispatch, useSelector } from "react-redux"
-import { getContextMenu, getCubes, getDrag, getHideCubes, getMufts, getPolyLines, getTrack } from "../../../../Redux/map/mapSelectors"
+import { getContextMenu, getCubes, getDrag, getHideCubes, getMufts, getPolyLines, getTrack, getWardrobes } from "../../../../Redux/map/mapSelectors"
 import { Marker } from "react-leaflet";
 import { CubeInterface } from "../../../../interface/CubeInterface";
-import { setContextMenu, setContextMenuXY, setDrag, setId, updateCubes, updateCubesDelete, updateMufta } from "../../../../Redux/map/mapSlice";
+import { setContextMenu, setContextMenuXY, setDrag, setId, updateCubes, updateCubesDelete, updateMufta, updateWardrobe } from "../../../../Redux/map/mapSlice";
 import { IClickData } from "../../../../interface/PolylineInterface";
 import { ContextMenuCubeInterface } from "../../../../interface/ContextMenuCubeInterface";
 
@@ -17,6 +17,7 @@ export const Cubes = () => {
     const hideCubes = useSelector(getHideCubes);
     const contextMenu = useSelector(getContextMenu);
     const track = useSelector(getTrack);
+    const wardrobes = useSelector(getWardrobes);
     if (!hideCubes && !track.track) {
         return <>
             {cubesArr.map((item, index) => (
@@ -34,8 +35,12 @@ export const Cubes = () => {
                             dispatch(setContextMenu(menu));
                         },
                         click: (e) => {
-                            const { data, idOwner, idTo, cubes, polys }: IClickData = CubeInterface.handleCubeOnClick(cubesArr, mufts, item, polyLines)
-                            dispatch(updateMufta({ idOwner, idTo, data }));
+                            const { data, idOwner, idTo, cubes, polys, to }: IClickData = CubeInterface.handleCubeOnClick(cubesArr, mufts, item, polyLines, wardrobes)
+                            if (to.type === 'muft') {
+                                dispatch(updateMufta({ idOwner, idTo, data }));
+                            } else {
+                                dispatch(updateWardrobe({ idOwner, idTo, data }));
+                            }
                             dispatch(updateCubesDelete({ cubes, polyLines: polys }));
                         },
                         dragstart: () => {

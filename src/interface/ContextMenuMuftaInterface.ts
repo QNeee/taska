@@ -1,10 +1,11 @@
 import { LatLng } from "leaflet";
-import { Color, ILineStart } from "../Redux/map/mapSlice";
+import { ILineStart } from "../Redux/map/mapSlice";
 import { ICustomPolyline, Polylines } from "../Polylines";
 import { ICustomMarker, IMainLine, IStatsMainLine, MainLine, Mufts } from "../Mufts";
 import { ICustomCube } from "../Cubes";
 import { ICoords } from "../components/Map/ContextMenu";
 import { FiberOptic, IFiberOptic, IObjFiberOptic } from "../fiberOptic";
+import { ICustomWardrobe } from "../Wardrobe";
 
 export interface IDrawItemLatLng {
     lat: number,
@@ -31,26 +32,28 @@ export class ContextMenuMuftaInterface {
         }
         return aditInfo;
     }
-    static handleDeleteMufta(muftsArr: ICustomMarker[], id: string, polyLines: ICustomPolyline[], cubes: ICustomCube[]) {
+    static handleDeleteMufta(muftsArr: ICustomMarker[], id: string, polyLines: ICustomPolyline[], cubes: ICustomCube[], wardrobes: ICustomWardrobe[]) {
         const mufts = [...muftsArr];
+        const wardrobesArr = [...wardrobes];
         const index = muftsArr.findIndex(item => item.id === id);
         const mufta = mufts[index];
         const muftLinesIds = mufta.linesIds;
         const muftCubesIds = mufta.cubesIds;
         mufts.splice(index, 1);
-        const to = mufts.filter(muft => muftLinesIds?.some(line => muft.linesIds?.includes(line)) || muftCubesIds?.some(cube => muft.cubesIds?.includes(cube)));
+        const items = [...mufts, ...wardrobesArr];
+        const to = items.filter(muft => muftLinesIds?.some(line => muft.linesIds?.includes(line)) || muftCubesIds?.some(cube => muft.cubesIds?.includes(cube)));
         const polysIds = polyLines.filter(line => mufta.linesIds?.includes(line.id as string));
         const cubesIds = cubes.filter(cube => mufta.cubesIds?.includes(cube.id as string));
         const polys = [...polyLines];
         const cubics = [...cubes];
-        for (const muft of to) {
-            const index = muft.mainLines?.findIndex(t => mufta.mainLines?.some(o => t.id === o.id)) as number;
-            if (index !== -1) muft.mainLines?.splice(index, 1);
+        for (const items of to) {
+            const index = items.mainLines?.findIndex(t => mufta.mainLines?.some(o => t.id === o.id)) as number;
+            if (index !== -1) items.mainLines?.splice(index, 1);
             for (const poly of polysIds) {
-                if (muft.linesIds?.includes(poly.id as string)) {
-                    const indexPoly = muft.linesIds.findIndex(item => item === poly.id);
+                if (items.linesIds?.includes(poly.id as string)) {
+                    const indexPoly = items.linesIds.findIndex(item => item === poly.id);
                     if (indexPoly !== -1) {
-                        muft.linesIds.splice(indexPoly, 1);
+                        items.linesIds.splice(indexPoly, 1);
                     }
 
                     const index = polys.findIndex(item => item.id === poly.id);
@@ -58,10 +61,10 @@ export class ContextMenuMuftaInterface {
                 }
             }
             for (const cube of cubesIds) {
-                if (muft.cubesIds?.includes(cube.id as string)) {
-                    const indexCube = muft.cubesIds.findIndex(item => item === cube.id);
+                if (items.cubesIds?.includes(cube.id as string)) {
+                    const indexCube = items.cubesIds.findIndex(item => item === cube.id);
                     if (indexCube !== -1) {
-                        muft.cubesIds.splice(indexCube, 1);
+                        items.cubesIds.splice(indexCube, 1);
                     }
 
                     const index = cubics.findIndex(item => item.id === cube.id);
@@ -69,30 +72,16 @@ export class ContextMenuMuftaInterface {
                 }
             }
         }
-        return { mufts, polyLines: polys, cubes: cubics };
+        return { mufts, polyLines: polys, cubes: cubics, wardrobes };
     }
     static handleApplyCoordinates(id: string, mufts: ICustomMarker[], form: ICoords, polyLines?: ICustomPolyline[]) {
         const index = mufts.findIndex(item => item.id === id);
         const data = mufts[index];
         data.drag = !data.drag;
-        let polysArr;
-        if (polyLines) {
-            const polys = [...polyLines];
-            if (polys.length > 0) {
-                for (const poly of polys) {
-                    if (data.getLatLng().equals(poly.getLatLngs()[0] as LatLng)) {
-                        poly.setLatLngs([{ lat: form.lat, lng: form.lng }, poly.getLatLngs()[1] as LatLng]);
-                    } else if (data.getLatLng().equals(poly.getLatLngs()[1] as LatLng)) {
-                        poly.setLatLngs([poly.getLatLngs()[0] as LatLng, { lat: form.lat, lng: form.lng }]);
-                    }
-                }
-            }
-            polysArr = polys;
-        }
         data.setLatLng({ lat: form.lat, lng: form.lng });
-        return { index, data, polysArr };
+        return { index, data };
     }
-    static handleAddLineTo(mufts: ICustomMarker[], id: string, lineStart: ILineStart | null, fiberCounts: number, colors: Color[], form: IStatsMainLine) {
+    static handleAddLineTo(mufts: ICustomMarker[], id: string, lineStart: ILineStart | null, fiberCounts: number, form: IStatsMainLine) {
         const muftaTo = mufts.find(item => item.id === id);
         const muftaOwner = mufts.find(item => item.id === lineStart?.id);
         const muftaLatLng = muftaTo?.getLatLng() as LatLng;
