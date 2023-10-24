@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getInfoModal, getOpticsColors } from '../../Redux/map/mapSelectors';
+import { getInfoModal } from '../../Redux/map/mapSelectors';
 import { AppDispatch } from '../../Redux/store';
 import { setInfoModal, setMainLineId, setTrack, setTrackData, setTrackIndex } from '../../Redux/map/mapSlice';
 import { Container, ModalButton, ModalContent, ModalText, ModalTitle, ModalWrapper } from './Modal.styled';
@@ -25,7 +25,6 @@ const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr })
     const dispatch: AppDispatch = useDispatch();
     const isOpen = useSelector(getInfoModal);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const colors = useSelector(getOpticsColors);
     const [data, setData] = useState<IData[]>([]);
     const poly = polyLines.find(item => item.id === id);
     const needMufts = muftsArr.filter(item => item.linesIds?.includes(poly?.id as string));
@@ -74,7 +73,7 @@ const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr })
         }
         setData(newArr);
         dispatch(setTrackData(newArr));
-    }, [colors, infoPoly, dispatch])
+    }, [infoPoly, dispatch])
     return (
         <>
             {isOpen && (

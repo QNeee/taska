@@ -104,7 +104,7 @@ export const TrackerHelper = () => {
                 <Select onChange={handleSelectChange} value={trackIndex}>
                     {trackData.map((prod, index) => (
                         <StyledOption key={index} color={prod.color} value={index}>
-                            {index + 1} {prod.color} {prod.riska ? ' ||' : null}
+                            {index + 1} {prod.color === '#228b22' ? 'nature' : prod.color} {prod.riska ? ' ||' : null}
                         </StyledOption>
                     ))}
                 </Select>
