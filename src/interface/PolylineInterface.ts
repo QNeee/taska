@@ -72,7 +72,8 @@ export class PolylineInterface {
                 const muftLines = muft.linesIds;
                 const indexLine = muftLines?.findIndex(item => item === poly.id) as number;
                 if (indexLine !== -1) muftLines?.splice(indexLine, 1);
-                const indexFiber = muftFibers?.findIndex(item => item.id === poly.id) as number;
+                const indexFiber = muftFibers?.findIndex(item => item.lineId === poly.id) as number;
+                console.log(indexFiber);
                 if (indexFiber !== -1) muftFibers?.splice(indexFiber, 1);
                 for (const ids of linesId) {
                     if (ids === polyline?.id) muft.linesIds?.push(ids);
