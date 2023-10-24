@@ -98,7 +98,9 @@ export class ContextMenuMuftaInterface {
             owner: lineStart?.id as string,
             to: to?.id as string,
             producer: form.producer,
-            standart: form.standart,
+            colorModule: form.colorModule,
+            colorOptic: form.colorOptic,
+            moduleCount: form.moduleCounts,
             fiberOpticsCount: fiberCounts,
         }
         const mainLine = new MainLine(mainLineObj).getMainLine() as IMainLine;

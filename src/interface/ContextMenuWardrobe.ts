@@ -75,7 +75,7 @@ export class ContextMenuWardrobe {
             owner: lineStart?.id as string,
             to: wardrobe?.id as string,
             producer: form.producer,
-            standart: form.standart,
+            // standart: form.standart,
             fiberOpticsCount: fiberCounts,
         }
         const mainLine = new MainLine(mainLineObj).getMainLine() as IMainLine;

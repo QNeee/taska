@@ -7,6 +7,7 @@ import { ContextMenuMuftaInterface } from "../../interface/ContextMenuMuftaInter
 import { setAddLine } from "../../Redux/app/appSlice";
 import { ICustomMarker, IStatsMainLine } from "../../Mufts";
 import { ICustomWardrobe } from "../../Wardrobe";
+import { colorModule, colorOptics, moduleCounts, producers } from "./modalHelper";
 interface IModalOpticsProps {
     muftsArr: ICustomMarker[],
     item: ICustomMarker | ICustomWardrobe | undefined;
@@ -14,20 +15,14 @@ interface IModalOpticsProps {
     onClose: () => void;
     wardrobesArr: ICustomWardrobe[];
 }
-const producers = [
-    'nissan', 'barabn', 'taranaas'
-];
-const standard = [
-    'АМЕРИКА',
-    'ЮЖКАБЕЛЬ',
-];
+
 export const MakeLineModal: React.FC<IModalOpticsProps> = ({ onClose, muftsArr, wardrobesArr, item, lineStart }) => {
     const [fiberOptic, setFiberOptic] = useState(0);
     const dispatch: AppDispatch = useDispatch();
-    const formInitial: IStatsMainLine = { producer: producers[0], standart: standard[0] }
+    const formInitial: IStatsMainLine = { producer: producers[0], moduleCounts: moduleCounts[0], colorModule: colorModule[0], colorOptic: colorOptics[0] }
     const [form, setForm] = useState<IStatsMainLine>(formInitial);
     const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFiberOptic(Number(e.target.value));
+        setFiberOptic(Number(parseInt(e.target.value) > 12 ? 12 : e.target.value));
     }
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const { id, value } = e.target;
@@ -54,27 +49,59 @@ export const MakeLineModal: React.FC<IModalOpticsProps> = ({ onClose, muftsArr, 
         <ModalContent>
             <ModalTitle>Заповніть форму</ModalTitle>
             <form onSubmit={onSubmitForm}>
-                <InputContainer>
-                    Кілкість ОВ
-                    <FullWidthInput type="number" value={fiberOptic} onChange={onChangeInput} />
-                    Виробник
-                    <Select id="producer" onChange={handleSelectChange}>
-                        {producers.map((prod, index) => (
+                Виробник Кабелю
+                <Select id="producer" onChange={handleSelectChange}>
+                    {producers.map((prod, index) => (
+                        <option key={index} value={prod}>
+                            {prod}
+                        </option>
+                    ))}
+                </Select>
+                Кількість Модулів в кабелі
+                <Select id="moduleCounts" onChange={handleSelectChange}>
+                    {moduleCounts.map((prod, index) => (
+                        <option key={index} value={prod}>
+                            {prod}
+                        </option>
+                    ))}
+                </Select>
+                {parseInt(form.moduleCounts) === 1 && <div>
+                    <InputContainer>
+                        Кілкість Волокон в кабелі
+                        <FullWidthInput type="text" value={fiberOptic} onChange={onChangeInput} />
+                    </InputContainer>
+                    Колір Волокон
+                    <Select id="colorOptic" onChange={handleSelectChange}>
+                        {colorOptics.map((prod, index) => (
                             <option key={index} value={prod}>
                                 {prod}
                             </option>
                         ))}
                     </Select>
-                    Стандарт
-                    <Select id="standart" onChange={handleSelectChange}>
-                        {standard.map((prod, index) => (
+                </div>}
+                {parseInt(form.moduleCounts) > 1 && <div>
+                    Колір модулів в кабелі
+                    <Select id="colorModule" onChange={handleSelectChange}>
+                        {colorModule.map((prod, index) => (
                             <option key={index} value={prod}>
                                 {prod}
                             </option>
                         ))}
                     </Select>
-                    <Button type="submit">ok</Button>
-                </InputContainer>
+                    <InputContainer>
+                        Кілкість Волокон в модулі
+                        <FullWidthInput type="number" value={fiberOptic} onChange={onChangeInput} max={12} />
+                    </InputContainer>
+                    Колір Волокон
+                    <Select id="colorOptic" onChange={handleSelectChange}>
+                        {colorOptics.map((prod, index) => (
+                            <option key={index} value={prod}>
+                                {prod}
+                            </option>
+                        ))}
+                    </Select>
+                </div>}
+                <Button type="submit">ok</Button>
             </form>
         </ModalContent>
     </ModalWrapper>

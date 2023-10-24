@@ -3,7 +3,10 @@ import L, { LatLng } from 'leaflet';
 import { IFiberOptic } from './fiberOptic';
 export interface IStatsMainLine {
     producer: string,
-    standart: string
+    moduleCounts: string;
+    opticCount?: number;
+    colorModule: string;
+    colorOptic: string;
 }
 export interface IMainLine {
     id?: string,
@@ -11,7 +14,11 @@ export interface IMainLine {
     to: string,
     fiberOpticsCount?: number,
     producer: string,
-    standart: string;
+    colorModule?: string,
+    colorOptic?: string,
+    moduleCounts?: number,
+
+    // standart: string;
 }
 const icon = 'https://img.icons8.com/?size=256&id=FkQHNSmqWQWH&format=png';
 export interface ICustomMarker extends L.Marker {
@@ -32,7 +39,9 @@ export class MainLine {
             to: obj.to,
             fiberOpticsCount: obj.fiberOpticsCount,
             producer: obj.producer,
-            standart: obj.standart,
+            colorModule: obj.colorModule,
+            colorOptic: obj.colorOptic,
+            moduleCounts: obj.moduleCounts,
         }
     }
     getMainLine() {

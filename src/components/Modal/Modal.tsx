@@ -9,6 +9,7 @@ import { ICustomPolyline } from '../../Polylines';
 import { GeometryUtil, LatLng } from 'leaflet';
 import { ICustomMarker } from '../../Mufts';
 import { ICustomWardrobe } from '../../Wardrobe';
+import { getColors } from './colorsHelper';
 
 interface IModalProps {
     id: string,
@@ -39,10 +40,10 @@ const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr })
     const infoPoly = useCallback(() => {
         const mainLine = owner?.mainLines?.find(o => to.mainLines?.some(t => o.id === t.id));
         const producer = mainLine?.producer;
-        const standart = mainLine?.standart;
+        const opticColors = mainLine?.colorOptic;
         const ov = mainLine?.fiberOpticsCount;
         const length = GeometryUtil.length(poly?.getLatLngs() as LatLng[]);
-        return { length: length.toFixed(2), producer, standart, mainLine, ownerId: owner?.id, ov };
+        return { length: length.toFixed(2), opticColors, producer, mainLine, ownerId: owner?.id, ov };
     }, [owner?.id, owner?.mainLines, poly, to])
     const onClickTrack = (color: string, idOwner: string, index: number) => {
         const obj = {
@@ -58,6 +59,7 @@ const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr })
     }
     useEffect(() => {
         const size = infoPoly().ov as number;
+        const colors = getColors(infoPoly()?.opticColors as string) as string[];
         const newArr: IData[] = [];
         for (let i = 0; i < size; i++) {
             const colorIndex = i % colors.length;
@@ -86,15 +88,15 @@ const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr })
                             <ModalTitle>Виробник</ModalTitle>
                             <ModalText>{infoPoly().producer}</ModalText>
                         </Container>
-                        <Container>
+                        {/* <Container>
                             <ModalTitle>Стандарт</ModalTitle>
                             <ModalText>{infoPoly().standart}</ModalText>
-                        </Container>
+                        </Container> */}
                         <ModalButton onClick={() => setIsMenuOpen(!isMenuOpen)}>Ємність {infoPoly().ov !== 0 && `(${infoPoly().ov}    ОВ)`}</ModalButton>
                         {isMenuOpen ? <Container style={{ display: 'block', maxHeight: "200px", overflowY: 'auto', backgroundColor: 'grey' }}>
                             {data.length > 0 && data.map((item, index) => <div key={index}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <ModalText>{index + 1}<span style={{ color: item.color }}>{item.color}</span>{item.riska ? <span style={{ color: "white" }}>||</span> : null}</ModalText>
+                                    <ModalText>{index + 1}<span style={{ color: item.color }}>{item.color === '#228b22' ? 'nature' : item.color}</span>{item.riska ? <span style={{ color: "white" }}>||</span> : null}</ModalText>
                                     <button onClick={(e) => onClickTrack(item.color, infoPoly().ownerId as string, index)} type='button'>відстежити</button>
                                 </div >
                             </div>)}
