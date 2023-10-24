@@ -29,21 +29,21 @@ const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr })
     const poly = polyLines.find(item => item.id === id);
     const needMufts = muftsArr.filter(item => item.linesIds?.includes(poly?.id as string));
     let to: ICustomMarker | ICustomWardrobe;
-    const owner = needMufts[0];
-    const toMuft = needMufts[1];
+    const owner = needMufts.find(item => item.id === poly?.owner);
+    const toMuft = needMufts.find(item => item.id === poly?.to);
     if (!toMuft) {
-        to = wardrobesArr.filter(item => item.linesIds?.includes(poly?.id as string))[0];
+        to = wardrobesArr.find(item => item.id === poly?.to) as ICustomWardrobe;
     } else {
         to = toMuft;
     }
     const infoPoly = useCallback(() => {
-        const mainLine = owner.mainLines?.find(o => to.mainLines?.some(t => o.id === t.id));
+        const mainLine = owner?.mainLines?.find(o => to.mainLines?.some(t => o.id === t.id));
         const producer = mainLine?.producer;
         const standart = mainLine?.standart;
         const ov = mainLine?.fiberOpticsCount;
         const length = GeometryUtil.length(poly?.getLatLngs() as LatLng[]);
         return { length: length.toFixed(2), producer, standart, mainLine, ownerId: owner?.id, ov };
-    }, [owner, poly, to])
+    }, [owner?.id, owner?.mainLines, poly, to])
     const onClickTrack = (color: string, idOwner: string, index: number) => {
         const obj = {
             color,

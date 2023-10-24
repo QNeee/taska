@@ -37,6 +37,9 @@ export class Polylines {
     getLine() {
         return this.line;
     }
+    static getLineInfo(owner: string, to: string) {
+        return { owner, to };
+    }
     static updatePoly(obj: IUpdateObjMufts) {
         const objToUpdate = {
             indexCircle: obj.index,

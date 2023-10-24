@@ -7,7 +7,6 @@ import { ContextMenuMuftaInterface } from "../../interface/ContextMenuMuftaInter
 import { setAddLine } from "../../Redux/app/appSlice";
 import { ICustomMarker, IStatsMainLine } from "../../Mufts";
 import { ICustomWardrobe } from "../../Wardrobe";
-import { ContextMenuWardrobe } from "../../interface/ContextMenuWardrobe";
 interface IModalOpticsProps {
     muftsArr: ICustomMarker[],
     item: ICustomMarker | ICustomWardrobe | undefined;
@@ -40,15 +39,13 @@ export const MakeLineModal: React.FC<IModalOpticsProps> = ({ onClose, muftsArr, 
     const onSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!fiberOptic) return;
-        if (item?.type === 'muft') {
-            const { data, idOwner, idTo, polyLine } = ContextMenuMuftaInterface.handleAddLineTo(muftsArr, item?.id as string, lineStart, fiberOptic, form);
-            dispatch(updateMufta({ idOwner, idTo, data }));
-            dispatch(drawPolyline(polyLine));
+        const { type, data, polyLine } = ContextMenuMuftaInterface.handleAddLineTo(muftsArr, item?.id as string, lineStart, fiberOptic, form, wardrobesArr);
+        if (type === 'muft') {
+            dispatch(updateMufta(data.mufts));
         } else {
-            const { data, idOwner, idTo, polyLine } = ContextMenuWardrobe.handleAddLineTo(muftsArr, wardrobesArr, item?.id as string, lineStart, fiberOptic, form);
-            dispatch(updateWardrobe({ idOwner, idTo, data }));
-            dispatch(drawPolyline(polyLine));
+            dispatch(updateWardrobe(data));
         }
+        dispatch(drawPolyline(polyLine));
         dispatch(setAddLine(false));
         onClose();
         setForm(formInitial);

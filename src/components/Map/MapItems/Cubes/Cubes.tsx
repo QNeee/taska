@@ -3,7 +3,6 @@ import { getContextMenu, getCubes, getDrag, getHideCubes, getMufts, getPolyLines
 import { Marker } from "react-leaflet";
 import { CubeInterface } from "../../../../interface/CubeInterface";
 import { setContextMenu, setContextMenuXY, setDrag, setId, updateCubes, updateCubesDelete, updateMufta, updateWardrobe } from "../../../../Redux/map/mapSlice";
-import { IClickData } from "../../../../interface/PolylineInterface";
 import { ContextMenuCubeInterface } from "../../../../interface/ContextMenuCubeInterface";
 
 
@@ -35,11 +34,11 @@ export const Cubes = () => {
                             dispatch(setContextMenu(menu));
                         },
                         click: (e) => {
-                            const { data, idOwner, idTo, cubes, polys, to }: IClickData = CubeInterface.handleCubeOnClick(cubesArr, mufts, item, polyLines, wardrobes)
-                            if (to.type === 'muft') {
-                                dispatch(updateMufta({ idOwner, idTo, data }));
+                            const { type, data, cubes, polys } = CubeInterface.handleCubeOnClick(cubesArr, mufts, item, polyLines, wardrobes)
+                            if (type === 'muft') {
+                                dispatch(updateMufta(data.mufts));
                             } else {
-                                dispatch(updateWardrobe({ idOwner, idTo, data }));
+                                dispatch(updateWardrobe(data));
                             }
                             dispatch(updateCubesDelete({ cubes, polyLines: polys }));
                         },

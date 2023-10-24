@@ -4,8 +4,8 @@ import { IItemInfoPoly } from "../Redux/map/mapSlice";
 import { Cubes, ICustomCube } from "../Cubes";
 import 'leaflet-geometryutil';
 import { ICustomMarker, Mufts } from "../Mufts";
-import { FiberOptic, IFiberOptic, IObjFiberOptic } from "../fiberOptic";
-import { ICustomWardrobe, Wardrobe } from "../Wardrobe";
+import { FiberOptic, IFiberOptic } from "../fiberOptic";
+import { ICustomWardrobe } from "../Wardrobe";
 export interface IClickData {
     idOwner: string,
     idTo: string,
@@ -19,35 +19,29 @@ export class PolylineInterface {
         e.originalEvent.preventDefault();
     }
     static handleOnClickPolyline(e: L.LeafletMouseEvent, poly: ICustomPolyline, map: L.Map, polyLines: ICustomPolyline[], cubes: ICustomCube[], index: number, mufts: ICustomMarker[], wardrobes: ICustomWardrobe[]) {
-        const needMufts = mufts.filter(item => item.linesIds?.includes(poly?.id as string));
-        const owner = needMufts.find(item => item.id === poly.owner) as ICustomMarker;
+        const filteredMufts = mufts.filter(item => item.id === poly.owner || item.id === poly.to);
+        const owner = mufts.find(item => item.id === poly.owner);
         let to: ICustomMarker | ICustomWardrobe;
-        const toMuft = needMufts.find(item => item.id === poly.to) as ICustomMarker;
-        if (!toMuft) {
+        const muftTo = mufts.find(item => item.id === poly.to);
+        if (!muftTo) {
             to = wardrobes.find(item => item.id === poly.to) as ICustomWardrobe;
+            filteredMufts.push(to);
         } else {
-            to = toMuft;
+            to = muftTo;
         }
+        const cubics = cubes.filter(item => item.owner === poly.owner && item.to === poly.to);
+        const items = [...cubics, ...mufts, ...wardrobes].filter(item => poly.getBounds().contains(item.getLatLng())) as ICustomMarker[];
+        const minorMuft = items.filter(item => item.mainLines?.length === 0);
         const polys = [...polyLines];
-        const ownerFibers = owner.fibers;
-        const toFibers = to.fibers;
-        const indexFibTo = toFibers?.findIndex(item => item.lineId === poly.id) as number;
-        const indexFibOwner = ownerFibers?.findIndex(item => item.lineId === poly.id) as number;
         const click = { x: e.originalEvent.clientX, y: e.originalEvent.clientY };
         const clickLatLng = map.containerPointToLatLng(L.point(click.x, click.y));
         const nearestPoint = L.GeometryUtil.closest(map, poly, clickLatLng);
         const cubeLatLng = L.latLng((nearestPoint?.lat!), (nearestPoint?.lng!));
-        const lineInfo = {
-            owner: owner.id,
-            to: to.id,
-        }
-        const cubeInfo = {
-            owner: owner.id,
-            to: to.id,
-        }
+        const lineInfo = Polylines.getLineInfo(poly.owner as string, poly.to as string);
+        const cubeInfo = Cubes.getCubeInfo(poly.owner as string, poly.to as string);
         const cube = new Cubes(cubeLatLng, cubeInfo).getCub();
         const needMarkers: ICustomCube[] = [];
-        const allMarker = [...cubes, owner, to];
+        const allMarker = [...items];
         const start = poly.getLatLngs()[0] as LatLng;
         const end = poly.getLatLngs()[1] as LatLng;
         for (const muft of allMarker) {
@@ -57,34 +51,42 @@ export class PolylineInterface {
         }
         needMarkers.splice(1, 0, cube as ICustomCube);
         polys.splice(index, 1);
-        ownerFibers?.splice(indexFibOwner, 1);
-        toFibers?.splice(indexFibTo, 1);
         const linesId: string[] = [];
+        const fibers: IFiberOptic[] = [];
         for (let i = 0; i < needMarkers.length - 1; i++) {
             const startMarker = needMarkers[i].getLatLng() as LatLng;
             const endMarker = needMarkers[i + 1].getLatLng() as LatLng;
             const line = new Polylines([startMarker, endMarker], lineInfo as IItemInfoPoly).getLine()
-            const fiberOpticInfo = {
-                latlng: [startMarker, endMarker],
-                owner: poly.owner,
-                to: poly.to,
-                lineId: line?.id,
-            } as IObjFiberOptic
+            const fiberOpticInfo = FiberOptic.getFiberOpticInfo([startMarker, endMarker], poly.owner as string, poly.to as string, line?.id as string)
             const fiber = new FiberOptic(fiberOpticInfo).getFiberOptic() as IFiberOptic;
             polys.push(line as ICustomPolyline);
-            ownerFibers?.push(fiber);
-            toFibers?.push(fiber);
             linesId.push(line?.id as string);
+            fibers.push(fiber);
         }
+        if (minorMuft.length > 0) {
+            for (const muft of minorMuft) {
+                const needPolys = polys.filter(item => item.getBounds().contains(muft.getLatLng()));
+                const polyline = needPolys.find(item => item.getBounds().contains(cube?.getLatLng() as LatLng) &&
+                    item.getBounds().contains(muft.getLatLng() as LatLng));
+                const muftFibers = muft.fibers;
+                const muftLines = muft.linesIds;
+                const indexLine = muftLines?.findIndex(item => item === poly.id) as number;
+                if (indexLine !== -1) muftLines?.splice(indexLine, 1);
+                const indexFiber = muftFibers?.findIndex(item => item.id === poly.id) as number;
+                if (indexFiber !== -1) muftFibers?.splice(indexFiber, 1);
+                for (const ids of linesId) {
+                    if (ids === polyline?.id) muft.linesIds?.push(ids);
+                }
+                for (const fibs of fibers) {
+                    if (fibs.lineId === polyline?.id) muft.fibers?.push(fibs);
+                }
+            }
+        }
+
         const newCubes = [...cubes, cube];
-        let data;
-        if (to.type === 'muft') {
-            data = Mufts.updateMuftLine(owner, to, linesId[0], poly.id, linesId[1], cube?.id as string);
-        } else {
-            data = Wardrobe.updateWardrobeLine(owner, to, linesId[0], poly.id, linesId[1], cube?.id as string);
-        }
-        const newPolys = Polylines.changePolyLineWeight(owner, to, polys, 4);
-        return { idOwner: data.idOwner, idTo: data.idTo, data: data.data, polys: newPolys as ICustomPolyline[], cubes: newCubes as ICustomCube[], to };
+        Mufts.updateMuftLine(filteredMufts as ICustomMarker[], linesId, fibers, poly?.id as string, cube?.id as string);
+        const newPolys = Polylines.changePolyLineWeight(owner as ICustomMarker, to as ICustomMarker, polys, 4);
+        return { type: to.type, data: { mufts, wardrobes }, polys: newPolys as ICustomPolyline[], cubes: newCubes as ICustomCube[] };
     }
 
 

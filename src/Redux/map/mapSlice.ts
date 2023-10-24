@@ -138,6 +138,9 @@ export const mapSlice = createSlice({
     name: 'map',
     initialState,
     reducers: {
+        changeToMufta: (state, { payload }) => {
+            state.mufts = payload;
+        },
         updateMuftFibers: (state, { payload }) => {
             const indexOwner = state.mufts.findIndex(item => item.id === payload.owner.id);
             state.mufts.splice(indexOwner, 1, payload.owner);
@@ -172,7 +175,11 @@ export const mapSlice = createSlice({
             state.contextMenuItem = payload;
         },
         drawWardrobe: (state, { payload }) => {
-            state.wardrobes.push(payload);
+            if (Array.isArray(payload)) {
+                state.wardrobes = payload;
+            } else {
+                state.wardrobes.push(payload);
+            }
         },
         setToggleCoordsApply: (state, { payload }) => {
             if (payload.data.type === 'muft') {
@@ -203,19 +210,19 @@ export const mapSlice = createSlice({
             }
         },
         drawMufta: (state, { payload }) => {
-            state.mufts.push(payload);
+            if (Array.isArray(payload)) {
+                state.mufts = payload;
+            } else {
+                state.mufts.push(payload);
+            }
+
         },
         updateWardrobe: (state, { payload }) => {
-            const owner = state.mufts.findIndex(item => item.id === payload.idOwner);
-            const wardrobe = state.wardrobes.findIndex(item => item.id === payload.idTo);
-            state.wardrobes.splice(wardrobe, 1, payload.data[0]);
-            state.mufts.splice(owner, 1, payload.data[1]);
+            state.wardrobes = payload.wardrobes;
+            state.mufts = payload.mufts;
         },
         updateMufta: (state, { payload }) => {
-            const owner = state.mufts.findIndex(item => item.id === payload.idOwner);
-            const to = state.mufts.findIndex(item => item.id === payload.idTo);
-            state.mufts.splice(to, 1, payload.data[0]);
-            state.mufts.splice(owner, 1, payload.data[1]);
+            state.mufts = payload;
         },
         setDrag: (state, { payload }) => {
             state.drag = payload;
@@ -234,6 +241,12 @@ export const mapSlice = createSlice({
                 state.polyLines = payload;
             } else {
                 state.polyLines.push(payload);
+            }
+        },
+        updatePolyWardrobes: (state, { payload }) => {
+            state.wardrobes = payload.wardrobes;
+            if (payload.newArr.length > 0) {
+                state.polyLines = payload.newArr;
             }
         },
         updatePoly: (state, { payload }) => {
@@ -272,4 +285,4 @@ export const mapSlice = createSlice({
 
 });
 
-export const { deleteWardrobe, updateWardrobe, updateMuftFibers, setMainLineId, setTrackIndex, setTrackData, updateOptics, setOldCubeLatLng, setTrack, setFiberOpticsMenu, setInfoModal, setContextMenu, drawWardrobe, setToggleCoordsApply, setHideCubes, updateMufta, setCubDragging, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, changePolylineWeight, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;
+export const { updatePolyWardrobes, changeToMufta, deleteWardrobe, updateWardrobe, updateMuftFibers, setMainLineId, setTrackIndex, setTrackData, updateOptics, setOldCubeLatLng, setTrack, setFiberOpticsMenu, setInfoModal, setContextMenu, drawWardrobe, setToggleCoordsApply, setHideCubes, updateMufta, setCubDragging, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, changePolylineWeight, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;

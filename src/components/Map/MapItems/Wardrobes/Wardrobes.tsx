@@ -1,17 +1,17 @@
 import { useDispatch, useSelector } from "react-redux"
 import { Marker } from "react-leaflet";
-import { getContextMenu, getDrag, getWardrobes } from "../../../../Redux/map/mapSelectors";
-import { setContextMenu, setContextMenuXY, setDrag, setId } from "../../../../Redux/map/mapSlice";
+import { getContextMenu, getDrag, getPolyLines, getWardrobes } from "../../../../Redux/map/mapSelectors";
+import { setContextMenu, setContextMenuXY, setDrag, setId, updatePolyWardrobes } from "../../../../Redux/map/mapSlice";
 import { ContextMenuWardrobe } from "../../../../interface/ContextMenuWardrobe";
+import { WardrobeInterface } from "../../../../interface/WardrobeInterface";
 
 export const Wardrobes = () => {
 
     const wardRobes = useSelector(getWardrobes);
     const dispatch = useDispatch();
-    // const mufts = useSelector(getMufts);
-    // const polyLines = useSelector(getPolyLines);
     const drag = useSelector(getDrag);
     const contextMenu = useSelector(getContextMenu);
+    const polyLines = useSelector(getPolyLines);
     return <>
         {wardRobes.map((item, index) => (
             <Marker
@@ -40,12 +40,12 @@ export const Wardrobes = () => {
                     },
                     dragstart: () => dispatch(setDrag(true)),
                     drag: (e) => {
-                        // const data = MuftaInterface.handleMarkerDrag(e, polyLines, item, index, mufts, wardRobes);
-                        // dispatch(updatePoly(data));
+                        const data = WardrobeInterface.handleWardrobeDrag(e, polyLines, item, index, wardRobes);
+                        dispatch(updatePolyWardrobes(data));
 
                     },
                     dragend: () => dispatch(setDrag(false)),
-                    contextmenu: async (e) => {
+                    contextmenu: (e) => {
                         e.originalEvent.preventDefault();
                         dispatch(setId(item.id));
                         dispatch(setContextMenuXY({ x: e.originalEvent.clientX, y: e.originalEvent.clientY }));

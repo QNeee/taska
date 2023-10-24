@@ -19,11 +19,12 @@ export const Mufts = () => {
     const { track } = useSelector(getTrack);
     useEffect(() => {
         if (track) {
-            setData(mufts.filter(item => item.linesIds?.includes(mainLineId)));
+            const poly = polyLines.find(item => item.id === mainLineId);
+            setData(mufts.filter(item => item.id === poly?.owner || item.id === poly?.to));
         } else {
             setData(mufts);
         }
-    }, [mainLineId, mufts, track])
+    }, [mainLineId, mufts, polyLines, track])
     return <>
         {data.length > 0 && data.map((item, index) => (
             <Marker

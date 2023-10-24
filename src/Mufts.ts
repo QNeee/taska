@@ -13,9 +13,7 @@ export interface IMainLine {
     producer: string,
     standart: string;
 }
-
-const iconUrl =
-    'https://c0.klipartz.com/pngpicture/720/285/gratis-png-punto-rojo-redondo-bandera-de-japon-bandera-de-japon-s-thumbnail.png';
+const icon = 'https://img.icons8.com/?size=256&id=FkQHNSmqWQWH&format=png';
 export interface ICustomMarker extends L.Marker {
     id?: string;
     linesIds?: string[];
@@ -44,7 +42,7 @@ export class MainLine {
 export class Mufts {
     muft: ICustomMarker | null = null;
     constructor(private latLng: LatLng) {
-        this.muft = new L.Marker(latLng, { icon: L.icon({ iconUrl: iconUrl, iconSize: [30, 30] }) })
+        this.muft = new L.Marker(latLng, { icon: L.icon({ iconUrl: icon, iconSize: [50, 50] }) })
         this.muft.id = uuidv4();
         this.muft.linesIds = [];
         this.muft.cubesIds = [];
@@ -56,48 +54,36 @@ export class Mufts {
     getMuft() {
         return this.muft;
     }
-    static updateMuftCube(muftOwner: ICustomMarker, muftTo: ICustomMarker, lineId: string, cubeId: string, oldIds: string[]) {
-        const updateMuftLines = (muftsLines: string[], oldIds: string[]) => {
-            for (const oldId of oldIds) {
-                const index = muftsLines.findIndex((item) => item === oldId);
-                if (index !== -1) {
-                    muftsLines.splice(index, 1);
-                }
+    static updateMuftCube(mufts: ICustomMarker[], lineId: string, cubeId: string, oldIds: string[], fiber: IFiberOptic) {
+        for (const muft of mufts) {
+            const muftLines = muft.linesIds;
+            const muftCubes = muft.cubesIds;
+            const muftFibers = muft.fibers;
+            for (const ids of oldIds) {
+                const indexLine = muftLines?.findIndex(item => item === ids) as number;
+                muftLines?.splice(indexLine, 1);
+                const indexFibr = muftFibers?.findIndex(item => item.lineId === ids) as number;
+                muftFibers?.splice(indexFibr, 1);
             }
-            muftsLines.push(lineId);
+            muftLines?.push(lineId);
+            muftFibers?.push(fiber);
+            const cubeIndex = muftCubes?.findIndex(item => item === cubeId) as number;
+            if (cubeIndex !== -1) muftCubes?.splice(cubeIndex, 1);
         }
-
-        const updateMuftCubes = (muftCubes: string[], cubeId: string) => {
-            const index = muftCubes.findIndex((item) => item === cubeId);
-            if (index !== -1) {
-                muftCubes.splice(index, 1);
-            }
-        }
-
-        const muftsLinesOwner = muftOwner.linesIds as string[];
-        const muftsLinesTo = muftTo.linesIds as string[];
-        const muftCubesOwner = muftOwner.cubesIds as string[];
-        const muftCubesTo = muftTo.cubesIds as string[];
-        updateMuftLines(muftsLinesOwner, oldIds);
-        updateMuftLines(muftsLinesTo, oldIds);
-        updateMuftCubes(muftCubesOwner, cubeId);
-        updateMuftCubes(muftCubesTo, cubeId);
-        return { idOwner: muftOwner?.id as string, idTo: muftTo?.id as string, data: [muftTo, muftOwner] };
     }
-    static updateMuftLine(muftOwner: ICustomMarker, muftTo: ICustomMarker, line1Id: string, oldId?: string, line2Id?: string, cubeId?: string) {
-        if (oldId) {
-            const indexOwnerLineId = muftOwner.linesIds?.findIndex(item => item === oldId) as number;
-            const indexToLineId = muftTo.linesIds?.findIndex(item => item === oldId) as number;
-            muftOwner.linesIds?.splice(indexOwnerLineId, 1);
-            muftTo.linesIds?.splice(indexToLineId, 1);
-            muftTo?.linesIds?.push(line1Id as string, line2Id as string);
-            muftOwner?.linesIds?.push(line1Id as string, line2Id as string);
-            muftTo?.cubesIds?.push(cubeId as string);
-            muftOwner?.cubesIds?.push(cubeId as string);
-        } else {
-            muftTo?.linesIds?.push(line1Id);
-            muftOwner?.linesIds?.push(line1Id);
+    static updateMuftLine(mufts: ICustomMarker[], ids: string[], fibers: IFiberOptic[], oldId: string, cubeId: string) {
+        for (const muft of mufts) {
+            const indexFiber = muft.fibers?.findIndex(item => item.lineId === oldId) as number;
+            muft.fibers?.splice(indexFiber, 1);
+            const indexLine = muft.linesIds?.findIndex(item => item === oldId) as number;
+            muft.linesIds?.splice(indexLine, 1);
+            for (const id of ids) {
+                muft?.linesIds?.push(id);
+            }
+            for (const fiber of fibers) {
+                muft?.fibers?.push(fiber);
+            }
+            muft.cubesIds?.push(cubeId);
         }
-        return { idOwner: muftOwner?.id as string, idTo: muftTo?.id as string, data: [muftTo, muftOwner] as ICustomMarker[] };
     }
 }

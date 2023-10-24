@@ -71,9 +71,7 @@ const ContextMenu = ({ left, top }: Iprops) => {
 
         />
     } else if (contextMenu.cube) {
-        return <CubeMenu left={obj.x} top={obj.y} contextMenu={contextMenu} id={id} cubesArr={cubesArr}
-
-        />
+        return <CubeMenu left={obj.x} top={obj.y} contextMenu={contextMenu} id={id} cubesArr={cubesArr} muftsArr={muftsArr} polyLinesArr={polyLinesArr} wardrobesArr={wardrobes} />
     } else if (fiberCountsMenu) {
         return <MakeLineModal muftsArr={muftsArr} wardrobesArr={wardrobes} item={item} lineStart={lineStart as ILineStart}
             onClose={onCloseFiberCountsMenu}
@@ -82,9 +80,9 @@ const ContextMenu = ({ left, top }: Iprops) => {
         return <FiberMenu left={obj.x} top={obj.y} map={map} contextMenu={contextMenu} />
     } else if (contextMenu.wardrobes) {
         return <WardrobeMenu left={obj.x} top={obj.y} addLine={addLine} form={form}
-        handleInputChange={handleInputChange}
-        id={id} wardrobesArr={wardrobes}
-        item={item as ICustomMarker} setFiberOpticsMenu={setFiberOpticsMenu} polyLinesArr={polyLinesArr} muftsArr={muftsArr} cubesArr={cubesArr} />;
+            handleInputChange={handleInputChange}
+            id={id} wardrobesArr={wardrobes}
+            item={item as ICustomMarker} setFiberOpticsMenu={setFiberOpticsMenu} polyLinesArr={polyLinesArr} muftsArr={muftsArr} cubesArr={cubesArr} />;
     }
     return null;
 };

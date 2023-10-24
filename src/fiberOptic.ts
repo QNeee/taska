@@ -30,4 +30,7 @@ export class FiberOptic {
     getFiberOptic() {
         return this.fiberOptic;
     }
+    static getFiberOpticInfo(latlng: LatLng[], owner: string, to: string, lineId: string) {
+        return { latlng, owner, to, lineId };
+    }
 }

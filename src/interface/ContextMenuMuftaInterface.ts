@@ -1,10 +1,10 @@
 import { LatLng } from "leaflet";
 import { ILineStart } from "../Redux/map/mapSlice";
 import { ICustomPolyline, Polylines } from "../Polylines";
-import { ICustomMarker, IMainLine, IStatsMainLine, MainLine, Mufts } from "../Mufts";
+import { ICustomMarker, IMainLine, IStatsMainLine, MainLine } from "../Mufts";
 import { ICustomCube } from "../Cubes";
 import { ICoords } from "../components/Map/ContextMenu";
-import { FiberOptic, IFiberOptic, IObjFiberOptic } from "../fiberOptic";
+import { FiberOptic, IFiberOptic } from "../fiberOptic";
 import { ICustomWardrobe } from "../Wardrobe";
 
 export interface IDrawItemLatLng {
@@ -81,38 +81,36 @@ export class ContextMenuMuftaInterface {
         data.setLatLng({ lat: form.lat, lng: form.lng });
         return { index, data };
     }
-    static handleAddLineTo(mufts: ICustomMarker[], id: string, lineStart: ILineStart | null, fiberCounts: number, form: IStatsMainLine) {
+    static handleAddLineTo(mufts: ICustomMarker[], id: string, lineStart: ILineStart | null, fiberCounts: number, form: IStatsMainLine, wardrobes: ICustomWardrobe[]) {
+        let to: ICustomMarker | ICustomWardrobe;
         const muftaTo = mufts.find(item => item.id === id);
-        const muftaOwner = mufts.find(item => item.id === lineStart?.id);
-        const muftaLatLng = muftaTo?.getLatLng() as LatLng;
-        const ownerLatLng = lineStart?.latlng as LatLng;
-        const additionalInfo = {
-            owner: lineStart?.id as string,
-            to: muftaTo?.id as string,
+        if (!muftaTo) {
+            to = wardrobes.find(item => item.id === id) as ICustomWardrobe;
+        } else {
+            to = muftaTo;
         }
-        const polyLine = new Polylines([muftaLatLng, ownerLatLng], additionalInfo).getLine();
+        const muftaOwner = mufts.find(item => item.id === lineStart?.id);
+        const muftaLatLng = to?.getLatLng() as LatLng;
+        const ownerLatLng = lineStart?.latlng as LatLng;
+        const lineInfo = Polylines.getLineInfo(muftaOwner?.id as string, to?.id as string);
+        const polyLine = new Polylines([muftaLatLng, ownerLatLng], lineInfo).getLine();
         const mainLineObj = {
             owner: lineStart?.id as string,
-            to: muftaTo?.id as string,
+            to: to?.id as string,
             producer: form.producer,
             standart: form.standart,
             fiberOpticsCount: fiberCounts,
         }
         const mainLine = new MainLine(mainLineObj).getMainLine() as IMainLine;
-        const fiberOpticInfo = {
-            latlng: [muftaLatLng, ownerLatLng],
-            owner: lineStart?.id,
-            to: muftaTo?.id,
-            lineId: polyLine?.id,
-        } as IObjFiberOptic
+        const fiberOpticInfo = FiberOptic.getFiberOpticInfo([muftaLatLng, ownerLatLng], muftaOwner?.id as string, to?.id as string, polyLine?.id as string);
         const fiberOptic = new FiberOptic(fiberOpticInfo).getFiberOptic() as IFiberOptic;
-        if (muftaOwner && muftaTo) {
-            muftaOwner.fibers?.push(fiberOptic);
-            muftaTo?.fibers?.push(fiberOptic);
-            muftaOwner.mainLines?.push(mainLine);
-            muftaTo?.mainLines?.push(mainLine);
+        const needMufts = [muftaOwner, to];
+        for (const muft of needMufts) {
+            muft?.fibers?.push(fiberOptic);
+            muft?.mainLines?.push(mainLine);
+            muft?.linesIds?.push(polyLine?.id as string);
         }
-        const { data, idOwner, idTo } = Mufts.updateMuftLine(muftaOwner as ICustomMarker, muftaTo as ICustomMarker, polyLine?.id as string);
-        return { data, idOwner, idTo, polyLine };
+        console.log(needMufts);
+        return { type: to.type, data: { mufts, wardrobes }, polyLine };
     }
 }

@@ -22,22 +22,23 @@ export interface ICubic {
     lng: number,
     to: string,
 }
-export const iconUrl1 = 'https://cdn.icon-icons.com/icons2/605/PNG/512/square-cut_icon-icons.com_56037.png';
+const icon = 'https://img.icons8.com/?size=256&id=15052&format=png';
 export class Cubes {
     cubic: ICustomCube | null = null;
 
     constructor(private latLng: LatLng, cubicInfo: any) {
-        this.cubic = L.marker(latLng, { icon: L.icon({ iconUrl: iconUrl1, iconSize: [25, 25] }) });
+        this.cubic = L.marker(latLng, { icon: L.icon({ iconUrl: icon, iconSize: [25, 25] }) });
         this.cubic.id = uuidv4();
         this.cubic.owner = cubicInfo.owner;
         this.cubic.to = cubicInfo.to;
         this.cubic.type = 'cube'
     }
-    static changeCubeDragable() {
 
-    }
     getCub() {
         return this.cubic;
+    }
+    static getCubeInfo(owner: string, to: string) {
+        return { owner, to }
     }
     static updateCube(dispatch: Function, obj: IUpdateObjCubes) {
         const objToUpdate = {
