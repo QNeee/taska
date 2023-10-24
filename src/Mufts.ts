@@ -17,7 +17,7 @@ export interface IMainLine {
     colorModule?: string,
     colorOptic?: string,
     moduleCounts?: number,
-
+    length?: number;
     // standart: string;
 }
 const icon = 'https://img.icons8.com/?size=256&id=FkQHNSmqWQWH&format=png';

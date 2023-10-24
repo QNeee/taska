@@ -2,12 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getInfoModal } from '../../Redux/map/mapSelectors';
 import { AppDispatch } from '../../Redux/store';
-import { setInfoModal, setMainLineId, setTrack, setTrackData, setTrackIndex } from '../../Redux/map/mapSlice';
-import { Container, ModalButton, ModalContent, ModalText, ModalTitle, ModalWrapper } from './Modal.styled';
+import { drawMufta, setInfoModal, setMainLineId, setTrack, setTrackData, setTrackIndex } from '../../Redux/map/mapSlice';
+import { Button, Container, InputContainer, ModalButton, ModalContent, ModalText, ModalTitle, ModalWrapper } from './Modal.styled';
 import React from 'react';
 import { ICustomPolyline } from '../../Polylines';
 import { GeometryUtil, LatLng } from 'leaflet';
-import { ICustomMarker } from '../../Mufts';
+import { ICustomMarker, IMainLine } from '../../Mufts';
 import { ICustomWardrobe } from '../../Wardrobe';
 import { getColors } from './colorsHelper';
 
@@ -24,8 +24,11 @@ export interface IData {
 const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr }) => {
     const dispatch: AppDispatch = useDispatch();
     const isOpen = useSelector(getInfoModal);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(true);
     const [data, setData] = useState<IData[]>([]);
+    const [hide, setHide] = useState(true);
+    const [inputValue, setInputValue] = useState('');
+    const mufts = [...muftsArr];
     const poly = polyLines.find(item => item.id === id);
     const needMufts = muftsArr.filter(item => item.linesIds?.includes(poly?.id as string));
     let to: ICustomMarker | ICustomWardrobe;
@@ -42,7 +45,8 @@ const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr })
         const opticColors = mainLine?.colorOptic;
         const ov = mainLine?.fiberOpticsCount;
         const length = GeometryUtil.length(poly?.getLatLngs() as LatLng[]);
-        return { length: length.toFixed(2), opticColors, producer, mainLine, ownerId: owner?.id, ov };
+        const facLength = mainLine?.length;
+        return { length: length.toFixed(2), opticColors, producer, mainLine, ownerId: owner?.id, ov, facLength };
     }, [owner?.id, owner?.mainLines, poly, to])
     const onClickTrack = (color: string, idOwner: string, index: number) => {
         const obj = {
@@ -74,23 +78,46 @@ const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr })
         setData(newArr);
         dispatch(setTrackData(newArr));
     }, [infoPoly, dispatch])
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        setInputValue(value);
+    }
+    const changeLength = () => {
+        const muft = mufts.find(item => item.id === poly?.owner) as ICustomMarker;
+        const mainLine = muft?.mainLines?.find(item => item.owner === muft.id) as IMainLine;
+        if (mainLine) mainLine.length = parseInt(inputValue);
+        dispatch(drawMufta(mufts));
+        setHide(!hide);
+    }
     return (
         <>
             {isOpen && (
                 <ModalWrapper>
                     <ModalContent>
                         <Container>
-                            <ModalTitle>Довжина</ModalTitle>
+                            <ModalTitle>Проектна Довжина</ModalTitle>
                             <ModalText>{infoPoly().length} М</ModalText>
                         </Container>
                         <Container>
                             <ModalTitle>Виробник</ModalTitle>
                             <ModalText>{infoPoly().producer}</ModalText>
                         </Container>
-                        {/* <Container>
-                            <ModalTitle>Стандарт</ModalTitle>
-                            <ModalText>{infoPoly().standart}</ModalText>
-                        </Container> */}
+                        <Container>
+                            <ModalTitle>Фактична Довжина</ModalTitle>
+                            <ModalText>{!infoPoly()?.facLength ? null : infoPoly()?.facLength + 'm'}
+                                {(infoPoly()?.facLength && hide) && <button type='button' onClick={() => {
+                                    setHide(!hide)
+                                    changeLength();
+                                }}>змінити</button>}
+                            </ModalText>
+                            {(hide && !infoPoly()?.facLength) && <Button onClick={() => setHide(!hide)}>Встановити</Button>}
+                            {(!hide) && <InputContainer>
+                                <input type="text" id='inputValue' value={inputValue} onChange={handleInputChange} />
+                                <button type='button' onClick={changeLength}>встановити</button>
+                            </InputContainer>}
+
+
+                        </Container>
                         <ModalButton onClick={() => setIsMenuOpen(!isMenuOpen)}>Ємність {infoPoly().ov !== 0 && `(${infoPoly().ov}    ОВ)`}</ModalButton>
                         {isMenuOpen ? <Container style={{ display: 'block', maxHeight: "200px", overflowY: 'auto', backgroundColor: 'grey' }}>
                             {data.length > 0 && data.map((item, index) => <div key={index}>
