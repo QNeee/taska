@@ -110,7 +110,6 @@ export class ContextMenuMuftaInterface {
             muft?.mainLines?.push(mainLine);
             muft?.linesIds?.push(polyLine?.id as string);
         }
-        console.log(needMufts);
         return { type: to.type, data: { mufts, wardrobes }, polyLine };
     }
 }

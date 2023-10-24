@@ -23,7 +23,6 @@ export class ContextMenuWardrobe {
         const mufts = [...muftsArr];
         const wardrobesArr = [...wardrobes];
         const index = wardrobesArr.findIndex(item => item.id === id);
-        console.log(index);
         const wardrobe = wardrobesArr[index];
         const muftLinesIds = wardrobe.linesIds;
         const muftCubesIds = wardrobe.cubesIds;

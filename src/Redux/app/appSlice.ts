@@ -165,7 +165,6 @@ export const appSlice = createSlice({
                     state.restoreAllData.push(removedPolyline as IDrawArr);
                     const indexToRemoveFromAllData = state.allData.findIndex(item => item.id === removedPolyline.id);
                     if (indexToRemoveFromAllData !== -1) {
-                        console.log(indexToRemoveFromAllData);
                         state.allData.splice(indexToRemoveFromAllData, 1);
                     }
                 }
