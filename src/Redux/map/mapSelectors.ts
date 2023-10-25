@@ -20,3 +20,4 @@ export const getOldCubeLatLng = (state: RootState) => state.map.oldCubeLatLng;
 export const getTrackData = (state: RootState) => state.map.trackData;
 export const getTrackIndex = (state: RootState) => state.map.trackIndex;
 export const getMainLine = (state: RootState) => state.map.mainLineId;
+export const getChangeLineModal = (state: RootState) => state.map.changeLineModal;

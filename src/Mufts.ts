@@ -16,7 +16,7 @@ export interface IMainLine {
     producer: string,
     colorModule?: string,
     colorOptic?: string,
-    moduleCounts?: number,
+    moduleCounts?: string,
     length?: number;
     typeOfGasket?: string;
 }

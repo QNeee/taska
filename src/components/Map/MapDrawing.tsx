@@ -2,7 +2,7 @@ import { useMapEvents } from "react-leaflet";
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from "../../Redux/store";
 import ContextMenu from "./ContextMenu";
-import { getContextMenu, getContextMenuXY, getFiberOpticsMenu, getId, getInfoModal, getMufts, getPolyLines, getTrack, getWardrobes } from "../../Redux/map/mapSelectors";
+import { getChangeLineModal, getContextMenu, getContextMenuXY, getFiberOpticsMenu, getId, getInfoModal, getMufts, getPolyLines, getTrack, getWardrobes } from "../../Redux/map/mapSelectors";
 import { setContextMenu, setContextMenuXY } from "../../Redux/map/mapSlice";
 import Modal from "../Modal/Modal";
 
@@ -11,6 +11,7 @@ export const MapDrawing = () => {
     const contextMenuXY = useSelector(getContextMenuXY);
     const contextMenu = useSelector(getContextMenu);
     const infoModal = useSelector(getInfoModal);
+    const changeInfoModal = useSelector(getChangeLineModal);
     const fiberCountsMenu = useSelector(getFiberOpticsMenu);
     const id = useSelector(getId);
     const polyLines = useSelector(getPolyLines);
@@ -33,7 +34,7 @@ export const MapDrawing = () => {
         },
     });
     return <>
-        {infoModal ? <>
+        {infoModal || changeInfoModal ? <>
             <Modal id={id} polyLines={polyLines} muftsArr={muftsArr} wardrobesArr={wardrobes} />
         </> : null}
         {(contextMenu.general || fiberCountsMenu || contextMenu.muft || contextMenu.poly || contextMenu.cube || contextMenu.wardrobes || contextMenu.fiber) && (

@@ -110,6 +110,7 @@ interface IMapState {
     trackData: IData[];
     trackIndex: number;
     mainLineId: string;
+    changeLineModal: boolean;
 }
 const initialState: IMapState = {
     id: '',
@@ -131,13 +132,17 @@ const initialState: IMapState = {
     oldCubeLatLng: null,
     trackData: [],
     trackIndex: 0,
-    mainLineId: ''
+    mainLineId: '',
+    changeLineModal: false,
 }
 
 export const mapSlice = createSlice({
     name: 'map',
     initialState,
     reducers: {
+        setChangeLineModal: (state, { payload }) => {
+            state.changeLineModal = payload;
+        },
         changeToMufta: (state, { payload }) => {
             state.mufts = payload;
         },
@@ -285,4 +290,4 @@ export const mapSlice = createSlice({
 
 });
 
-export const { updatePolyWardrobes, changeToMufta, deleteWardrobe, updateWardrobe, updateMuftFibers, setMainLineId, setTrackIndex, setTrackData, updateOptics, setOldCubeLatLng, setTrack, setFiberOpticsMenu, setInfoModal, setContextMenu, drawWardrobe, setToggleCoordsApply, setHideCubes, updateMufta, setCubDragging, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, changePolylineWeight, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;
+export const { setChangeLineModal, updatePolyWardrobes, changeToMufta, deleteWardrobe, updateWardrobe, updateMuftFibers, setMainLineId, setTrackIndex, setTrackData, updateOptics, setOldCubeLatLng, setTrack, setFiberOpticsMenu, setInfoModal, setContextMenu, drawWardrobe, setToggleCoordsApply, setHideCubes, updateMufta, setCubDragging, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, changePolylineWeight, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;
