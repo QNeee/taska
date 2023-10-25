@@ -2,14 +2,18 @@ import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getInfoModal } from '../../Redux/map/mapSelectors';
 import { AppDispatch } from '../../Redux/store';
-import { drawMufta, setInfoModal, setMainLineId, setTrack, setTrackData, setTrackIndex } from '../../Redux/map/mapSlice';
-import { Button, Container, InputContainer, ModalButton, ModalContent, ModalText, ModalTitle, ModalWrapper } from './Modal.styled';
+import { setInfoModal, setMainLineId, setTrack, setTrackData, setTrackIndex } from '../../Redux/map/mapSlice';
+import { Button, ButtonWrapper, Container, ModalButton, ModalContent, ModalText, ModalTitle, ModalWrapper } from './Modal.styled';
 import React from 'react';
 import { ICustomPolyline } from '../../Polylines';
 import { GeometryUtil, LatLng } from 'leaflet';
-import { ICustomMarker, IMainLine } from '../../Mufts';
+import { ICustomMarker } from '../../Mufts';
 import { ICustomWardrobe } from '../../Wardrobe';
 import { getColors } from './colorsHelper';
+import { CapacityModal } from './CapacityModal';
+import { ChangeInfoModal } from './InfoModal';
+import { ChangeActualLength } from './ChangeActualLength';
+import { ChangeGasket } from './ChangeGasket';
 
 interface IModalProps {
     id: string,
@@ -24,10 +28,9 @@ export interface IData {
 const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr }) => {
     const dispatch: AppDispatch = useDispatch();
     const isOpen = useSelector(getInfoModal);
-    const [isMenuOpen, setIsMenuOpen] = useState(true);
+    const [menuOpen, setMenuOpen] = useState({ capacity: false, info: false });
+    const [changeMenuOpen, setChangeMenuOpen] = useState({ length: false, gasket: false });
     const [data, setData] = useState<IData[]>([]);
-    const [hide, setHide] = useState(true);
-    const [inputValue, setInputValue] = useState('');
     const mufts = [...muftsArr];
     const poly = polyLines.find(item => item.id === id);
     const needMufts = muftsArr.filter(item => item.linesIds?.includes(poly?.id as string));
@@ -46,7 +49,8 @@ const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr })
         const ov = mainLine?.fiberOpticsCount;
         const length = GeometryUtil.length(poly?.getLatLngs() as LatLng[]);
         const facLength = mainLine?.length;
-        return { length: length.toFixed(2), opticColors, producer, mainLine, ownerId: owner?.id, ov, facLength };
+        const gasket = mainLine?.typeOfGasket;
+        return { length: length.toFixed(2), opticColors, producer, gasket, mainLine, ownerId: owner?.id, ov, facLength };
     }, [owner?.id, owner?.mainLines, poly, to])
     const onClickTrack = (color: string, idOwner: string, index: number) => {
         const obj = {
@@ -78,17 +82,6 @@ const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr })
         setData(newArr);
         dispatch(setTrackData(newArr));
     }, [infoPoly, dispatch])
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target;
-        setInputValue(value);
-    }
-    const changeLength = () => {
-        const muft = mufts.find(item => item.id === poly?.owner) as ICustomMarker;
-        const mainLine = muft?.mainLines?.find(item => item.owner === muft.id) as IMainLine;
-        if (mainLine) mainLine.length = parseInt(inputValue);
-        dispatch(drawMufta(mufts));
-        setHide(!hide);
-    }
     return (
         <>
             {isOpen && (
@@ -103,33 +96,36 @@ const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr })
                             <ModalText>{infoPoly().producer}</ModalText>
                         </Container>
                         <Container>
-                            <ModalTitle>Фактична Довжина</ModalTitle>
-                            <ModalText>{!infoPoly()?.facLength ? null : infoPoly()?.facLength + 'm'}
-                                {(infoPoly()?.facLength && hide) && <button type='button' onClick={() => {
-                                    setHide(!hide)
-                                    changeLength();
-                                }}>змінити</button>}
-                            </ModalText>
-                            {(hide && !infoPoly()?.facLength) && <Button onClick={() => setHide(!hide)}>Встановити</Button>}
-                            {(!hide) && <InputContainer>
-                                <input type="text" id='inputValue' value={inputValue} onChange={handleInputChange} />
-                                <button type='button' onClick={changeLength}>встановити</button>
-                            </InputContainer>}
-
-
+                            <ModalTitle>Тип прокладки</ModalTitle>
+                            {infoPoly()?.gasket && !changeMenuOpen.gasket && <><ModalText>{infoPoly()?.gasket}</ModalText>
+                                <Button type='button' onClick={() => {
+                                    setChangeMenuOpen({ length: false, gasket: !changeMenuOpen.gasket })
+                                }}>змінити</Button>
+                            </>
+                            }
+                            {!infoPoly()?.gasket && !changeMenuOpen.gasket && <Button onClick={() => setChangeMenuOpen({ length: false, gasket: !changeMenuOpen.gasket })}>Встановити</Button>}
+                            {changeMenuOpen.gasket && !changeMenuOpen.length && <ChangeGasket changeMenuOpen={changeMenuOpen} openChangeGasketMenu={setChangeMenuOpen} mufts={mufts} poly={poly as ICustomPolyline} />}
                         </Container>
-                        <ModalButton onClick={() => setIsMenuOpen(!isMenuOpen)}>Ємність {infoPoly().ov !== 0 && `(${infoPoly().ov}    ОВ)`}</ModalButton>
-                        {isMenuOpen ? <Container style={{ display: 'block', maxHeight: "200px", overflowY: 'auto', backgroundColor: 'grey' }}>
-                            {data.length > 0 && data.map((item, index) => <div key={index}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <ModalText>{index + 1}<span style={{ color: item.color }}>{item.color === '#228b22' ? 'nature' : item.color}</span>{item.riska ? <span style={{ color: "white" }}>||</span> : null}</ModalText>
-                                    <button onClick={(e) => onClickTrack(item.color, infoPoly().ownerId as string, index)} type='button'>відстежити</button>
-                                </div >
-                            </div>)}
-                        </Container> : null}
-                        <ModalButton onClick={() => dispatch(setInfoModal(false))}>Close</ModalButton>
+                        <Container>
+                            <ModalTitle>Фактична Довжина</ModalTitle>
+                            {infoPoly()?.facLength && !changeMenuOpen.length && <><ModalText>{infoPoly()?.facLength + ' M'}</ModalText>
+                                <Button type='button' onClick={() => {
+                                    setChangeMenuOpen({ length: !changeMenuOpen.length, gasket: false })
+                                }}>змінити</Button>
+                            </>
+                            }
+                            {!infoPoly()?.facLength && !changeMenuOpen.length && <Button onClick={() => setChangeMenuOpen({ length: !changeMenuOpen.length, gasket: false })}>Встановити</Button>}
+                            {changeMenuOpen.length && !changeMenuOpen.gasket && <ChangeActualLength changeMenuOpen={changeMenuOpen} openActualLengthMenu={setChangeMenuOpen} mufts={mufts} poly={poly as ICustomPolyline} />}
+                        </Container>
+                        <ButtonWrapper>
+                            <ModalButton onClick={() => setMenuOpen({ capacity: !menuOpen.capacity, info: false })}>Ємність {infoPoly().ov !== 0 && `(${infoPoly().ov}    ОВ)`}</ModalButton>
+                            {menuOpen.capacity ? <CapacityModal data={data} onClickTrack={onClickTrack} infoPoly={infoPoly} /> : null}
+                            <ModalButton onClick={() => setMenuOpen({ capacity: false, info: !menuOpen.info })}>Змінити Інформацію</ModalButton>
+                            {menuOpen.info ? <ChangeInfoModal data={data} onClickTrack={onClickTrack} infoPoly={infoPoly} /> : null}
+                            <ModalButton onClick={() => dispatch(setInfoModal(false))}>Закрити</ModalButton>
+                        </ButtonWrapper>
                     </ModalContent>
-                </ModalWrapper>
+                </ModalWrapper >
             )}
         </>
     );

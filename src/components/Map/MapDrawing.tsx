@@ -33,9 +33,9 @@ export const MapDrawing = () => {
         },
     });
     return <>
-        {infoModal && <>
+        {infoModal ? <>
             <Modal id={id} polyLines={polyLines} muftsArr={muftsArr} wardrobesArr={wardrobes} />
-        </>}
+        </> : null}
         {(contextMenu.general || fiberCountsMenu || contextMenu.muft || contextMenu.poly || contextMenu.cube || contextMenu.wardrobes || contextMenu.fiber) && (
             <ContextMenu left={contextMenuXY?.x as number} top={contextMenuXY?.y as number} />
         )}

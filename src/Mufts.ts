@@ -18,7 +18,7 @@ export interface IMainLine {
     colorOptic?: string,
     moduleCounts?: number,
     length?: number;
-    // standart: string;
+    typeOfGasket?: string;
 }
 const icon = 'https://img.icons8.com/?size=256&id=FkQHNSmqWQWH&format=png';
 export interface ICustomMarker extends L.Marker {

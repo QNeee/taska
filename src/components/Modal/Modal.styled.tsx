@@ -50,7 +50,13 @@ export const ModalButton = styled.button`
   border-radius: 5px;
   cursor: pointer;
 `;
-
+export const ButtonWrapper = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px; 
+  width: 50%;
+  margin: 0 auto;
+`;
 export const Container = styled.div`
 display: flex;
 justify-content: space-between;
