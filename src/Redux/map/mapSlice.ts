@@ -4,7 +4,7 @@ import { LatLng } from "leaflet";
 import { ICustomMarker } from "../../Mufts";
 import { ICustomCube } from "../../Cubes";
 import { ICustomWardrobe } from "../../Wardrobe";
-import { IData } from "../../components/Modal/Modal";
+import { IData } from "../../components/Modal/Polyline/PolylineModal";
 export interface ICustomLatLng {
     lat: number;
     lng: number;
@@ -102,7 +102,9 @@ interface IMapState {
     contextMenuItem: IContextMenuItem;
     wardrobes: ICustomWardrobe[];
     hideCubes: boolean;
-    infoModal: boolean;
+    polylineInfoModal: boolean;
+    muftaInfoModal: boolean;
+    fiberInfoModal: boolean;
     choseCountFiberOpticsMenu: boolean;
     colors: Color[];
     track: ITrackObj;
@@ -125,7 +127,9 @@ const initialState: IMapState = {
     contextMenuXY: null,
     cubes: [],
     hideCubes: false,
-    infoModal: false,
+    polylineInfoModal: false,
+    muftaInfoModal: false,
+    fiberInfoModal: false,
     colors,
     choseCountFiberOpticsMenu: false,
     track: { color: '', idOwner: '', track: false, index: 0 },
@@ -140,6 +144,12 @@ export const mapSlice = createSlice({
     name: 'map',
     initialState,
     reducers: {
+        setFiberInfoModal: (state, { payload }) => {
+            state.fiberInfoModal = payload;
+        },
+        setMuftaInfoModal: (state, { payload }) => {
+            state.muftaInfoModal = payload;
+        },
         setChangeLineModal: (state, { payload }) => {
             state.changeLineModal = payload;
         },
@@ -173,8 +183,8 @@ export const mapSlice = createSlice({
         setFiberOpticsMenu: (state, { payload }) => {
             state.choseCountFiberOpticsMenu = payload;
         },
-        setInfoModal: (state, { payload }) => {
-            state.infoModal = payload;
+        setPolylineInfoModal: (state, { payload }) => {
+            state.polylineInfoModal = payload;
         },
         setContextMenu: (state, { payload }) => {
             state.contextMenuItem = payload;
@@ -290,4 +300,4 @@ export const mapSlice = createSlice({
 
 });
 
-export const { setChangeLineModal, updatePolyWardrobes, changeToMufta, deleteWardrobe, updateWardrobe, updateMuftFibers, setMainLineId, setTrackIndex, setTrackData, updateOptics, setOldCubeLatLng, setTrack, setFiberOpticsMenu, setInfoModal, setContextMenu, drawWardrobe, setToggleCoordsApply, setHideCubes, updateMufta, setCubDragging, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, changePolylineWeight, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;
+export const { setFiberInfoModal, setMuftaInfoModal, setChangeLineModal, updatePolyWardrobes, changeToMufta, deleteWardrobe, updateWardrobe, updateMuftFibers, setMainLineId, setTrackIndex, setTrackData, updateOptics, setOldCubeLatLng, setTrack, setFiberOpticsMenu, setPolylineInfoModal, setContextMenu, drawWardrobe, setToggleCoordsApply, setHideCubes, updateMufta, setCubDragging, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, changePolylineWeight, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;

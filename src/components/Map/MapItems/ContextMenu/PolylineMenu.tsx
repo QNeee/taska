@@ -2,7 +2,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../../../Redux/store";
 import { ContextMenuContainer, MenuItem } from "./ContextMenu.styled";
 import { ContextMenuInterface } from "../../../../interface/ContextMenuInterface";
-import { setContextMenu, setInfoModal } from "../../../../Redux/map/mapSlice";
+import { setContextMenu, setPolylineInfoModal } from "../../../../Redux/map/mapSlice";
 
 interface IPylileMenuProps {
     left: number;
@@ -14,7 +14,7 @@ export const PolylineMenu: React.FC<IPylileMenuProps> = ({ left, top }) => {
     return <ContextMenuContainer style={{ left, top }}>
         <MenuItem onClick={() => {
             const close = ContextMenuInterface.handleCloseMenu();
-            dispatch(setInfoModal(true));
+            dispatch(setPolylineInfoModal(true));
             dispatch(setContextMenu(close));
         }}>Інофрмація</MenuItem>
         <MenuItem onClick={() => {

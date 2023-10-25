@@ -1,7 +1,6 @@
 import React from "react";
-import { IData } from "./Modal"
-import { Container, ModalText } from "./Modal.styled"
-
+import { IData } from "./PolylineModal"
+import { Container, ModalText } from "../Modal.styled";
 interface ICapacityModalProps {
     data: IData[];
     onClickTrack: Function;

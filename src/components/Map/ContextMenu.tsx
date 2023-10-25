@@ -10,9 +10,9 @@ import { PolylineMenu } from './MapItems/ContextMenu/PolylineMenu';
 import { CubeMenu } from './MapItems/ContextMenu/CubeMenu';
 import { ILineStart, setFiberOpticsMenu } from '../../Redux/map/mapSlice';
 import { AppDispatch } from '../../Redux/store';
-import { MakeLineModal } from '../Modal/MakeLineModal';
 import { FiberMenu } from './MapItems/ContextMenu/FiberMenu';
 import { WardrobeMenu } from './MapItems/ContextMenu/WardrobeMenu';
+import { MakeLineModal } from '../Modal/Polyline/MakeLineModal';
 
 interface Iprops {
     left: number,

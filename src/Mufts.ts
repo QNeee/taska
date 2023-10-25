@@ -8,6 +8,11 @@ export interface IStatsMainLine {
     colorModule: string;
     colorOptic: string;
 }
+export interface IInfo {
+    adress?: string,
+    location?: string,
+}
+
 export interface IMainLine {
     id?: string,
     owner: string,
@@ -29,6 +34,7 @@ export interface ICustomMarker extends L.Marker {
     type?: string;
     fibers?: IFiberOptic[];
     mainLines?: IMainLine[];
+    info?: IInfo;
 }
 export class MainLine {
     mainLine: IMainLine | null = null;
@@ -59,6 +65,7 @@ export class Mufts {
         this.muft.type = 'muft'
         this.muft.fibers = [];
         this.muft.mainLines = [];
+        this.muft.info = {};
     }
     getMuft() {
         return this.muft;

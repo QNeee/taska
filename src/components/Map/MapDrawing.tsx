@@ -2,20 +2,24 @@ import { useMapEvents } from "react-leaflet";
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from "../../Redux/store";
 import ContextMenu from "./ContextMenu";
-import { getChangeLineModal, getContextMenu, getContextMenuXY, getFiberOpticsMenu, getId, getInfoModal, getMufts, getPolyLines, getTrack, getWardrobes } from "../../Redux/map/mapSelectors";
+import { getChangeLineModal, getContextMenu, getContextMenuXY, getFiberInfoModal, getFiberOpticsMenu, getId, getMuftaInfoModal, getMufts, getPolyLines, getPolylineInfoModal, getTrack, getWardrobes } from "../../Redux/map/mapSelectors";
 import { setContextMenu, setContextMenuXY } from "../../Redux/map/mapSlice";
-import Modal from "../Modal/Modal";
+import PolylineModal from "../Modal/Polyline/PolylineModal";
+import { MuftaModal } from "../Modal/Mufta/MuftaModal";
+import { FiberOpticModal } from "../Modal/FiberOptic/FiberOpticModal";
 
 export const MapDrawing = () => {
     const dispatch: AppDispatch = useDispatch();
     const contextMenuXY = useSelector(getContextMenuXY);
     const contextMenu = useSelector(getContextMenu);
-    const infoModal = useSelector(getInfoModal);
+    const polylineInfoModal = useSelector(getPolylineInfoModal);
     const changeInfoModal = useSelector(getChangeLineModal);
     const fiberCountsMenu = useSelector(getFiberOpticsMenu);
+    const muftaInfoModal = useSelector(getMuftaInfoModal)
     const id = useSelector(getId);
     const polyLines = useSelector(getPolyLines);
     const muftsArr = useSelector(getMufts);
+    const fiberInfoModal = useSelector(getFiberInfoModal)
     const wardrobes = useSelector(getWardrobes);
     const { track } = useSelector(getTrack);
     useMapEvents({
@@ -34,8 +38,14 @@ export const MapDrawing = () => {
         },
     });
     return <>
-        {infoModal || changeInfoModal ? <>
-            <Modal id={id} polyLines={polyLines} muftsArr={muftsArr} wardrobesArr={wardrobes} />
+        {polylineInfoModal || changeInfoModal ? <>
+            <PolylineModal id={id} polyLines={polyLines} muftsArr={muftsArr} wardrobesArr={wardrobes} />
+        </> : null}
+        {muftaInfoModal ? <>
+            <MuftaModal id={id} mufts={muftsArr} />
+        </> : null}
+        {fiberInfoModal ? <>
+            <FiberOpticModal />
         </> : null}
         {(contextMenu.general || fiberCountsMenu || contextMenu.muft || contextMenu.poly || contextMenu.cube || contextMenu.wardrobes || contextMenu.fiber) && (
             <ContextMenu left={contextMenuXY?.x as number} top={contextMenuXY?.y as number} />

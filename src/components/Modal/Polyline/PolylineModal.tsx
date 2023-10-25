@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getChangeLineModal, getInfoModal } from '../../Redux/map/mapSelectors';
-import { AppDispatch } from '../../Redux/store';
-import { setInfoModal, setMainLineId, setTrack, setTrackData, setTrackIndex } from '../../Redux/map/mapSlice';
+import { getChangeLineModal, getPolylineInfoModal } from '../../../Redux/map/mapSelectors';
+import { AppDispatch } from '../../../Redux/store';
+import { setMainLineId, setPolylineInfoModal, setTrack, setTrackData, setTrackIndex } from '../../../Redux/map/mapSlice';
 import React from 'react';
-import { ICustomPolyline } from '../../Polylines';
+import { ICustomPolyline } from '../../../Polylines';
 import { GeometryUtil, LatLng } from 'leaflet';
-import { ICustomMarker } from '../../Mufts';
-import { ICustomWardrobe } from '../../Wardrobe';
+import { ICustomMarker } from '../../../Mufts';
+import { ICustomWardrobe } from '../../../Wardrobe';
 import { getColors } from './colorsHelper';
 import { InfoModal } from './InfoModal';
 import { ChangeInfoModal } from './ChangeInfoModal';
@@ -30,9 +30,9 @@ export interface IChangeMenuOpen {
     gasket: boolean;
     length: boolean;
 }
-const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr }) => {
+const PolylineModal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr }) => {
     const dispatch: AppDispatch = useDispatch();
-    const isOpen = useSelector(getInfoModal);
+    const isOpen = useSelector(getPolylineInfoModal);
     const changeLineModal = useSelector(getChangeLineModal);
     const [menuOpen, setMenuOpen] = useState({ capacity: false, info: false });
     const [changeMenuOpen, setChangeMenuOpen] = useState({ length: false, gasket: false });
@@ -69,7 +69,7 @@ const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr })
         }
         dispatch(setTrack(obj));
         dispatch(setTrackIndex(index));
-        dispatch(setInfoModal(false));
+        dispatch(setPolylineInfoModal(false));
         dispatch(setMainLineId(id));
     }
     useEffect(() => {
@@ -97,7 +97,7 @@ const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr })
                 <InfoModal infoPoly={infoPoly} changeMenuOpen={changeMenuOpen}
                     setChangeMenuOpen={setChangeMenuOpen} mufts={mufts} poly={poly}
                     menuOpen={menuOpen} setMenuOpen={setMenuOpen} data={data}
-                    onClickTrack={onClickTrack} setInfoModal={setInfoModal} />
+                    onClickTrack={onClickTrack} setInfoModal={setPolylineInfoModal} />
             )}
             {!isOpen && changeLineModal && (
                 <ChangeInfoModal prod={infoPoly()?.producer as string} mC={infoPoly()?.moduleCount as string}
@@ -107,4 +107,4 @@ const Modal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrobesArr })
     );
 };
 
-export default Modal;
+export default PolylineModal;

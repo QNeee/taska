@@ -1,14 +1,14 @@
 import React from "react"
-import { Button, ButtonWrapper, Container, ModalButton, ModalContent, ModalText, ModalTitle, ModalWrapper } from "./Modal.styled"
+import { Button, ButtonWrapper, Container, ModalButton, ModalContent, ModalText, ModalTitle, ModalWrapper } from "../Modal.styled"
 import { ChangeGasket } from "./ChangeGasket";
-import { ICustomMarker } from "../../Mufts";
-import { ICustomPolyline } from "../../Polylines";
+import { ICustomMarker } from "../../../Mufts";
+import { ICustomPolyline } from "../../../Polylines";
 import { ChangeActualLength } from "./ChangeActualLength";
-import { IChangeMenuOpen, IData, IMenuOpen } from "./Modal";
+import { IChangeMenuOpen, IData, IMenuOpen } from "./PolylineModal";
 import { CapacityModal } from "./CapacityModal";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../Redux/store";
-import { setChangeLineModal } from "../../Redux/map/mapSlice";
+import { AppDispatch } from "../../../Redux/store";
+import { setChangeLineModal } from "../../../Redux/map/mapSlice";
 
 interface IInfoModalProps {
     infoPoly: Function;

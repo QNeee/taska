@@ -1,5 +1,5 @@
 import { ContextMenuMuftaInterface } from '../../../../interface/ContextMenuMuftaInterface';
-import { deleteMufta, setContextMenu, setLineStart, setToggleCoordsApply } from '../../../../Redux/map/mapSlice';
+import { deleteMufta, setContextMenu, setLineStart, setMuftaInfoModal, setToggleCoordsApply } from '../../../../Redux/map/mapSlice';
 import { setAddLine } from '../../../../Redux/app/appSlice';
 import { ContextMenuInterface } from '../../../../interface/ContextMenuInterface';
 import { ChangeEventHandler } from 'react';
@@ -57,6 +57,11 @@ export const MuftaMenu: React.FC<IMufraMenuProps> = ({ setFiberOpticsMenu, left,
             }}>
                 {item?.drag ? "Застосувати координати" : "Змінити координати"}
             </MenuItem>
+            <MenuItem onClick={() => {
+                dispatch(setMuftaInfoModal(true));
+                const close = ContextMenuInterface.handleCloseMenu();
+                dispatch(setContextMenu(close));
+            }}>Інформація</MenuItem>
             <MenuItem onClick={() => {
                 const { mufts, polyLines, cubes, wardrobes } = ContextMenuMuftaInterface.handleDeleteMufta(muftsArr, id, polyLinesArr, cubesArr, wardrobesArr)
                 dispatch(deleteMufta({ mufts, polyLines, cubes, wardrobes }));

@@ -1,25 +1,26 @@
-import React, { useState } from "react";
-import { Button, FullWidthInput, InputContainer, ModalContent, ModalTitle, ModalWrapper, Select } from "./Modal.styled"
-import { colorModule, colorOptics, moduleCounts, producers } from "./modalHelper";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../Redux/store";
-import { drawMufta, setChangeLineModal } from "../../Redux/map/mapSlice";
-import { ICustomMarker, IMainLine } from "../../Mufts";
-import { ICustomPolyline } from "../../Polylines";
-interface IChangeInfoModalProps {
-    prod: string;
-    mC: string;
-    cM: string;
-    cO: string;
-    ov?: number;
-    mufts: ICustomMarker[];
-    poly: ICustomPolyline;
+import { Button, FullWidthInput, InputContainer, ModalContent, ModalTitle, ModalWrapper, Select } from "../Modal.styled"
+import React, { useState } from 'react';
+import { AppDispatch } from "../../../Redux/store";
+import { ILineStart, drawPolyline, updateMufta, updateWardrobe } from "../../../Redux/map/mapSlice";
+import { ContextMenuMuftaInterface } from "../../../interface/ContextMenuMuftaInterface";
+import { setAddLine } from "../../../Redux/app/appSlice";
+import { ICustomMarker, IStatsMainLine } from "../../../Mufts";
+import { ICustomWardrobe } from "../../../Wardrobe";
+import { colorModule, colorOptics, moduleCounts, producers } from "./modalHelper";
+interface IModalOpticsProps {
+    muftsArr: ICustomMarker[],
+    item: ICustomMarker | ICustomWardrobe | undefined;
+    lineStart: ILineStart;
+    onClose: () => void;
+    wardrobesArr: ICustomWardrobe[];
 }
-export const ChangeInfoModal: React.FC<IChangeInfoModalProps> = ({ mufts, poly, prod, mC, cM, cO, ov }) => {
-    let [fiberOptic, setFiberOptic] = useState(ov);
-    const initalState = { producer: prod, moduleCounts: mC, colorModule: cM, colorOptic: cO }
+
+export const MakeLineModal: React.FC<IModalOpticsProps> = ({ onClose, muftsArr, wardrobesArr, item, lineStart }) => {
+    const [fiberOptic, setFiberOptic] = useState(0);
     const dispatch: AppDispatch = useDispatch();
-    const [form, setForm] = useState(initalState);
+    const formInitial: IStatsMainLine = { producer: producers[0], moduleCounts: moduleCounts[0], colorModule: colorModule[0], colorOptic: colorOptics[0] }
+    const [form, setForm] = useState<IStatsMainLine>(formInitial);
     const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFiberOptic(Number(parseInt(e.target.value) > 12 ? 12 : e.target.value));
     }
@@ -32,24 +33,17 @@ export const ChangeInfoModal: React.FC<IChangeInfoModalProps> = ({ mufts, poly, 
     }
     const onSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const needMufts = mufts.filter(item => item.id === poly.owner || item.id === poly.to);
-        const muftOwner = needMufts.find(item => item.id === poly.owner);
-        const muftTo = needMufts.find(item => item.id === poly.to);
-        for (const muft of needMufts) {
-            const mainLine = muft.mainLines as IMainLine[];
-            for (const line of mainLine) {
-                if (line.owner === muftOwner?.id && line.to === muftTo?.id) {
-                    line.fiberOpticsCount = fiberOptic;
-                    line.colorModule = form.colorModule;
-                    line.colorOptic = form.colorOptic;
-                    line.colorModule = form.colorModule;
-                    line.producer = form.producer;
-                }
-            }
+        if (!fiberOptic) return;
+        const { type, data, polyLine } = ContextMenuMuftaInterface.handleAddLineTo(muftsArr, item?.id as string, lineStart, fiberOptic, form, wardrobesArr);
+        if (type === 'muft') {
+            dispatch(updateMufta(data.mufts));
+        } else {
+            dispatch(updateWardrobe(data));
         }
-        dispatch(drawMufta(mufts));
-        dispatch(setChangeLineModal(false));
-        setForm(initalState);
+        dispatch(drawPolyline(polyLine));
+        dispatch(setAddLine(false));
+        onClose();
+        setForm(formInitial);
     }
     return <ModalWrapper>
         <ModalContent>
@@ -64,7 +58,7 @@ export const ChangeInfoModal: React.FC<IChangeInfoModalProps> = ({ mufts, poly, 
                     ))}
                 </Select>
                 Кількість Модулів в кабелі
-                <Select id="moduleCounts" onChange={handleSelectChange} value={form.moduleCounts}>
+                <Select id="moduleCounts" onChange={handleSelectChange}>
                     {moduleCounts.map((prod, index) => (
                         <option key={index} value={prod}>
                             {prod}

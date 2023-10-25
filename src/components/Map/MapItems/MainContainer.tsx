@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 import { useSelector } from "react-redux";
-import { getChangeLineModal, getFiberOpticsMenu, getInfoModal, getTrack } from "../../../Redux/map/mapSelectors";
+import { getChangeLineModal, getFiberOpticsMenu, getMuftaInfoModal, getPolylineInfoModal, getTrack } from "../../../Redux/map/mapSelectors";
 import { Mufts } from "./Mufts/Mufts";
 import { Polylines } from "./Polylines/Polylines";
 import { FiberOptics } from "./FiberOptics/FiberOptics";
@@ -12,14 +12,15 @@ import { MapDrawing } from "../MapDrawing";
 
 
 export const MainContainer = () => {
-    const infoModal = useSelector(getInfoModal);
+    const polylineInfoModal = useSelector(getPolylineInfoModal);
     const fiberCountMenu = useSelector(getFiberOpticsMenu);
     const changeModal = useSelector(getChangeLineModal);
     const trackObj = useSelector(getTrack);
+    const muftaInfoModa = useSelector(getMuftaInfoModal)
     const { idOwner, color, track, index } = trackObj;
     const map = useMap();
     useEffect(() => {
-        if (infoModal || fiberCountMenu || changeModal) {
+        if (polylineInfoModal || fiberCountMenu || changeModal || muftaInfoModa) {
             map.dragging.disable();
             map.doubleClickZoom.disable();
             map.scrollWheelZoom.disable();
@@ -33,7 +34,7 @@ export const MainContainer = () => {
             map.scrollWheelZoom.enable();
             map.keyboard.enable();
         }
-    }, [changeModal, fiberCountMenu, infoModal, map.doubleClickZoom, map.dragging, map.keyboard, map.scrollWheelZoom, track]);
+    }, [changeModal, fiberCountMenu, map.doubleClickZoom, map.dragging, map.keyboard, map.scrollWheelZoom, muftaInfoModa, polylineInfoModal, track]);
     return <>
         <Mufts />
         {!track ? <Polylines /> :

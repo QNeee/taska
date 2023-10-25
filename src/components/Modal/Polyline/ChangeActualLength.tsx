@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Button, Container, InputContainer } from "./Modal.styled";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../Redux/store";
-import { drawMufta } from "../../Redux/map/mapSlice";
-import { ICustomMarker, IMainLine } from "../../Mufts";
-import { ICustomPolyline } from "../../Polylines";
+import { ICustomMarker, IMainLine } from "../../../Mufts";
+import { ICustomPolyline } from "../../../Polylines";
+import { AppDispatch } from "../../../Redux/store";
+import { drawMufta } from "../../../Redux/map/mapSlice";
+import { Button, Container, InputContainer } from "../Modal.styled";
+
 interface IActuialLengthProps {
     changeMenuOpen: { length: boolean, gasket: boolean };
     openActualLengthMenu: Function;

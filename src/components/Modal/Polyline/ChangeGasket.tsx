@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Button, Container, Select } from "./Modal.styled"
-import { ICustomMarker, IMainLine } from "../../Mufts";
-import { ICustomPolyline } from "../../Polylines";
-import { drawMufta } from "../../Redux/map/mapSlice";
+import { Button, Container, Select } from "../Modal.styled"
+import { ICustomMarker, IMainLine } from "../../../Mufts";
+import { ICustomPolyline } from "../../../Polylines";
+import { drawMufta } from "../../../Redux/map/mapSlice";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../Redux/store";
+import { AppDispatch } from "../../../Redux/store";
 const gaskets = [
     'Повітряне',
     'Земляне',
