@@ -1,9 +1,10 @@
 import { useDispatch } from "react-redux"
 import { Button, Container, ModalButton, ModalContent, ModalText, ModalTitle, ModalWrapper, Select } from "../Modal.styled"
 import { AppDispatch } from "../../../Redux/store";
-import { drawMufta, setMuftaInfoModal } from "../../../Redux/map/mapSlice";
+import { drawWardrobe, setWardrobeInfoModal } from "../../../Redux/map/mapSlice";
 import React, { useState } from "react";
-import { ICustomMarker, IInfo } from "../../../Mufts";
+import { IInfo } from "../../../Mufts";
+import { ICustomWardrobe } from "../../../Wardrobe";
 const selectInfo = [
     'Колодязь',
     'Опора',
@@ -11,11 +12,11 @@ const selectInfo = [
 ]
 interface IMuftaModalProps {
     id: string;
-    mufts: ICustomMarker[];
+    wardrobes: ICustomWardrobe[];
 }
-export const MuftaModal: React.FC<IMuftaModalProps> = ({ id, mufts }) => {
-    const mufta = mufts.find(item => item.id === id) as ICustomMarker;
-    const muftaInfo = mufta?.info as IInfo;
+export const WardrobeModal: React.FC<IMuftaModalProps> = ({ id, wardrobes }) => {
+    const wardrobe = wardrobes.find(item => item.id === id) as ICustomWardrobe;
+    const wardrobeInfo = wardrobe?.info as IInfo;
     const dispatch: AppDispatch = useDispatch();
     const [adr, setAdr] = useState('');
     const [loc, setLoc] = useState('');
@@ -27,10 +28,9 @@ export const MuftaModal: React.FC<IMuftaModalProps> = ({ id, mufts }) => {
     const handleChangeLoc = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLoc(e.target.value);
     }
-    const handleOnCLick = (flag: keyof typeof muftaInfo, value: string) => {
-        console.log(value);
-        muftaInfo[flag] = value;
-        dispatch(drawMufta(mufts));
+    const handleOnCLick = (flag: keyof typeof wardrobeInfo, value: string) => {
+        wardrobeInfo[flag] = value;
+        dispatch(drawWardrobe(wardrobes));
         setToggleInfo({
             adr: false,
             loc: false,
@@ -45,7 +45,7 @@ export const MuftaModal: React.FC<IMuftaModalProps> = ({ id, mufts }) => {
         <ModalContent>
             <Container>
                 <ModalTitle>Адреса</ModalTitle>
-                {muftaInfo?.adress && !toggleInfo.adr && <><ModalText>{muftaInfo?.adress}</ModalText>
+                {wardrobeInfo?.adress && !toggleInfo.adr && <><ModalText>{wardrobeInfo?.adress}</ModalText>
                     <Button type="button" onClick={() => {
                         setToggleInfo({
                             adr: !toggleInfo.adr,
@@ -54,7 +54,7 @@ export const MuftaModal: React.FC<IMuftaModalProps> = ({ id, mufts }) => {
                         })
                     }}>Змінити</Button>
                 </>}
-                {!muftaInfo?.adress && !toggleInfo.adr && <Button type="button" onClick={() =>
+                {!wardrobeInfo?.adress && !toggleInfo.adr && <Button type="button" onClick={() =>
                     setToggleInfo({
                         adr: !toggleInfo.adr,
                         loc: false,
@@ -67,7 +67,7 @@ export const MuftaModal: React.FC<IMuftaModalProps> = ({ id, mufts }) => {
             </Container>
             <Container>
                 <ModalTitle>Місце розташування</ModalTitle>
-                {muftaInfo?.location && !toggleInfo.loc && <><ModalText>{muftaInfo?.location}</ModalText>
+                {wardrobeInfo?.location && !toggleInfo.loc && <><ModalText>{wardrobeInfo?.location}</ModalText>
                     <Button type="button" onClick={() => {
                         setToggleInfo({
                             adr: false,
@@ -76,7 +76,7 @@ export const MuftaModal: React.FC<IMuftaModalProps> = ({ id, mufts }) => {
                         })
                     }}>Змінити</Button>
                 </>}
-                {!muftaInfo?.location && !toggleInfo.loc && <Button type="button" onClick={() =>
+                {!wardrobeInfo?.location && !toggleInfo.loc && <Button type="button" onClick={() =>
                     setToggleInfo({
                         adr: false,
                         loc: !toggleInfo.loc,
@@ -99,7 +99,7 @@ export const MuftaModal: React.FC<IMuftaModalProps> = ({ id, mufts }) => {
                 <ModalTitle>Інше</ModalTitle>
                 <ModalText>Інше</ModalText>
             </Container>
-            <ModalButton onClick={() => dispatch(setMuftaInfoModal(false))}>Закрити</ModalButton>
+            <ModalButton onClick={() => dispatch(setWardrobeInfoModal(false))}>Закрити</ModalButton>
         </ModalContent>
     </ModalWrapper>
 }

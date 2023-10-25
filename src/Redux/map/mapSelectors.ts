@@ -23,3 +23,4 @@ export const getMainLine = (state: RootState) => state.map.mainLineId;
 export const getChangeLineModal = (state: RootState) => state.map.changeLineModal;
 export const getMuftaInfoModal = (state: RootState) => state.map.muftaInfoModal;
 export const getFiberInfoModal = (state: RootState) => state.map.fiberInfoModal;
+export const getWardrobeInfoModal = (state: RootState) => state.map.wardrobeInfoModal;

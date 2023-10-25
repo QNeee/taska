@@ -2,11 +2,12 @@ import { useMapEvents } from "react-leaflet";
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from "../../Redux/store";
 import ContextMenu from "./ContextMenu";
-import { getChangeLineModal, getContextMenu, getContextMenuXY, getFiberInfoModal, getFiberOpticsMenu, getId, getMuftaInfoModal, getMufts, getPolyLines, getPolylineInfoModal, getTrack, getWardrobes } from "../../Redux/map/mapSelectors";
+import { getChangeLineModal, getContextMenu, getContextMenuXY, getFiberInfoModal, getFiberOpticsMenu, getId, getMuftaInfoModal, getMufts, getPolyLines, getPolylineInfoModal, getTrack, getWardrobeInfoModal, getWardrobes } from "../../Redux/map/mapSelectors";
 import { setContextMenu, setContextMenuXY } from "../../Redux/map/mapSlice";
 import PolylineModal from "../Modal/Polyline/PolylineModal";
 import { MuftaModal } from "../Modal/Mufta/MuftaModal";
 import { FiberOpticModal } from "../Modal/FiberOptic/FiberOpticModal";
+import { WardrobeModal } from "../Modal/Wardrobe/WardrobeModal";
 
 export const MapDrawing = () => {
     const dispatch: AppDispatch = useDispatch();
@@ -19,7 +20,8 @@ export const MapDrawing = () => {
     const id = useSelector(getId);
     const polyLines = useSelector(getPolyLines);
     const muftsArr = useSelector(getMufts);
-    const fiberInfoModal = useSelector(getFiberInfoModal)
+    const fiberInfoModal = useSelector(getFiberInfoModal);
+    const wardrobeInfoModal = useSelector(getWardrobeInfoModal);
     const wardrobes = useSelector(getWardrobes);
     const { track } = useSelector(getTrack);
     useMapEvents({
@@ -46,6 +48,9 @@ export const MapDrawing = () => {
         </> : null}
         {fiberInfoModal ? <>
             <FiberOpticModal />
+        </> : null}
+        {wardrobeInfoModal ? <>
+            <WardrobeModal id={id} wardrobes={wardrobes} />
         </> : null}
         {(contextMenu.general || fiberCountsMenu || contextMenu.muft || contextMenu.poly || contextMenu.cube || contextMenu.wardrobes || contextMenu.fiber) && (
             <ContextMenu left={contextMenuXY?.x as number} top={contextMenuXY?.y as number} />

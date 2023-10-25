@@ -1,7 +1,4 @@
 import styled from 'styled-components';
-
-
-
 export const InputContainer = styled.div`
   width: 100%;
 `;
@@ -22,7 +19,6 @@ export const ModalWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
 `;
 
 export const ModalContent = styled.div`
@@ -60,6 +56,7 @@ export const ButtonWrapper = styled.div`
 export const Container = styled.div`
 display: flex;
 justify-content: space-between;
+outline: solid 1px tomato;
 `;
 export const Button = styled.button`
   background-color: #007bff;

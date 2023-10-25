@@ -2,7 +2,7 @@ import L from "leaflet";
 import { LatLng } from "leaflet";
 import { v4 as uuidv4 } from 'uuid';
 import { IFiberOptic } from "./fiberOptic";
-import { ICustomMarker, IMainLine } from "./Mufts";
+import { ICustomMarker, IInfo, IMainLine } from "./Mufts";
 export interface ICustomWardrobe extends L.Marker {
     id?: string,
     drag?: boolean;
@@ -11,6 +11,7 @@ export interface ICustomWardrobe extends L.Marker {
     cubesIds?: string[];
     fibers?: IFiberOptic[];
     mainLines?: IMainLine[];
+    info?: IInfo;
 }
 
 const iconUrl = 'https://feshmebel.com.ua/image/cache/wp/gj/Doros/Shaf%20raspashnoj/Promo%203/shkaf-dlya-odezhdy-promo-3-1-1000x1000.webp';
@@ -25,6 +26,7 @@ export class Wardrobe {
         this.wardrobe.cubesIds = [];
         this.wardrobe.fibers = [];
         this.wardrobe.mainLines = [];
+        this.wardrobe.info = {};
     }
     getWardrobe() {
         return this.wardrobe;

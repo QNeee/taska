@@ -105,6 +105,7 @@ interface IMapState {
     polylineInfoModal: boolean;
     muftaInfoModal: boolean;
     fiberInfoModal: boolean;
+    wardrobeInfoModal: boolean;
     choseCountFiberOpticsMenu: boolean;
     colors: Color[];
     track: ITrackObj;
@@ -130,6 +131,7 @@ const initialState: IMapState = {
     polylineInfoModal: false,
     muftaInfoModal: false,
     fiberInfoModal: false,
+    wardrobeInfoModal: false,
     colors,
     choseCountFiberOpticsMenu: false,
     track: { color: '', idOwner: '', track: false, index: 0 },
@@ -144,6 +146,9 @@ export const mapSlice = createSlice({
     name: 'map',
     initialState,
     reducers: {
+        setWardrobeInfoModal: (state, { payload }) => {
+            state.wardrobeInfoModal = payload;
+        },
         setFiberInfoModal: (state, { payload }) => {
             state.fiberInfoModal = payload;
         },
@@ -300,4 +305,4 @@ export const mapSlice = createSlice({
 
 });
 
-export const { setFiberInfoModal, setMuftaInfoModal, setChangeLineModal, updatePolyWardrobes, changeToMufta, deleteWardrobe, updateWardrobe, updateMuftFibers, setMainLineId, setTrackIndex, setTrackData, updateOptics, setOldCubeLatLng, setTrack, setFiberOpticsMenu, setPolylineInfoModal, setContextMenu, drawWardrobe, setToggleCoordsApply, setHideCubes, updateMufta, setCubDragging, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, changePolylineWeight, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;
+export const { setWardrobeInfoModal, setFiberInfoModal, setMuftaInfoModal, setChangeLineModal, updatePolyWardrobes, changeToMufta, deleteWardrobe, updateWardrobe, updateMuftFibers, setMainLineId, setTrackIndex, setTrackData, updateOptics, setOldCubeLatLng, setTrack, setFiberOpticsMenu, setPolylineInfoModal, setContextMenu, drawWardrobe, setToggleCoordsApply, setHideCubes, updateMufta, setCubDragging, updateCubesDelete, setPolysOwner, updateCubes, drawCube, deleteMufta, changePolylineWeight, setDrag, updatePoly, setContextMenuXY, drawPolyline, setLineStart, drawMufta, setId, setShowOwnerLines } = mapSlice.actions;

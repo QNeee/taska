@@ -2,7 +2,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../../../Redux/store";
 import { ContextMenuContainer, MenuItem } from "./ContextMenu.styled";
 import { ContextMenuInterface } from "../../../../interface/ContextMenuInterface";
-import { deleteWardrobe, setContextMenu, setToggleCoordsApply } from "../../../../Redux/map/mapSlice";
+import { deleteWardrobe, setContextMenu, setToggleCoordsApply, setWardrobeInfoModal } from "../../../../Redux/map/mapSlice";
 import { ChangeEventHandler } from "react";
 import { ICustomWardrobe } from "../../../../Wardrobe";
 import { ContextMenuWardrobe } from "../../../../interface/ContextMenuWardrobe";
@@ -49,6 +49,11 @@ export const WardrobeMenu: React.FC<IWardrobeMenuProps> = ({ setFiberOpticsMenu,
             }}>
                 {item?.drag ? "Застосувати координати" : "Змінити координати"}
             </MenuItem>
+            <MenuItem onClick={() => {
+                dispatch(setWardrobeInfoModal(true));
+                const close = ContextMenuInterface.handleCloseMenu();
+                dispatch(setContextMenu(close));
+            }}>Інформація</MenuItem>
             <MenuItem onClick={() => {
                 const { mufts, polyLines, cubes, wardrobes } = ContextMenuWardrobe.handleDeleteWardrobe(muftsArr, id, polyLinesArr, cubesArr, wardrobesArr)
                 dispatch(deleteWardrobe({ mufts, polyLines, cubes, wardrobes }));
