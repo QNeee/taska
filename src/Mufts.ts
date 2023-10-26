@@ -12,7 +12,12 @@ export interface IInfo {
     adress?: string,
     location?: string,
 }
-
+export interface IOptic {
+    id?: string,
+    signal?: string,
+    other?: string,
+    mainLine: string,
+}
 export interface IMainLine {
     id?: string,
     owner: string,
@@ -24,6 +29,7 @@ export interface IMainLine {
     moduleCounts?: string,
     length?: number;
     typeOfGasket?: string;
+    optics?: IOptic[];
 }
 const icon = 'https://img.icons8.com/?size=256&id=FkQHNSmqWQWH&format=png';
 export interface ICustomMarker extends L.Marker {
@@ -35,6 +41,18 @@ export interface ICustomMarker extends L.Marker {
     fibers?: IFiberOptic[];
     mainLines?: IMainLine[];
     info?: IInfo;
+}
+export class Optic {
+    optic: IOptic | null = null;
+    constructor(private obj: IOptic) {
+        this.optic = {
+            id: uuidv4(),
+            mainLine: obj.mainLine
+        }
+    }
+    getOptic() {
+        return this.optic;
+    }
 }
 export class MainLine {
     mainLine: IMainLine | null = null;
@@ -48,6 +66,7 @@ export class MainLine {
             colorModule: obj.colorModule,
             colorOptic: obj.colorOptic,
             moduleCounts: obj.moduleCounts,
+            optics: [],
         }
     }
     getMainLine() {

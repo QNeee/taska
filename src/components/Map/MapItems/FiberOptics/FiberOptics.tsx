@@ -7,6 +7,7 @@ import { setContextMenu, setContextMenuXY, setId } from "../../../../Redux/map/m
 import { ContextMenuFiberInterface } from "../../../../interface/ContextMenuFiberIntrface";
 import { ICustomMarker } from "../../../../Mufts";
 import { ICustomWardrobe } from "../../../../Wardrobe";
+import { IFiberOptic } from "../../../../fiberOptic";
 
 interface IFiberOpticsProps {
     idOnwer: string;
@@ -21,6 +22,7 @@ export const FiberOptics: React.FC<IFiberOpticsProps> = ({ idOnwer }) => {
     const polyLines = useSelector(getPolyLines);
     const mainLineId = useSelector(getMainLine);
     const wardrobes = useSelector(getWardrobes);
+    const trackData = useSelector(getTrackData);
     const dispatch = useDispatch();
     const makeFibers = () => {
         const poly = polyLines.find(item => item.id === mainLineId);
@@ -34,11 +36,11 @@ export const FiberOptics: React.FC<IFiberOpticsProps> = ({ idOnwer }) => {
         }
         return owner?.fibers?.filter(fib => to?.fibers?.some(fib1 => fib.id === fib1.id));
     }
-    const fibers = makeFibers();
+    const fibers = makeFibers() as IFiberOptic[];
     return (
         <>
             <TrackerHelper />
-            {fibers && fibers.length > 0 ? fibers.map((item) => {
+            {fibers.map((item) => {
                 const latLng = item.getLatLngs() as LatLng[];
                 return <Polyline
                     positions={latLng.map((cord) => cord)}
@@ -47,7 +49,7 @@ export const FiberOptics: React.FC<IFiberOpticsProps> = ({ idOnwer }) => {
                     eventHandlers={{
                         contextmenu: (e) => {
                             e.originalEvent.preventDefault();
-                            dispatch(setId(item.id));
+                            dispatch(setId(trackData[trackIndex].id));
                             dispatch(setContextMenuXY({ x: e.originalEvent.clientX, y: e.originalEvent.clientY }));
                             const menu = ContextMenuFiberInterface.OpenMenu();
                             dispatch(setContextMenu(menu));
@@ -55,7 +57,7 @@ export const FiberOptics: React.FC<IFiberOpticsProps> = ({ idOnwer }) => {
                     }}
                 />
 
-            }) : null}
+            })}
         </>
     );
 }

@@ -1,5 +1,5 @@
 import React from "react"
-import { Button, ButtonWrapper, Container, ModalButton, ModalContent, ModalText, ModalTitle, ModalWrapper } from "../Modal.styled"
+import { Button, ButtonWrapper, Container, ModalContent, ModalText, ModalTitle, ModalWrapper } from "../Modal.styled"
 import { ChangeGasket } from "./ChangeGasket";
 import { ICustomMarker } from "../../../Mufts";
 import { ICustomPolyline } from "../../../Polylines";
@@ -58,13 +58,13 @@ export const InfoModal: React.FC<IInfoModalProps> = ({ setInfoModal, onClickTrac
                 {changeMenuOpen.length && !changeMenuOpen.gasket && <ChangeActualLength changeMenuOpen={changeMenuOpen} openActualLengthMenu={setChangeMenuOpen} mufts={mufts} poly={poly as ICustomPolyline} />}
             </Container>
             <ButtonWrapper>
-                <ModalButton onClick={() => setMenuOpen({ capacity: !menuOpen.capacity, info: false })}>Ємність {infoPoly().ov !== 0 && `(${infoPoly().ov}    ОВ)`}</ModalButton>
+                <Button onClick={() => setMenuOpen({ capacity: !menuOpen.capacity, info: false })}>Ємність {infoPoly().ov !== 0 && `(${infoPoly().ov}    ОВ)`}</Button>
                 {menuOpen.capacity ? <CapacityModal data={data} onClickTrack={onClickTrack} infoPoly={infoPoly} /> : null}
-                <ModalButton onClick={() => {
+                <Button onClick={() => {
                     dispatch(setChangeLineModal(true));
                     dispatch(setInfoModal(false));
-                }}>Змінити Інформацію</ModalButton>
-                <ModalButton onClick={() => dispatch(setInfoModal(false))}>Закрити</ModalButton>
+                }}>Змінити Інформацію</Button>
+                <Button onClick={() => dispatch(setInfoModal(false))}>Закрити</Button>
             </ButtonWrapper>
         </ModalContent>
     </ModalWrapper >

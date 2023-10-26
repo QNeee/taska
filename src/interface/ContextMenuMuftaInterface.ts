@@ -1,7 +1,7 @@
 import { LatLng } from "leaflet";
 import { ILineStart } from "../Redux/map/mapSlice";
 import { ICustomPolyline, Polylines } from "../Polylines";
-import { ICustomMarker, IMainLine, IStatsMainLine, MainLine } from "../Mufts";
+import { ICustomMarker, IMainLine, IOptic, IStatsMainLine, MainLine, Optic } from "../Mufts";
 import { ICustomCube } from "../Cubes";
 import { ICoords } from "../components/Map/ContextMenu";
 import { FiberOptic, IFiberOptic } from "../fiberOptic";
@@ -104,6 +104,11 @@ export class ContextMenuMuftaInterface {
             fiberOpticsCount: fiberCounts,
         }
         const mainLine = new MainLine(mainLineObj).getMainLine() as IMainLine;
+        for (let i = 0; i < fiberCounts; i++) {
+            ;
+            const optic = new Optic({ mainLine: mainLine?.id as string }).getOptic() as IOptic;
+            mainLine.optics?.push(optic);
+        }
         const fiberOpticInfo = FiberOptic.getFiberOpticInfo([muftaLatLng, ownerLatLng], muftaOwner?.id as string, to?.id as string, polyLine?.id as string);
         const fiberOptic = new FiberOptic(fiberOpticInfo).getFiberOptic() as IFiberOptic;
         const needMufts = [muftaOwner, to];

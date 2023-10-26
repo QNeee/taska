@@ -1,5 +1,5 @@
 import { useDispatch } from "react-redux"
-import { Button, Container, ModalButton, ModalContent, ModalText, ModalTitle, ModalWrapper, Select } from "../Modal.styled"
+import { Button, Container, ModalContent, ModalText, ModalTitle, ModalWrapper, Select } from "../Modal.styled"
 import { AppDispatch } from "../../../Redux/store";
 import { drawWardrobe, setWardrobeInfoModal } from "../../../Redux/map/mapSlice";
 import React, { useState } from "react";
@@ -99,7 +99,7 @@ export const WardrobeModal: React.FC<IMuftaModalProps> = ({ id, wardrobes }) => 
                 <ModalTitle>Інше</ModalTitle>
                 <ModalText>Інше</ModalText>
             </Container>
-            <ModalButton onClick={() => dispatch(setWardrobeInfoModal(false))}>Закрити</ModalButton>
+            <Button onClick={() => dispatch(setWardrobeInfoModal(false))}>Закрити</Button>
         </ModalContent>
     </ModalWrapper>
 }

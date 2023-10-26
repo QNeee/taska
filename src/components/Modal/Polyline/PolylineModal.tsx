@@ -6,7 +6,7 @@ import { setMainLineId, setPolylineInfoModal, setTrack, setTrackData, setTrackIn
 import React from 'react';
 import { ICustomPolyline } from '../../../Polylines';
 import { GeometryUtil, LatLng } from 'leaflet';
-import { ICustomMarker } from '../../../Mufts';
+import { ICustomMarker, IOptic } from '../../../Mufts';
 import { ICustomWardrobe } from '../../../Wardrobe';
 import { getColors } from './colorsHelper';
 import { InfoModal } from './InfoModal';
@@ -19,6 +19,7 @@ interface IModalProps {
     wardrobesArr: ICustomWardrobe[],
 }
 export interface IData {
+    id: string,
     color: string,
     riska?: number,
 }
@@ -58,7 +59,8 @@ const PolylineModal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrob
         const gasket = mainLine?.typeOfGasket;
         const moduleCount = mainLine?.moduleCounts;
         const colorModule = mainLine?.colorModule;
-        return { length: length.toFixed(2), opticColors, colorModule, moduleCount, producer, gasket, mainLine, ownerId: owner?.id, ov, facLength };
+        const optics = mainLine?.optics as IOptic[];
+        return { length: length.toFixed(2), opticColors, optics, colorModule, moduleCount, producer, gasket, mainLine, ownerId: owner?.id, ov, facLength, mainLineId: mainLine?.id };
     }, [owner?.id, owner?.mainLines, poly, to])
     const onClickTrack = (color: string, idOwner: string, index: number) => {
         const obj = {
@@ -73,12 +75,12 @@ const PolylineModal: React.FC<IModalProps> = ({ id, polyLines, muftsArr, wardrob
         dispatch(setMainLineId(id));
     }
     useEffect(() => {
-        const size = infoPoly().ov as number;
+        const size = infoPoly()?.optics.length as number;
         const colors = getColors(infoPoly()?.opticColors as string) as string[];
         const newArr: IData[] = [];
         for (let i = 0; i < size; i++) {
             const colorIndex = i % colors.length;
-            newArr.push({ color: colors[colorIndex] });
+            newArr.push({ id: infoPoly()?.optics[i]?.id as string, color: colors[colorIndex] });
         }
         for (let i = 0; i < newArr.length; i++) {
             for (let j = i + 1; j < newArr.length; j++) {

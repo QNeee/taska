@@ -38,20 +38,13 @@ export const ModalText = styled.p`
   font-size: 16px;
 `;
 
-export const ModalButton = styled.button`
-  background: #007BFF;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-`;
 export const ButtonWrapper = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 10px; 
-  width: 50%;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  
+  & > * {
+    margin: 10px; 
+  }
 `;
 export const Container = styled.div`
 display: flex;
@@ -65,6 +58,12 @@ export const Button = styled.button`
   border: none;
   border-radius: 5px;
   cursor: pointer;
+    transition: background-color 0.3s; 
+
+  &:hover {
+    background-color: #0056b3; 
+    color:yellow
+  }
 `;
 
 export const Select = styled.select`

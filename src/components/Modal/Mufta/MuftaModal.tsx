@@ -1,5 +1,5 @@
 import { useDispatch } from "react-redux"
-import { Button, Container, ModalButton, ModalContent, ModalText, ModalTitle, ModalWrapper, Select } from "../Modal.styled"
+import { Button, Container, ModalContent, ModalText, ModalTitle, ModalWrapper, Select } from "../Modal.styled"
 import { AppDispatch } from "../../../Redux/store";
 import { drawMufta, setMuftaInfoModal } from "../../../Redux/map/mapSlice";
 import React, { useState } from "react";
@@ -28,7 +28,6 @@ export const MuftaModal: React.FC<IMuftaModalProps> = ({ id, mufts }) => {
         setLoc(e.target.value);
     }
     const handleOnCLick = (flag: keyof typeof muftaInfo, value: string) => {
-        console.log(value);
         muftaInfo[flag] = value;
         dispatch(drawMufta(mufts));
         setToggleInfo({
@@ -99,7 +98,7 @@ export const MuftaModal: React.FC<IMuftaModalProps> = ({ id, mufts }) => {
                 <ModalTitle>Інше</ModalTitle>
                 <ModalText>Інше</ModalText>
             </Container>
-            <ModalButton onClick={() => dispatch(setMuftaInfoModal(false))}>Закрити</ModalButton>
+            <Button onClick={() => dispatch(setMuftaInfoModal(false))}>Закрити</Button>
         </ModalContent>
     </ModalWrapper>
 }

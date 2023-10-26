@@ -32,7 +32,6 @@ export const TrackerHelper = () => {
     const trackData = useSelector(getTrackData);
     const [leftArrowActive, setLeftArrowActive] = useState(false);
     const [rightArrowActive, setRightArrowActive] = useState(false);
-
     const dispatch = useDispatch();
 
     useEffect(() => {

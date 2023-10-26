@@ -2,7 +2,7 @@ import { useMapEvents } from "react-leaflet";
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from "../../Redux/store";
 import ContextMenu from "./ContextMenu";
-import { getChangeLineModal, getContextMenu, getContextMenuXY, getFiberInfoModal, getFiberOpticsMenu, getId, getMuftaInfoModal, getMufts, getPolyLines, getPolylineInfoModal, getTrack, getWardrobeInfoModal, getWardrobes } from "../../Redux/map/mapSelectors";
+import { getChangeLineModal, getContextMenu, getContextMenuXY, getFiberInfoModal, getFiberOpticsMenu, getId, getMainLine, getMuftaInfoModal, getMufts, getPolyLines, getPolylineInfoModal, getTrack, getWardrobeInfoModal, getWardrobes } from "../../Redux/map/mapSelectors";
 import { setContextMenu, setContextMenuXY } from "../../Redux/map/mapSlice";
 import PolylineModal from "../Modal/Polyline/PolylineModal";
 import { MuftaModal } from "../Modal/Mufta/MuftaModal";
@@ -21,6 +21,7 @@ export const MapDrawing = () => {
     const polyLines = useSelector(getPolyLines);
     const muftsArr = useSelector(getMufts);
     const fiberInfoModal = useSelector(getFiberInfoModal);
+    const mainLineId = useSelector(getMainLine);
     const wardrobeInfoModal = useSelector(getWardrobeInfoModal);
     const wardrobes = useSelector(getWardrobes);
     const { track } = useSelector(getTrack);
@@ -47,7 +48,7 @@ export const MapDrawing = () => {
             <MuftaModal id={id} mufts={muftsArr} />
         </> : null}
         {fiberInfoModal ? <>
-            <FiberOpticModal />
+            <FiberOpticModal id={id} mufts={muftsArr} mainLineId={mainLineId} polyLines={polyLines} />
         </> : null}
         {wardrobeInfoModal ? <>
             <WardrobeModal id={id} wardrobes={wardrobes} />
